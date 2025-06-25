@@ -1,16 +1,19 @@
 ---
-
+import "../styles/global.css";
+import Map from "../components/map.jsx";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mapa de Coordenadas</title>
+  </head>
+  <body class="bg-white">
+    <h1 class="text-2xl font-bold text-center mt-4">
+      Mapa de Medición de Aguas
+    </h1>
+    <div class="mt-4">
+      <Map client:only="react" />
+    </div>
+  </body>
 </html>
