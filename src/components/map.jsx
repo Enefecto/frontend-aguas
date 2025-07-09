@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 export default function Mapa() {
@@ -9,7 +9,8 @@ export default function Mapa() {
   const [filtros, setFiltros] = useState({
     region: '',
     cuenca: '',
-    subcuenca: ''
+    subcuenca: '',
+    limit: 10
   });
 
   const [puntos, setPuntos] = useState([])
@@ -42,18 +43,17 @@ export default function Mapa() {
   const handleFiltroChange = (e) => {
     const { name, value } = e.target;
 
-    // Si cambia la región, reseteamos cuenca y subcuenca
     if (name === 'region') {
-      setFiltros({ region: value, cuenca: '', subcuenca: '' });
-    }
-    // Si cambia la cuenca, reseteamos subcuenca
-    else if (name === 'cuenca') {
+      setFiltros({ region: value, cuenca: '', subcuenca: '', limit: filtros.limit });
+    } else if (name === 'cuenca') {
       setFiltros(prev => ({ ...prev, cuenca: value, subcuenca: '' }));
-    }
-    else {
+    } else if (name === 'limit') {
+      setFiltros(prev => ({ ...prev, limit: parseInt(value, 10) || 0 }));
+    } else {
       setFiltros(prev => ({ ...prev, [name]: value }));
     }
   };
+
 
   // LLamada al endpoint de Coordenadas Unicas
 
@@ -76,20 +76,29 @@ export default function Mapa() {
 
     if (filtros.region) queryParams.append("region", filtros.region);
     if (cuencaCod !== undefined) queryParams.append("cod_cuenca", cuencaCod);
-    if (subcuencaCod !== undefined && subcuencaCod !== null) {
+    if (filtros.subcuenca === 'No registrada') {
+      // No se agrega el parámetro, el backend asumirá que debe filtrar por null
+      queryParams.append("filtro_null_subcuenca", "1");
+    } else if (subcuencaCod !== undefined) {
       queryParams.append("cod_subcuenca", subcuencaCod);
     }
-    queryParams.append("limit", 10);
+    queryParams.append("limit", filtros.limit || 10);
 
     const url = `http://localhost:8000/coordenadas_unicas?${queryParams.toString()}`;
 
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        setPuntos(data);
+        if (Array.isArray(data)) {
+          console.log(data);
+          setPuntos(data);
+        } else {
+          console.error("Respuesta inesperada:", data);
+          setPuntos([]);
+        }
       })
       .catch((err) => console.error("Error al obtener coordenadas:", err));
+
   };
 
   return (
@@ -99,6 +108,17 @@ export default function Mapa() {
           attribution='&copy; <a href="https://carto.com/">Carto</a> contributors'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
+        {puntos.map((punto, index) => (
+          <Marker key={index} position={[punto.lat, punto.lon]}>
+            <Popup>
+              <div className="text-sm">
+                <p><strong>Cuenca:</strong> {punto.nombre_cuenca}</p>
+                <p><strong>Subcuenca:</strong> {punto.nombre_subcuenca}</p>
+                <p><strong>Comuna:</strong> {punto.comuna}</p>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
 
       {sidebarAbierto && (
@@ -143,6 +163,16 @@ export default function Mapa() {
               <option key={i} value={subcuenca}>{subcuenca}</option>
             ))}
           </select>
+
+          <label className="block font-medium">Cantidad de puntos (limit):</label>
+          <input
+            type="number"
+            name="limit"
+            value={filtros.limit}
+            onChange={handleFiltroChange}
+            className="w-full p-2 border rounded"
+          />
+
 
           <div className="flex justify-between mt-4">
             <button
