@@ -297,27 +297,27 @@ export default function Mapa() {
               <div className="grid grid-cols-1 gap-4">
                 <div className="bg-blue-50 p-4 rounded shadow-sm">
                   <p className="text-gray-500 text-xs">Total de registros con caudal</p>
-                  <p className="text-blue-800 font-extrabold text-xl">{cuencaAnalysis.total_registros_con_caudal.toLocaleString()}</p>
+                  <p className="text-blue-800 font-extrabold text-xl">{Number(cuencaAnalysis.total_registros_con_caudal.toFixed(2)).toLocaleString()}</p>
                 </div>
 
                 <div className="bg-green-50 p-4 rounded shadow-sm">
                   <p className="text-gray-500 text-xs">Caudal promedio (m³/s)</p>
-                  <p className="text-green-800 font-extrabold text-xl">{cuencaAnalysis.caudal_promedio.toFixed(2)}</p>
+                  <p className="text-green-800 font-extrabold text-xl">{Number(cuencaAnalysis.caudal_promedio.toFixed(2)).toLocaleString()}</p>
                 </div>
 
                 <div className="bg-yellow-50 p-4 rounded shadow-sm">
                   <p className="text-gray-500 text-xs">Caudal mínimo (m³/s)</p>
-                  <p className="text-yellow-800 font-extrabold text-xl">{cuencaAnalysis.caudal_minimo}</p>
+                  <p className="text-yellow-800 font-extrabold text-xl">{Number(cuencaAnalysis.caudal_minimo.toFixed(2)).toLocaleString()}</p>
                 </div>
 
                 <div className="bg-red-50 p-4 rounded shadow-sm">
                   <p className="text-gray-500 text-xs">Caudal máximo (m³/s)</p>
-                  <p className="text-red-800 font-extrabold text-xl">{cuencaAnalysis.caudal_maximo.toLocaleString()}</p>
+                  <p className="text-red-800 font-extrabold text-xl">{Number(cuencaAnalysis.caudal_maximo.toFixed(2)).toLocaleString()}</p>
                 </div>
 
                 <div className="bg-purple-50 p-4 rounded shadow-sm">
                   <p className="text-gray-500 text-xs">Desviación estándar del caudal</p>
-                  <p className="text-purple-800 font-extrabold text-xl">{cuencaAnalysis.desviacion_estandar_caudal.toFixed(2)}</p>
+                  <p className="text-purple-800 font-extrabold text-xl">{Number(cuencaAnalysis.desviacion_estandar_caudal.toFixed(2)).toLocaleString()}</p>
                 </div>
               </div>
             </div>
