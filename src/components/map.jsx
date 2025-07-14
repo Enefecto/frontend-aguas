@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import {TrophySpin, Slab} from 'react-loading-indicators';
@@ -6,18 +6,27 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
 
+import Slider from "@mui/material/Slider";
 
 export default function Mapa() {
   const [sidebarAbierto, setSidebarAbierto] = useState(true);
   const [rightSidebarAbierto, setRightSidebarAbierto] = useState(false);
 
   const [datosOriginales, setDatosOriginales] = useState([]);
+  const [minMaxDatosOriginales, setMinMaxDatosOriginales] = useState([])
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const [filtroCaudal, setFiltroCaudal] = useState([0, 1000]); // [min, max]
+  const [ordenCaudal, setOrdenCaudal] = useState('max'); // 'min' o 'max'
+
   const [filtros, setFiltros] = useState({
     region: '',
     cuenca: '',
     subcuenca: '',
     limit: 10
   });
+
+  const [limiteSolicitado, setLimiteSolicitado] = useState();
 
   const [puntos, setPuntos] = useState([])
 
@@ -45,8 +54,24 @@ export default function Mapa() {
   useEffect(() => {
     fetch("http://localhost:8000/cuencas")
       .then((res) => res.json())
-      .then((data) => setDatosOriginales(data));
+      .then((data) => { 
+        setDatosOriginales(data.cuencas);
+        setMinMaxDatosOriginales(data.estadisticas);
+        setIsLoaded(true); 
+      })
+      .catch((err) => {
+        console.error("Error al cargar cuencas:", err);
+        setIsLoaded(false); 
+      });
   }, []);
+
+  useEffect(() => {
+    if (isLoaded && caudalRange) {
+      const nuevoMin = Math.floor(caudalRange.avgMin);
+      const nuevoMax = Math.ceil(caudalRange.avgMax);
+      setFiltroCaudal([nuevoMin, nuevoMax]);
+    }
+  }, [filtros.cuenca, filtros.subcuenca, isLoaded]);
 
   // Derivar opciones únicas en base al filtro activo
   const regionesUnicas = [...new Set(datosOriginales.map(d => d.cod_region))];
@@ -110,16 +135,23 @@ export default function Mapa() {
     }
     queryParams.append("limit", filtros.limit || 10);
 
+    queryParams.append("caudal_minimo", filtroCaudal[0]);
+    queryParams.append("caudal_maximo", filtroCaudal[1]);
+    queryParams.append("orden_caudal", ordenCaudal);
+    
     const url = `http://localhost:8000/coordenadas_unicas?${queryParams.toString()}`;
 
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
+          console.log(data.length)
           setPuntos(data);
+          setLimiteSolicitado(filtros.limit);
         } else {
           console.error("Respuesta inesperada:", data);
           setPuntos([]);
+          setLimiteSolicitado();
         }
       })
       .catch((err) => console.error("Error al obtener coordenadas:", err));
@@ -175,6 +207,79 @@ export default function Mapa() {
       });
   };
 
+  const caudalRange = useMemo(() => {
+    if (!isLoaded || !minMaxDatosOriginales) return { min: 0, max: 1000 };
+
+    const { caudal_global, caudal_por_cuenca, caudal_por_subcuenca } = minMaxDatosOriginales;
+
+    // 🔹 1. Intentar buscar por subcuenca si existe
+    if (filtros.subcuenca) {
+      const resultSub = caudal_por_subcuenca.find(c =>
+        (c.nom_subcuenca ?? 'No registrada') === filtros.subcuenca &&
+        (!filtros.cuenca || c.nom_cuenca === filtros.cuenca)
+      );
+      if (resultSub) return resultSub;
+    }
+
+    // 🔹 2. Buscar por cuenca si está definida
+    if (filtros.cuenca) {
+      const resultCuenca = caudal_por_cuenca.find(c => c.nom_cuenca === filtros.cuenca);
+      if (resultCuenca) return resultCuenca;
+    }
+
+    // 🔹 3. Si nada coincide, retornar global
+    return caudal_global;
+  }, [isLoaded, minMaxDatosOriginales, filtros]);
+
+
+  const min = Math.floor(caudalRange?.avgMin ?? 0);
+  const max = Math.ceil(caudalRange?.avgMax ?? 1000);
+
+  const limitMax = useMemo(() => {
+    if (!isLoaded || !minMaxDatosOriginales) return 100;
+
+    const { caudal_global, caudal_por_cuenca, caudal_por_subcuenca } = minMaxDatosOriginales;
+
+    // 🔹 Subcuenca seleccionada
+    if (filtros.subcuenca) {
+      // Caso especial: No registrada
+      if (filtros.subcuenca === 'No registrada') {
+        // Si NO hay cuenca seleccionada, sumar todos los 'No registrada'
+        if (!filtros.cuenca) {
+          const total = caudal_por_subcuenca
+            .filter(s => (s.nom_subcuenca ?? 'No registrada') === 'No registrada')
+            .reduce((acc, curr) => acc + (curr.total_puntos || 0), 0);
+          return total || 100;
+        }
+
+        // Si hay cuenca, buscar específicamente esa subcuenca null
+        const matchSub = caudal_por_subcuenca.find(s =>
+          (s.nom_subcuenca ?? 'No registrada') === 'No registrada' &&
+          s.nom_cuenca === filtros.cuenca
+        );
+        if (matchSub) return matchSub.total_puntos || 100;
+      }
+
+      // 🔹 Subcuenca normal (no null)
+      const matchSub = caudal_por_subcuenca.find(s =>
+        s.nom_subcuenca === filtros.subcuenca &&
+        (!filtros.cuenca || s.nom_cuenca === filtros.cuenca)
+      );
+      if (matchSub) return matchSub.total_puntos || 100;
+    }
+
+    // 🔹 Cuenca seleccionada
+    if (filtros.cuenca) {
+      const matchCuenca = caudal_por_cuenca.find(
+        c => c.nom_cuenca === filtros.cuenca
+      );
+      if (matchCuenca) return matchCuenca.total_puntos || 100;
+    }
+
+    // 🔹 Global por defecto
+    return caudal_global.total_puntos_unicos || 100;
+  }, [filtros, isLoaded, minMaxDatosOriginales]);
+
 
 
   return (
@@ -190,6 +295,8 @@ export default function Mapa() {
               <div className="text-sm flex flex-col justify-between items-start">
                 <p><strong>Cuenca:</strong> {punto.nombre_cuenca}</p>
                 <p><strong>Subcuenca:</strong> {punto.nombre_subcuenca}</p>
+                <p><strong>Caudal promedio:</strong> {punto.caudal_promedio.toLocaleString()}</p>
+                <p><strong>Nº de Mediciones:</strong> {punto.n_mediciones}</p>
                 <button className='bg-cyan-800 text-white p-2 cursor-pointer hover:bg-cyan-600'
                   onClick={() => handleShowGraphics(punto.nombre_cuenca, punto.cod_cuenca)}
                 >Analizar Cuenca</button>
@@ -200,7 +307,7 @@ export default function Mapa() {
       </MapContainer>
 
       {sidebarAbierto && (
-        <div className="absolute left-0 z-[1000] top-0 w-80 bg-white h-full shadow-md p-6 space-y-4 text-sm">
+        <div className="absolute left-0 z-[1000] top-0 w-90 bg-white h-full shadow-md py-6 px-10 space-y-4 text-sm">
           <h2 className="text-lg font-bold mb-4">Filtros</h2>
 
           <label className="block font-medium">Región:</label>
@@ -242,20 +349,59 @@ export default function Mapa() {
             ))}
           </select>
 
-          <label className="block font-medium">Cantidad de puntos (limit):</label>
-          <input
-            type="number"
+          <label className="block font-medium mb-10">Cantidad de puntos limite:</label>
+          <Slider
             name="limit"
-            value={filtros.limit}
-            onChange={handleFiltroChange}
-            className="w-full p-2 border rounded"
+            min={1}
+            max={limitMax}
+            step={1}
+            value={filtros.limit > limitMax ? limitMax : filtros.limit}
+            onChange={(e, newValue) => {
+              setFiltros(prev => ({
+                ...prev,
+                limit: Number(newValue)
+              }));
+            }}
+            valueLabelDisplay="on"
+            aria-label="Límite de resultados"
           />
+
+          <label className="block font-medium mb-10">Caudal promedio extraido (m³/s):</label>
+          <Slider
+            min={min}
+            max={max}
+            step={1}
+            value={filtroCaudal}
+            onChange={(e, newValue) => {
+              if (Array.isArray(newValue)) {
+                setFiltroCaudal([Number(newValue[0]), Number(newValue[1])]);
+              }
+            }}
+            valueLabelDisplay="on"
+            valueLabelFormat={(val) => `${val.toLocaleString('es-CL')} m³/s`}
+          />
+
+          <label className="block font-medium">Ordenar por caudal:</label>
+          <div className="flex justify-between gap-2">
+            <button
+              className={`flex-1 px-2 py-1 rounded ${ordenCaudal === 'min' ? 'bg-cyan-600 text-white cursor-pointer border border-black' : 'bg-gray-100 cursor-pointer'}`}
+              onClick={() => setOrdenCaudal('min')}
+            >
+              Menor a mayor
+            </button>
+            <button
+              className={`flex-1 px-2 py-1 rounded ${ordenCaudal === 'max' ? 'bg-cyan-600 text-white cursor-pointer border border-black' : 'bg-gray-100 cursor-pointer'}`}
+              onClick={() => setOrdenCaudal('max')}
+            >
+              Mayor a menor
+            </button>
+          </div>
 
 
           <div className="flex justify-between mt-4">
             <button
               onClick={handleCoordenadasUnicas}
-              className="bg-blue-700 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-500"
+              className="bg-green-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-green-800 hover:text-white"
             >
               Consultar puntos
             </button>
@@ -267,7 +413,16 @@ export default function Mapa() {
               Cerrar
             </button>
           </div>
+          
+          { puntos.length < limiteSolicitado ?
+            <div className="bg-yellow-100 text-yellow-800 px-4 py-2 mt-3 rounded-md text-sm border border-yellow-300 shadow-sm">
+              Se han encontrado solo <strong>{puntos.length}</strong> puntos que cumplen los filtros
+            </div>
+            :
+            <></>
+          }
         </div>
+
       )}
 
       {!sidebarAbierto && (
