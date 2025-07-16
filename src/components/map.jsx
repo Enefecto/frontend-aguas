@@ -145,7 +145,6 @@ export default function Mapa() {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          console.log(data.length)
           setPuntos(data);
           setLimiteSolicitado(filtros.limit);
         } else {
@@ -280,7 +279,9 @@ export default function Mapa() {
     return caudal_global.total_puntos_unicos || 100;
   }, [filtros, isLoaded, minMaxDatosOriginales]);
 
-
+  const handleShowCoordGraphics = (utemNorte, utmEste) => {
+    console.log('Coordenadas del Punto: ', utemNorte, '-', utmEste);
+  }
 
   return (
     <div className="relative">
@@ -293,13 +294,17 @@ export default function Mapa() {
           <Marker key={index} position={[punto.lat, punto.lon]}>
             <Popup>
               <div className="text-sm flex flex-col justify-between items-start">
-                <p><strong>Cuenca:</strong> {punto.nombre_cuenca}</p>
+                <p className='flex gap-2'><strong>Cuenca:</strong> {punto.nombre_cuenca} 
+                    <span onClick={() => handleShowGraphics(punto.nombre_cuenca, punto.cod_cuenca)} 
+                      className='text-cyan-800 underline cursor-pointer cuenca-analizar'>(Ver Detalles)
+                    </span>
+                </p>
                 <p><strong>Subcuenca:</strong> {punto.nombre_subcuenca}</p>
                 <p><strong>Caudal promedio:</strong> {punto.caudal_promedio.toLocaleString()}</p>
                 <p><strong>Nº de Mediciones:</strong> {punto.n_mediciones}</p>
                 <button className='bg-cyan-800 text-white p-2 cursor-pointer hover:bg-cyan-600'
-                  onClick={() => handleShowGraphics(punto.nombre_cuenca, punto.cod_cuenca)}
-                >Analizar Cuenca</button>
+                onClick={() => handleShowCoordGraphics(punto.utm_norte, punto.utm_este)}
+                >Analizar Punto</button>
               </div>
             </Popup>
           </Marker>
@@ -397,6 +402,7 @@ export default function Mapa() {
             </button>
           </div>
 
+          <hr />
 
           <div className="flex justify-between mt-4">
             <button
@@ -485,7 +491,7 @@ export default function Mapa() {
           {graphicsLoading === 0 && (
             <button
               onClick={loadGraphics}
-              className="block mt-6 bg-cyan-700 text-white font-semibold px-4 py-2 rounded hover:bg-cyan-600 transition"
+              className="block mt-6 bg-cyan-700 text-white font-semibold px-4 py-2 rounded cursor-pointer hover:bg-cyan-600 transition"
             >
               Cargar Gráficos
             </button>
