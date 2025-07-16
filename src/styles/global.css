@@ -10,15 +10,21 @@
   cursor: pointer;
   font-weight: bold;
   background: linear-gradient(270deg,
-    #1fb6ff,     /* azul cielo */
-    #28c6b9,     /* turquesa */
-    #9b59b6,     /* púrpura medio */
-    #f67280,     /* coral suave */
-    #1fb6ff      /* vuelta al inicio */
+    #1fb6ff,
+    #28c6b9,
+    #9b59b6,
+    #f67280,
+    #1fb6ff
   );
   background-size: 400% 100%;
+
+  /* Compatibilidad completa */
+  background-clip: text;
   -webkit-background-clip: text;
+
+  color: transparent;
   -webkit-text-fill-color: transparent;
+
   animation: degradadoFluyendo 3s linear infinite;
   text-decoration: underline;
 }
