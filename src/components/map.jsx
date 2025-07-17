@@ -1,10 +1,17 @@
-import { useEffect, useState, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useEffect, useState, useMemo,useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, FeatureGroup } from 'react-leaflet';
+import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
+
+import L from 'leaflet';
+
 import {TrophySpin, Slab} from 'react-loading-indicators';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
+
+import 'leaflet-draw';
 
 import Slider from "@mui/material/Slider";
 
@@ -48,6 +55,8 @@ export default function Mapa() {
     grafico_caudal_total_por_informante: [],
     grafico_cantidad_obras_unicas_por_informante: []
   });
+
+  const [coordenadasSeleccionadas, setCoordenadasSeleccionadas] = useState([]);
 
 
   // Obtener los datos una sola vez
@@ -283,33 +292,112 @@ export default function Mapa() {
     console.log('Coordenadas del Punto: ', utemNorte, '-', utmEste);
   }
 
+  // Función para calcular distancia entre dos coordenadas
+  const getDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371000; // Radio de la Tierra en metros
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // distancia en metros
+  };
+
+  // Función para filtrar puntos dentro del círculo
+  const getPointsInCircle = (puntos, center, radius) => {
+    const result = puntos.filter((p) => {
+      const dist = getDistance(center.lat, center.lng, p.lat, p.lon);
+      return dist <= radius;
+    });
+
+    console.log('Puntos dentro del círculo:', result);
+
+    for (let index = 0; index < result.length; index++) {
+      const punto = result[index];
+      console.log(`Punto numero: ${index + 1} [${punto.utm_norte} - ${punto.utm_este}]`);
+    }
+
+  };
+
   return (
     <div className="relative">
-      <MapContainer center={[-33.45, -70.66]} zoom={6} className="map-altura w-full">
+      <MapContainer
+        center={[-33.45, -70.66]}
+        zoom={6}
+        className="map-altura w-full"
+        whenCreated={(mapInstance) => {
+          mapRef.current = mapInstance;
+          setMapReady(true);
+        }}
+      >
         <TileLayer
           attribution='&copy; <a href="https://carto.com/">Carto</a> contributors'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
+
+        {/* CONTENEDOR PARA LAS CAPAS DIBUJADAS */}
+        <FeatureGroup>
+          <EditControl
+            position="topright"
+            draw={{
+              rectangle: false,
+              polyline: false,
+              polygon: false,
+              marker: false,
+              circlemarker: false,
+              circle: {
+                shapeOptions: {
+                  color: '#ff0000',
+                },
+              },
+            }}
+            edit={{
+              edit: false,
+              remove: true,
+            }}
+            onCreated={(e) => {
+              if (e.layerType === 'circle') {
+                const layer = e.layer;
+                const center = layer.getLatLng();
+                const radius = layer.getRadius(); 
+
+                getPointsInCircle(puntos, center, radius);
+              }
+            }}
+
+          />
+        </FeatureGroup>
+
+        {/* Tus puntos */}
         {puntos.map((punto, index) => (
           <Marker key={index} position={[punto.lat, punto.lon]}>
             <Popup>
               <div className="text-sm flex flex-col justify-between items-start">
-                <p className='flex gap-2'><strong>Cuenca:</strong> {punto.nombre_cuenca} 
-                    <span onClick={() => handleShowGraphics(punto.nombre_cuenca, punto.cod_cuenca)} 
-                      className='text-cyan-800 underline cursor-pointer cuenca-analizar'>(Ver Detalles)
-                    </span>
+                <p className='flex gap-2'>
+                  <strong>Cuenca:</strong> {punto.nombre_cuenca}
+                  <span
+                    onClick={() => handleShowGraphics(punto.nombre_cuenca, punto.cod_cuenca)}
+                    className='text-cyan-800 underline cursor-pointer cuenca-analizar'
+                  >
+                    (Ver Detalles)
+                  </span>
                 </p>
                 <p><strong>Subcuenca:</strong> {punto.nombre_subcuenca}</p>
                 <p><strong>Caudal promedio:</strong> {punto.caudal_promedio.toLocaleString()}</p>
                 <p><strong>Nº de Mediciones:</strong> {punto.n_mediciones}</p>
-                <button className='bg-cyan-800 text-white p-2 cursor-pointer hover:bg-cyan-600'
-                onClick={() => handleShowCoordGraphics(punto.utm_norte, punto.utm_este)}
-                >Analizar Punto</button>
+                <button
+                  className='bg-cyan-800 text-white p-2 cursor-pointer hover:bg-cyan-600'
+                  onClick={() => handleShowCoordGraphics(punto.utm_norte, punto.utm_este)}
+                >
+                  Analizar Punto
+                </button>
               </div>
             </Popup>
           </Marker>
         ))}
       </MapContainer>
+
 
       {sidebarAbierto && (
         <div className="absolute left-0 z-[1000] top-0 w-90 bg-white h-full shadow-md py-6 px-10 space-y-4 text-sm">

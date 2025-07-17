@@ -4,6 +4,10 @@
 .map-altura {
   height: calc(100vh - 4rem); /* h-16 = 4rem */
 }
+.leaflet-draw {
+  z-index: 10000 !important;
+}
+
 
 .cuenca-analizar {
   display: inline-block;
