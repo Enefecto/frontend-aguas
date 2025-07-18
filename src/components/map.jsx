@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo,useRef } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
@@ -15,7 +15,8 @@ import Slider from "@mui/material/Slider";
 
 export default function Mapa() {
   const [sidebarAbierto, setSidebarAbierto] = useState(true);
-  const [rightSidebarAbierto, setRightSidebarAbierto] = useState(false);
+  const [rightSidebarAbiertoCuencas, setRightSidebarAbiertoCuencas] = useState(false);
+  const [rightSidebarAbiertoPunto, setRightSidebarAbiertoPunto] = useState(false);
 
   const [datosOriginales, setDatosOriginales] = useState([]);
   const [minMaxDatosOriginales, setMinMaxDatosOriginales] = useState([])
@@ -53,6 +54,9 @@ export default function Mapa() {
     grafico_caudal_total_por_informante: [],
     grafico_cantidad_obras_unicas_por_informante: []
   });
+
+  const [analisisPuntoSeleccionado, setAnalisisPuntoSeleccionado] = useState({});
+  const [analisisPuntoSeleccionadoLoading, setAnalisisPuntoSeleccionadoLoading] = useState({});
 
   // Obtener los datos una sola vez
   useEffect(() => {
@@ -174,7 +178,8 @@ export default function Mapa() {
 
   const handleShowGraphics = (nomCuenca, codCuenca) => {
     setSidebarAbierto(false);
-    setRightSidebarAbierto(true);
+    setRightSidebarAbiertoPunto(false);
+    setRightSidebarAbiertoCuencas(true);
     setGraphicsLoading(0)
     setCuencaAnalysis({nombreCuenca: nomCuenca, codigoCuenca:codCuenca});
 
@@ -294,8 +299,25 @@ export default function Mapa() {
     return caudal_global.total_puntos_unicos || 100;
   }, [filtros, isLoaded, minMaxDatosOriginales]);
 
-  const handleShowCoordGraphics = (utemNorte, utmEste) => {
-    console.log('Coordenadas del Punto: ', utemNorte, '-', utmEste);
+  const handleShowCoordGraphics = (utmNorte, utmEste) => {
+    console.log('Coordenadas del Punto: ', utmNorte, '-', utmEste);
+    setRightSidebarAbiertoCuencas(false);
+    setRightSidebarAbiertoPunto(true);
+    setAnalisisPuntoSeleccionadoLoading(true);
+
+    const url = `http://localhost:8000/punto/estadisticas?utm_norte=${utmNorte}&utm_este=${utmEste}`
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setAnalisisPuntoSeleccionado(data);
+        setAnalisisPuntoSeleccionadoLoading(false);
+      })
+      .catch((err) => {
+        setRightSidebarAbiertoPunto(false);
+        console.error("Error al obtener analisis del punto:", err);
+      });
   }
 
   // Función para calcular distancia entre dos coordenadas
@@ -534,7 +556,7 @@ export default function Mapa() {
         </button>
       )}
 
-      {rightSidebarAbierto && (
+      {rightSidebarAbiertoCuencas && (
         <div
           className="absolute right-0 top-0 z-[1000] h-full bg-white shadow-md text-sm overflow-y-auto resize-x overflow-x-hidden min-w-[20rem] max-w-[90vw] p-8 space-y-6"
           style={{ width: '45rem' }}
@@ -645,8 +667,68 @@ export default function Mapa() {
             </div>
           )}
 
+          
+
           <button
-            onClick={() => setRightSidebarAbierto(false)}
+            onClick={() => setRightSidebarAbiertoCuencas(false)}
+            className="mt-10 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 transition cursor-pointer"
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
+
+
+      {rightSidebarAbiertoPunto && (
+        <div
+          className="absolute right-0 top-0 z-[1000] h-full bg-white shadow-md text-sm overflow-y-auto resize-x overflow-x-hidden min-w-[20rem] max-w-[90vw] p-8 space-y-6"
+          style={{ width: '45rem' }}
+        >
+          <h2 className="text-2xl font-bold border-b pb-2">Análisis del punto</h2>
+
+          <h3 className="text-lg font-semibold">
+            Punto: <span className="text-cyan-800 font-bold">{analisisPuntoSeleccionado.utm_norte} - {analisisPuntoSeleccionado.utm_este}</span>
+          </h3>
+
+          {!analisisPuntoSeleccionadoLoading ? (
+            <div className="space-y-4 pt-2">
+              <h3 className="text-base font-semibold text-gray-700">Análisis Estadístico</h3>
+
+              <div className="grid grid-cols-1 gap-4">
+                <div className="bg-blue-50 p-4 rounded shadow-sm">
+                  <p className="text-gray-500 text-xs">Total de registros con caudal</p>
+                  <p className="text-blue-800 font-extrabold text-xl">{Number(analisisPuntoSeleccionado.total_registros_con_caudal.toFixed(2)).toLocaleString()}</p>
+                </div>
+
+                <div className="bg-green-50 p-4 rounded shadow-sm">
+                  <p className="text-gray-500 text-xs">Caudal promedio (m³/s)</p>
+                  <p className="text-green-800 font-extrabold text-xl">{Number(analisisPuntoSeleccionado.caudal_promedio.toFixed(2)).toLocaleString()}</p>
+                </div>
+
+                <div className="bg-yellow-50 p-4 rounded shadow-sm">
+                  <p className="text-gray-500 text-xs">Caudal mínimo (m³/s)</p>
+                  <p className="text-yellow-800 font-extrabold text-xl">{Number(analisisPuntoSeleccionado.caudal_minimo.toFixed(2)).toLocaleString()}</p>
+                </div>
+
+                <div className="bg-red-50 p-4 rounded shadow-sm">
+                  <p className="text-gray-500 text-xs">Caudal máximo (m³/s)</p>
+                  <p className="text-red-800 font-extrabold text-xl">{Number(analisisPuntoSeleccionado.caudal_maximo.toFixed(2)).toLocaleString()}</p>
+                </div>
+
+                <div className="bg-purple-50 p-4 rounded shadow-sm">
+                  <p className="text-gray-500 text-xs">Desviación estándar del caudal</p>
+                  <p className="text-purple-800 font-extrabold text-xl">{Number(analisisPuntoSeleccionado.desviacion_estandar_caudal.toFixed(2)).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2 mt-16 mx-auto flex justify-center">
+              <TrophySpin color="#155e75" size="large" text="Cargando..." textColor="#000000" />
+            </div>
+          )}
+
+          <button
+            onClick={() => setRightSidebarAbiertoPunto(false)}
             className="mt-10 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 transition cursor-pointer"
           >
             Cerrar
