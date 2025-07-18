@@ -429,6 +429,22 @@ export default function Mapa() {
 
       {sidebarAbierto && (
         <div className="absolute left-0 z-[1000] top-0 w-90 bg-white h-full shadow-md py-6 px-10 space-y-4 text-sm">
+          <button
+            onClick={() => setSidebarAbierto(false)}
+            className="absolute -top-0 -right-5 text-white bg-gray-700 w-10 h-10 rounded hover:text-cyan-300 flex items-center justify-center text-4xl font-bold z-[1100] shadow-lg cursor-pointer"
+            aria-label="Cerrar filtros"
+          >
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"
+                viewBox="0 0 24 24"  fill="none"  stroke="currentColor" 
+                strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"
+                className="icon icon-tabler icons-tabler-outline icon-tabler-x">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M18 6l-12 12" />
+              <path d="M6 6l12 12" />
+            </svg>
+          </button>
+
+
           <h2 className="text-lg font-bold mb-4">Filtros</h2>
 
           <label className="block font-medium">Región:</label>
@@ -520,22 +536,15 @@ export default function Mapa() {
 
           <hr />
 
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-center mt-4">
             <button
               onClick={handleCoordenadasUnicas}
               className="bg-green-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-green-800 hover:text-white"
             >
               Consultar puntos
             </button>
-            
-            <button
-              onClick={() => setSidebarAbierto(false)}
-              className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-red-500"
-            >
-              Cerrar
-            </button>
           </div>
-          
+
           { puntos.length < limiteSolicitado ?
             <div className="bg-yellow-100 text-yellow-800 px-4 py-2 mt-3 rounded-md text-sm border border-yellow-300 shadow-sm">
               Se han encontrado solo <strong>{puntos.length}</strong> puntos que cumplen los filtros
@@ -550,7 +559,7 @@ export default function Mapa() {
       {!sidebarAbierto && (
         <button
           onClick={() => setSidebarAbierto(true)}
-          className="absolute top-3 left-12 bg-blue-600 text-white px-3 py-1 rounded z-[1000]"
+          className="absolute top-3 left-12 bg-blue-600 text-white px-3 py-1 rounded z-[1000] cursor-pointer"
         >
           ☰ Filtros
         </button>
@@ -558,9 +567,23 @@ export default function Mapa() {
 
       {rightSidebarAbiertoCuencas && (
         <div
-          className="absolute right-0 top-0 z-[1000] h-full bg-white shadow-md text-sm overflow-y-auto resize-x overflow-x-hidden min-w-[20rem] max-w-[90vw] p-8 space-y-6"
+          className="absolute right-0 top-0 z-[1000] h-full bg-white shadow-md text-sm p-8 space-y-6"
           style={{ width: '45rem' }}
         >
+          <button
+            onClick={() => setRightSidebarAbiertoCuencas(false)}
+            className="absolute -top-0 -left-5 text-white bg-gray-700 w-10 h-10 rounded hover:text-cyan-300 flex items-center justify-center text-4xl font-bold z-[1100] shadow-lg cursor-pointer"
+            aria-label="Cerrar sidebar de puntos"
+          >
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"
+                viewBox="0 0 24 24"  fill="none"  stroke="currentColor" 
+                strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"
+                className="icon icon-tabler icons-tabler-outline icon-tabler-x">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M18 6l-12 12" />
+              <path d="M6 6l12 12" />
+            </svg>
+          </button>
           <h2 className="text-2xl font-bold border-b pb-2">Análisis de Cuenca</h2>
 
           <h3 className="text-lg font-semibold">
@@ -666,24 +689,29 @@ export default function Mapa() {
               </div>
             </div>
           )}
-
-          
-
-          <button
-            onClick={() => setRightSidebarAbiertoCuencas(false)}
-            className="mt-10 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 transition cursor-pointer"
-          >
-            Cerrar
-          </button>
         </div>
       )}
 
 
       {rightSidebarAbiertoPunto && (
         <div
-          className="absolute right-0 top-0 z-[1000] h-full bg-white shadow-md text-sm overflow-y-auto resize-x overflow-x-hidden min-w-[20rem] max-w-[90vw] p-8 space-y-6"
+          className="absolute right-0 top-0 z-[1000] h-full bg-white shadow-md text-sm p-8 space-y-6"
           style={{ width: '45rem' }}
         >
+          <button
+            onClick={() => setRightSidebarAbiertoPunto(false)}
+            className="absolute -top-0 -left-5 text-white bg-gray-700 w-10 h-10 rounded hover:text-cyan-300 flex items-center justify-center text-4xl font-bold z-[1100] shadow-lg cursor-pointer"
+            aria-label="Cerrar sidebar de puntos"
+          >
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"
+                viewBox="0 0 24 24"  fill="none"  stroke="currentColor" 
+                strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"
+                className="icon icon-tabler icons-tabler-outline icon-tabler-x">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M18 6l-12 12" />
+              <path d="M6 6l12 12" />
+            </svg>
+          </button>
           <h2 className="text-2xl font-bold border-b pb-2">Análisis del punto</h2>
 
           <h3 className="text-lg font-semibold">
@@ -727,12 +755,6 @@ export default function Mapa() {
             </div>
           )}
 
-          <button
-            onClick={() => setRightSidebarAbiertoPunto(false)}
-            className="mt-10 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 transition cursor-pointer"
-          >
-            Cerrar
-          </button>
         </div>
       )}
 
