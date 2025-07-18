@@ -4,8 +4,6 @@ import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 
-import L from 'leaflet';
-
 import {TrophySpin, Slab} from 'react-loading-indicators';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
@@ -56,20 +54,28 @@ export default function Mapa() {
     grafico_cantidad_obras_unicas_por_informante: []
   });
 
-  const [coordenadasSeleccionadas, setCoordenadasSeleccionadas] = useState([]);
-
-
   // Obtener los datos una sola vez
   useEffect(() => {
     fetch("http://localhost:8000/cuencas")
       .then((res) => res.json())
       .then((data) => { 
         setDatosOriginales(data.cuencas);
+      })
+      .catch((err) => {
+        console.error("Error al cargar cuencas:", err);
+      });
+  }, []);
+
+  // Obtener los datos una sola vez
+  useEffect(() => {
+    fetch("http://localhost:8000/cuencas/stats")
+      .then((res) => res.json())
+      .then((data) => {
         setMinMaxDatosOriginales(data.estadisticas);
         setIsLoaded(true); 
       })
       .catch((err) => {
-        console.error("Error al cargar cuencas:", err);
+        console.error("Error al cargar las estadisticas de las cuencas:", err);
         setIsLoaded(false); 
       });
   }, []);
