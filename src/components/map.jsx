@@ -341,11 +341,6 @@ export default function Mapa() {
 
     console.log('Puntos dentro del círculo:', result);
 
-    for (let index = 0; index < result.length; index++) {
-      const punto = result[index];
-      console.log(`Punto numero: ${index + 1} [${punto.utm_norte} - ${punto.utm_este}]`);
-    }
-
   };
 
   return (
