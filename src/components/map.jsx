@@ -421,7 +421,7 @@ export default function Mapa() {
             Análisis estadístico del área
           </div>
 
-          <div class="flex justify-between"><span class="text-gray-600">Puntos:</span><span class="text-gray-800 font-medium">${stats.puntos_consultados ?? '?'}</span></div>
+          <div class="flex justify-between"><span class="text-gray-600">Puntos:</span><span class="text-gray-800 font-medium">${stats.puntos_consultados ?? '1'}</span></div>
           <div class="flex justify-between"><span class="text-gray-600">Mediciones:</span><span class="text-gray-800 font-medium">${Number(stats.total_registros_con_caudal ?? 0).toLocaleString('es-CL')}</span></div>
           <div class="flex justify-between"><span class="text-green-600">Promedio:</span><span class="font-semibold text-green-700">${Number(stats.caudal_promedio ?? 0).toFixed(2)} m³/s</span></div>
           <div class="flex justify-between"><span class="text-blue-600">Mínimo:</span><span class="font-semibold text-blue-700">${Number(stats.caudal_minimo ?? 0).toFixed(2)} m³/s</span></div>
@@ -657,7 +657,8 @@ export default function Mapa() {
           <div className="flex justify-center mt-4">
             <button
               onClick={handleCoordenadasUnicas}
-              className="bg-green-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-green-800 hover:text-white"
+              className="bg-green-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-green-800 hover:text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
+              disabled={!isLoaded}
             >
               Consultar puntos
             </button>
