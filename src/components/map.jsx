@@ -461,7 +461,6 @@ export default function Mapa() {
             position="topright"
             draw={{
               rectangle: false,
-              polyline: false,
               polygon: false,
               marker: false,
               circlemarker: false,
@@ -470,14 +469,21 @@ export default function Mapa() {
                   color: '#ff0000',
                 },
               },
+              polyline: {
+                shapeOptions: {
+                  color: '#1d4ed8', // azul elegante
+                  weight: 4,
+                },
+              },
             }}
             edit={{
               edit: false,
               remove: true,
             }}
             onCreated={(e) => {
+              const layer = e.layer;
+
               if (e.layerType === 'circle') {
-                const layer = e.layer;
                 const center = layer.getLatLng();
                 const radius = layer.getRadius();
 
@@ -486,6 +492,25 @@ export default function Mapa() {
 
                 // Llama la función y pasa el layer
                 getPointsInCircle(puntos, center, radius, layer);
+              }
+
+              if (e.layerType === 'polyline') {
+                const latlngs = layer.getLatLngs();
+
+                if (latlngs.length >= 2) {
+                  let distanciaTotalMetros = 0;
+
+                  for (let i = 0; i < latlngs.length - 1; i++) {
+                    distanciaTotalMetros += latlngs[i].distanceTo(latlngs[i + 1]);
+                  }
+
+                  const distanciaKm = (distanciaTotalMetros / 1000).toFixed(2);
+
+                  layer.bindPopup(`Distancia: ${distanciaKm} km`).openPopup();
+
+                  console.log('Distancia total:', distanciaKm, 'km');
+                }
+
               }
             }}
           />
