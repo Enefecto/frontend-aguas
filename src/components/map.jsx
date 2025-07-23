@@ -6,8 +6,17 @@ import 'leaflet-draw/dist/leaflet.draw.css';
 
 import {TrophySpin, Slab} from 'react-loading-indicators';
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  LineChart,
+  Line 
 } from 'recharts';
+
 
 import 'leaflet-draw';
 
@@ -48,12 +57,15 @@ export default function Mapa() {
   });
 
   const [cuencaLoading, setCuencaLoading] = useState(false);
-  const [graphicsLoading, setGraphicsLoading] = useState(0);
+  const [graphicsCuencasLoading, setGraphicsCuencasLoading] = useState(0);
+  const [graphicsPuntosLoading, setGraphicsPuntosLoading] = useState(0);
   const [graficosData, setGraficosData] = useState({
     grafico_cantidad_registros_por_informante: [],
     grafico_caudal_total_por_informante: [],
     grafico_cantidad_obras_unicas_por_informante: []
   });
+
+  const [graficosPuntosData, setGraficosPuntosData] = useState([]);
 
   const [analisisPuntoSeleccionado, setAnalisisPuntoSeleccionado] = useState({});
   const [analisisPuntoSeleccionadoLoading, setAnalisisPuntoSeleccionadoLoading] = useState({});
@@ -180,7 +192,7 @@ export default function Mapa() {
     setSidebarAbierto(false);
     setRightSidebarAbiertoPunto(false);
     setRightSidebarAbiertoCuencas(true);
-    setGraphicsLoading(0)
+    setGraphicsCuencasLoading(0);
     setCuencaAnalysis({nombreCuenca: nomCuenca, codigoCuenca:codCuenca});
 
 
@@ -205,8 +217,8 @@ export default function Mapa() {
       .catch((err) => console.error("Error al obtener datos de analisis:", err));
   }
 
-  const loadGraphics = () => {
-    setGraphicsLoading(1);
+  const loadCuencasGraphics = () => {
+    setGraphicsCuencasLoading(1);
 
     const url = `http://localhost:8000/cuencas/analisis_informantes?cuenca_identificador=${cuencaAnalysis.codigoCuenca}`
 
@@ -218,11 +230,29 @@ export default function Mapa() {
           grafico_caudal_total_por_informante: data.grafico_caudal_total_por_informante || [],
           grafico_cantidad_obras_unicas_por_informante: data.grafico_cantidad_obras_unicas_por_informante || []
         });
-        setGraphicsLoading(2);
+        setGraphicsCuencasLoading(2);
       })
       .catch((err) => {
         console.error("Error al obtener gráficos:", err);
-        setGraphicsLoading(0);
+        setGraphicsCuencasLoading(0);
+      });
+  };
+  
+  const loadPuntosGraphics = (utmNorte, utmEste) => {
+    setGraphicsPuntosLoading(1);
+
+    const url = `http://localhost:8000/puntos/series_de_tiempo/caudal?utm_norte=${utmNorte}&utm_este=${utmEste}`
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setGraficosPuntosData(data);
+        setGraphicsPuntosLoading(2);
+      })
+      .catch((err) => {
+        console.error("Error al obtener gráficos del punto:", err);
+        setGraphicsPuntosLoading(0);
       });
   };
 
@@ -304,6 +334,7 @@ export default function Mapa() {
     setRightSidebarAbiertoCuencas(false);
     setRightSidebarAbiertoPunto(true);
     setAnalisisPuntoSeleccionadoLoading(true);
+    setGraphicsPuntosLoading(0);
 
     const url = 'http://localhost:8000/puntos/estadisticas';
 
@@ -637,22 +668,22 @@ export default function Mapa() {
             </div>
           )}
 
-          {graphicsLoading === 0 && (
+          {graphicsCuencasLoading === 0 && (
             <button
-              onClick={loadGraphics}
+              onClick={loadCuencasGraphics}
               className="block mt-6 bg-cyan-700 text-white font-semibold px-4 py-2 rounded cursor-pointer hover:bg-cyan-600 transition"
             >
               Cargar Gráficos
             </button>
           )}
 
-          {graphicsLoading === 1 && (
+          {graphicsCuencasLoading === 1 && (
             <div className="space-y-2 mt-16 mx-auto flex justify-center">
               <Slab color="#155e75" size="large" text="Cargando..." textColor="#000000" />
             </div>
           )}
 
-          {graphicsLoading === 2 && (
+          {graphicsCuencasLoading === 2 && (
             <div className="space-y-10 mt-6 border-t pt-6">
               <h3 className="text-lg font-semibold">Gráficos</h3>
 
@@ -737,33 +768,87 @@ export default function Mapa() {
               <div className="grid grid-cols-1 gap-4">
                 <div className="bg-blue-50 p-4 rounded shadow-sm">
                   <p className="text-gray-500 text-xs">Total de registros con caudal</p>
-                  <p className="text-blue-800 font-extrabold text-xl">{Number(analisisPuntoSeleccionado.total_registros_con_caudal.toFixed(2)).toLocaleString()}</p>
+                  <p className="text-blue-800 font-extrabold text-xl">{analisisPuntoSeleccionado.total_registros_con_caudal != null ?
+                    Number(analisisPuntoSeleccionado.total_registros_con_caudal.toFixed(2)).toLocaleString()
+                    : '-'}</p>
                 </div>
 
                 <div className="bg-green-50 p-4 rounded shadow-sm">
                   <p className="text-gray-500 text-xs">Caudal promedio (m³/s)</p>
-                  <p className="text-green-800 font-extrabold text-xl">{Number(analisisPuntoSeleccionado.caudal_promedio.toFixed(2)).toLocaleString()}</p>
+                  <p className="text-green-800 font-extrabold text-xl">{analisisPuntoSeleccionado.caudal_promedio != null ?
+                    Number(analisisPuntoSeleccionado.caudal_promedio.toFixed(2)).toLocaleString()
+                    : '-'}</p>
                 </div>
 
                 <div className="bg-yellow-50 p-4 rounded shadow-sm">
                   <p className="text-gray-500 text-xs">Caudal mínimo (m³/s)</p>
-                  <p className="text-yellow-800 font-extrabold text-xl">{Number(analisisPuntoSeleccionado.caudal_minimo.toFixed(2)).toLocaleString()}</p>
+                  <p className="text-yellow-800 font-extrabold text-xl">{analisisPuntoSeleccionado.caudal_minimo != null ?
+                    Number(analisisPuntoSeleccionado.caudal_minimo.toFixed(2)).toLocaleString()
+                    : '-'}</p>
                 </div>
 
                 <div className="bg-red-50 p-4 rounded shadow-sm">
                   <p className="text-gray-500 text-xs">Caudal máximo (m³/s)</p>
-                  <p className="text-red-800 font-extrabold text-xl">{Number(analisisPuntoSeleccionado.caudal_maximo.toFixed(2)).toLocaleString()}</p>
+                  <p className="text-red-800 font-extrabold text-xl">{analisisPuntoSeleccionado.caudal_maximo != null ? 
+                    Number(analisisPuntoSeleccionado.caudal_maximo.toFixed(2)).toLocaleString()
+                    : '-'}</p>
                 </div>
 
                 <div className="bg-purple-50 p-4 rounded shadow-sm">
                   <p className="text-gray-500 text-xs">Desviación estándar del caudal</p>
-                  <p className="text-purple-800 font-extrabold text-xl">{Number(analisisPuntoSeleccionado.desviacion_estandar_caudal.toFixed(2)).toLocaleString()}</p>
+                  <p className="text-purple-800 font-extrabold text-xl">{analisisPuntoSeleccionado.desviacion_estandar_caudal != null
+                    ? Number(analisisPuntoSeleccionado.desviacion_estandar_caudal.toFixed(2)).toLocaleString()
+                    : '-'}
+                  </p>
                 </div>
               </div>
             </div>
           ) : (
             <div className="space-y-2 mt-16 mx-auto flex justify-center">
               <TrophySpin color="#155e75" size="large" text="Cargando..." textColor="#000000" />
+            </div>
+          )}
+
+          {graphicsPuntosLoading === 0 && (
+            <button
+              onClick={() => loadPuntosGraphics(analisisPuntoSeleccionado.utm_norte, analisisPuntoSeleccionado.utm_este)}
+              className="block mt-6 bg-cyan-700 text-white font-semibold px-4 py-2 rounded cursor-pointer hover:bg-cyan-600 transition"
+            >
+              Cargar Gráficos
+            </button>
+          )}
+
+          {graphicsPuntosLoading === 1 && (
+            <div className="space-y-2 mt-16 mx-auto flex justify-center">
+              <Slab color="#155e75" size="large" text="Cargando..." textColor="#000000" />
+            </div>
+          )}
+
+          {graphicsPuntosLoading === 2 && (
+            <div className="space-y-10 mt-6 border-t pt-6">
+              <h3 className="text-lg font-semibold">Gráficos</h3>
+
+              {/* Gráfico de caudal por tiempo */}
+              <div className="w-full h-96">
+                <h4 className="text-sm font-semibold mb-1 text-gray-700">Caudal por tiempo</h4>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={graficosPuntosData.caudal_por_tiempo}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="fecha_medicion"
+                      tickFormatter={(str) => new Date(str).toLocaleString('es-CL', { day: '2-digit', month: 'short', hour: '2-digit' })}
+                      minTickGap={30}
+                    />
+                    <YAxis domain={['dataMin - 0.01', 'dataMax + 0.01']} />
+                    <Tooltip
+                      labelFormatter={(label) => new Date(label).toLocaleString('es-CL')}
+                      formatter={(value) => [`${value} m³/s`, 'Caudal']}
+                    />
+                    <Line type="monotone" dataKey="caudal" stroke="#2563eb" dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
             </div>
           )}
 
