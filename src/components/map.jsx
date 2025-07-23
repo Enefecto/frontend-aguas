@@ -22,6 +22,8 @@ import 'leaflet-draw';
 
 import Slider from "@mui/material/Slider";
 
+import TextField from '@mui/material/TextField';
+
 export default function Mapa() {
   const [sidebarAbierto, setSidebarAbierto] = useState(true);
   const [rightSidebarAbiertoCuencas, setRightSidebarAbiertoCuencas] = useState(false);
@@ -578,22 +580,46 @@ export default function Mapa() {
             ))}
           </select>
 
-          <label className="block font-medium mb-10">Cantidad de puntos limite:</label>
-          <Slider
-            name="limit"
-            min={1}
-            max={limitMax}
-            step={1}
-            value={filtros.limit > limitMax ? limitMax : filtros.limit}
-            onChange={(e, newValue) => {
-              setFiltros(prev => ({
-                ...prev,
-                limit: Number(newValue)
-              }));
-            }}
-            valueLabelDisplay="on"
-            aria-label="Límite de resultados"
-          />
+          <div className="mb-6">
+            <label className="block font-medium mb-10">Cantidad de puntos límite:</label>
+            <div className="flex items-center gap-4">
+              <Slider
+                min={1}
+                max={limitMax}
+                step={1}
+                value={filtros.limit > limitMax ? limitMax : filtros.limit}
+                onChange={(e, newValue) => {
+                  setFiltros(prev => ({
+                    ...prev,
+                    limit: Number(newValue)
+                  }));
+                }}
+                valueLabelDisplay="on"
+              />
+
+              <TextField
+                type="number"
+                variant="outlined"
+                size="small"
+                value={filtros.limit}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    const clamped = Math.max(1, Math.min(limitMax, value));
+                    setFiltros(prev => ({
+                      ...prev,
+                      limit: clamped
+                    }));
+                  }
+                }}
+                inputProps={{
+                  min: 1,
+                  max: limitMax,
+                  style: { width: 90, textAlign: 'center' }
+                }}
+              />
+            </div>
+          </div>
 
           <label className="block font-medium mb-10">Caudal promedio extraido (m³/s):</label>
           <Slider
