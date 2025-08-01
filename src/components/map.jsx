@@ -1,3 +1,4 @@
+// Librerias
 import { useEffect, useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
@@ -17,12 +18,12 @@ import {
   Line 
 } from 'recharts';
 
-
 import 'leaflet-draw';
-
 import Slider from "@mui/material/Slider";
-
 import TextField from '@mui/material/TextField';
+
+// Componentes de este proyecto
+import { PopupPunto } from './PopupPunto';
 
 export default function Mapa() {
   const [sidebarAbierto, setSidebarAbierto] = useState(true);
@@ -520,26 +521,7 @@ export default function Mapa() {
         {puntos.map((punto, index) => (
           <Marker key={index} position={[punto.lat, punto.lon]}>
             <Popup>
-              <div className="text-sm flex flex-col justify-between items-start">
-                <p className='flex gap-2'>
-                  <strong>Cuenca:</strong> {punto.nombre_cuenca}
-                  <span
-                    onClick={() => handleShowGraphics(punto.nombre_cuenca, punto.cod_cuenca)}
-                    className='text-cyan-800 underline cursor-pointer cuenca-analizar'
-                  >
-                    (Ver Detalles)
-                  </span>
-                </p>
-                <p><strong>Subcuenca:</strong> {punto.nombre_subcuenca}</p>
-                <p><strong>Caudal promedio:</strong> {punto.caudal_promedio.toLocaleString()}</p>
-                <p><strong>Nº de Mediciones:</strong> {punto.n_mediciones}</p>
-                <button
-                  className='bg-cyan-800 text-white p-2 cursor-pointer hover:bg-cyan-600'
-                  onClick={() => handleShowCoordGraphics(punto.utm_norte, punto.utm_este)}
-                >
-                  Analizar Punto
-                </button>
-              </div>
+              <PopupPunto punto={punto} handleShowGraphics={handleShowGraphics} handleShowCoordGraphics={handleShowCoordGraphics}/>
             </Popup>
           </Marker>
         ))}
