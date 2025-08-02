@@ -1,6 +1,7 @@
 import React from 'react';
 import Slider from "@mui/material/Slider";
 import TextField from '@mui/material/TextField';
+import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 
 export default function SidebarFiltros({
   filtros,
@@ -37,17 +38,7 @@ export default function SidebarFiltros({
 
   return (
     <div className="absolute left-0 z-[1000] top-0 w-90 bg-white h-full shadow-md py-6 px-10 space-y-4 text-sm">
-      <button
-        onClick={() => setSidebarAbierto(false)}
-        className="absolute -top-0 -right-5 text-white bg-gray-700 w-10 h-10 rounded hover:text-cyan-300 flex items-center justify-center text-4xl font-bold z-[1100] shadow-lg cursor-pointer"
-        aria-label="Cerrar filtros"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-x">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <path d="M18 6l-12 12" />
-          <path d="M6 6l12 12" />
-        </svg>
-      </button>
+      <ButtonOpenCloseSidebar toggleSidebar={setSidebarAbierto} isFiltrosSidebar={true} />
 
       <h2 className="text-lg font-bold mb-4">Filtros</h2>
 

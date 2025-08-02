@@ -1,6 +1,7 @@
 import React from 'react';
 import { TrophySpin, Slab } from 'react-loading-indicators';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 
 export default function SidebarPunto({
   analisisPuntoSeleccionado,
@@ -12,17 +13,7 @@ export default function SidebarPunto({
 }) {
   return (
     <div className="absolute right-0 top-0 z-[1000] h-full bg-white shadow-md text-sm p-8 space-y-6 overflow-y-auto" style={{ width: '45rem', maxHeight: '100vh' }}>
-      <button
-        onClick={() => setRightSidebarAbiertoPunto(false)}
-        className="absolute top-1 left-1 text-white bg-gray-700 w-10 h-10 rounded-full hover:text-cyan-300 flex items-center justify-center text-2xl font-bold z-[1100] shadow-lg cursor-pointer"
-        aria-label="Cerrar sidebar de puntos"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-x">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <path d="M18 6l-12 12" />
-          <path d="M6 6l12 12" />
-        </svg>
-      </button>
+      <ButtonOpenCloseSidebar toggleSidebar={setRightSidebarAbiertoPunto} />
 
       <h2 className="text-2xl font-bold border-b pb-2 mt-2">Análisis del punto</h2>
 
