@@ -1,5 +1,3 @@
-import React from 'react'
-
 export const PopupPunto = ({punto, handleShowGraphics, handleShowCoordGraphics}) => {
   return (
     <div className="text-sm flex flex-col justify-between items-start">

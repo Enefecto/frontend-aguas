@@ -1,7 +1,7 @@
-import React from 'react';
 import { TrophySpin, Slab } from 'react-loading-indicators';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
+import { EstadisticBox } from '../UI/EstadisticBox';
 
 export default function SidebarPunto({
   analisisPuntoSeleccionado,
@@ -25,22 +25,12 @@ export default function SidebarPunto({
         <div className="space-y-4 pt-2">
           <h3 className="text-base font-semibold text-gray-700">Análisis Estadístico</h3>
           <div className="grid grid-cols-1 gap-4">
-            {[
-              ['Total de registros con caudal', 'total_registros_con_caudal', 'text-blue-800', 'bg-blue-50'],
-              ['Caudal promedio (m³/s)', 'caudal_promedio', 'text-green-800', 'bg-green-50'],
-              ['Caudal mínimo (m³/s)', 'caudal_minimo', 'text-yellow-800', 'bg-yellow-50'],
-              ['Caudal máximo (m³/s)', 'caudal_maximo', 'text-red-800', 'bg-red-50'],
-              ['Desviación estándar del caudal', 'desviacion_estandar_caudal', 'text-purple-800', 'bg-purple-50']
-            ].map(([label, key, textColor, bgColor]) => (
-              <div className={`${bgColor} p-4 rounded shadow-sm`} key={key}>
-                <p className="text-gray-500 text-xs">{label}</p>
-                <p className={`${textColor} font-extrabold text-xl`}>
-                  {analisisPuntoSeleccionado[key] != null
-                    ? Number(analisisPuntoSeleccionado[key].toFixed(2)).toLocaleString()
-                    : '-'}
-                </p>
-              </div>
-            ))}
+    
+            <EstadisticBox boxcolor="blue" label="Total de registros con caudal" value={analisisPuntoSeleccionado.total_registros_con_caudal} />
+            <EstadisticBox boxcolor="green" label="Caudal promedio (m³/s)" value={analisisPuntoSeleccionado.caudal_promedio} />
+            <EstadisticBox boxcolor="yellow" label="Caudal mínimo (m³/s)" value={analisisPuntoSeleccionado.caudal_minimo} />
+            <EstadisticBox boxcolor="red" label="Caudal máximo (m³/s)" value={analisisPuntoSeleccionado.caudal_maximo} />
+            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal" value={analisisPuntoSeleccionado.desviacion_estandar_caudal} />
           </div>
         </div>
       ) : (

@@ -1,4 +1,3 @@
-import React from 'react';
 import Slider from "@mui/material/Slider";
 import TextField from '@mui/material/TextField';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';

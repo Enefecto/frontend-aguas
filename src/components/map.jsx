@@ -12,7 +12,7 @@ import { PopupPunto } from './Popups/PopupPunto';
 import SidebarFiltros from './sidebars/SidebarFiltros';
 import SidebarCuenca from './sidebars/SidebarCuenca';
 import SidebarPunto from './sidebars/SidebarPunto';
-import BotonAbrirSidebar from './sidebars/BotonAbrirSidebar';
+import BotonAbrirSidebar from './Buttons/BotonAbrirSidebar';
 import { getPointsInCircle } from './Popups/PopupPuntosInCircle';
 
 export default function Mapa() {
