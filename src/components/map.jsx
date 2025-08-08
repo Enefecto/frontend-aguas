@@ -12,7 +12,7 @@ import { PopupPunto } from './Popups/PopupPunto';
 import SidebarFiltros from './sidebars/SidebarFiltros';
 import SidebarCuenca from './sidebars/SidebarCuenca';
 import SidebarPunto from './sidebars/SidebarPunto';
-import BotonAbrirSidebar from './Buttons/BotonAbrirSidebar';
+import BotonAbrirSidebarFiltros from './Buttons/BotonAbrirSidebarFiltros';
 import { getPointsInCircle } from './Popups/PopupPuntosInCircle';
 
 export default function Mapa() {
@@ -451,7 +451,7 @@ export default function Mapa() {
       )}
 
       {!sidebarAbierto && (
-        <BotonAbrirSidebar setSidebarAbierto={setSidebarAbierto} />
+        <BotonAbrirSidebarFiltros setSidebarAbierto={setSidebarAbierto} />
       )}
 
       {rightSidebarAbiertoCuencas && (

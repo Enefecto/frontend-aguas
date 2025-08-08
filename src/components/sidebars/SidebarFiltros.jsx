@@ -36,7 +36,7 @@ export default function SidebarFiltros({
   };
 
   return (
-    <div className="absolute left-0 z-[1000] top-0 w-90 bg-white h-full shadow-md py-6 px-10 space-y-4 text-sm">
+    <div className="absolute left-0 z-[1000] top-0 w-auto max-w-90 bg-white h-full shadow-md py-6 px-10 space-y-4 text-sm">
       <ButtonOpenCloseSidebar toggleSidebar={setSidebarAbierto} isFiltrosSidebar={true} />
 
       <h2 className="text-lg font-bold mb-4">Filtros</h2>
