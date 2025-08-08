@@ -224,7 +224,6 @@ export default function Mapa() {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setGraficosPuntosData(data);
         setGraphicsPuntosLoading(2);
       })
@@ -308,7 +307,6 @@ export default function Mapa() {
   }, [filtros, isLoaded, minMaxDatosOriginales]);
 
   const handleShowCoordGraphics = (utmNorte, utmEste) => {
-    console.log('Coordenadas del Punto: ', utmNorte, '-', utmEste);
     setRightSidebarAbiertoCuencas(false);
     setRightSidebarAbiertoPunto(true);
     setAnalisisPuntoSeleccionadoLoading(true);
@@ -331,7 +329,6 @@ export default function Mapa() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log('LO QUE LLEGOOO',data);
         setAnalisisPuntoSeleccionado(data[0]); // accede directamente al primer objeto
         setAnalisisPuntoSeleccionadoLoading(false);
       })
@@ -410,7 +407,6 @@ export default function Mapa() {
 
                   layer.bindPopup(`Distancia: ${distanciaKm} km`).openPopup();
 
-                  console.log('Distancia total:', distanciaKm, 'km');
                 }
 
               }
