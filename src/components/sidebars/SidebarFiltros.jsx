@@ -1,6 +1,7 @@
 import Slider from "@mui/material/Slider";
 import TextField from '@mui/material/TextField';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
+import { useEffect, useState } from "react";
 
 export default function SidebarFiltros({
   filtros,
@@ -34,6 +35,30 @@ export default function SidebarFiltros({
       setFiltros(prev => ({ ...prev, [name]: value }));
     }
   };
+
+  const [consultandoPuntos, setConsultandoPuntos] = useState(0);
+
+  useEffect(() => {
+    if (puntos.length !== 0) {
+      setConsultandoPuntos(2);
+    }
+  }, [puntos])
+
+  useEffect(() => {
+    setConsultandoPuntos(0);
+  }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.limit, filtroCaudal, ordenCaudal]);
+
+  useEffect(() => {
+    if (consultandoPuntos === 2) {
+      const t = setTimeout(() => setConsultandoPuntos(0), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [consultandoPuntos]);
+
+
+  const handleUpdateStateConsultandoPuntos = () => {
+    setConsultandoPuntos(1);
+  }
 
   return (
     <div className="absolute left-0 z-[1000] top-0 bg-white shadow-md py-8 px-16 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm h-full
@@ -157,11 +182,30 @@ export default function SidebarFiltros({
 
       <div className="flex justify-center mt-4">
         <button
-          onClick={handleCoordenadasUnicas}
-          className="bg-green-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-green-800 hover:text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
-          disabled={!isLoaded}
+          onClick={() =>  {handleCoordenadasUnicas(); handleUpdateStateConsultandoPuntos();}}
+          className="bg-green-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-green-800 hover:text-white disabled:bg-gray-300 disabled:cursor-not-allowed
+          flex items-center gap-2"
+          disabled={!isLoaded || consultandoPuntos === 1}
         >
           Consultar puntos
+          {consultandoPuntos === 1 ? (
+            // Spinner (cargando)
+            <svg className="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24 ">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            </svg>
+          ) : consultandoPuntos === 2 ? (
+            // Check (terminado)
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="#00838F" >
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.364 7.364a1 1 0 01-1.414 0L3.293 9.414a1 1 0 011.414-1.414L8 11.293l6.293-6.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          ) : (
+            // Estado inicial: gota con color suave que combina con el verde del botón
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#00838F" >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M10.708 2.372a2.382 2.382 0 0 0 -.71 .686l-4.892 7.26c-1.981 3.314 -1.22 7.466 1.767 9.882c2.969 2.402 7.286 2.402 10.254 0c2.987 -2.416 3.748 -6.569 1.795 -9.836l-4.919 -7.306c-.722 -1.075 -2.192 -1.376 -3.295 -.686z"/>
+            </svg>
+          )}
         </button>
       </div>
 
