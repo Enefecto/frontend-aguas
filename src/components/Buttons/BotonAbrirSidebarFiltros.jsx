@@ -5,7 +5,7 @@ export default function BotonAbrirSidebarFiltros({ setSidebarAbierto }) {
       onClick={() => setSidebarAbierto(true)}
       className="
         fixed md:absolute
-        bottom-5 left-4 md:bottom-auto md:top-3 md:left-12
+        bottom-5 left-4 md:bottom-auto md:top-3 md:left-3
         z-[1000]
         inline-flex items-center gap-2
         bg-cyan-700 hover:bg-cyan-600 active:bg-cyan-800

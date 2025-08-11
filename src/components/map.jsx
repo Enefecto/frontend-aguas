@@ -1,6 +1,6 @@
 // Librerias
 import { useEffect, useState, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, FeatureGroup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, FeatureGroup, ZoomControl  } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
@@ -344,11 +344,13 @@ export default function Mapa() {
         center={[-33.45, -70.66]}
         zoom={6}
         className="map-altura w-full"
+        zoomControl={false}
         whenCreated={(mapInstance) => {
           mapRef.current = mapInstance;
           setMapReady(true);
         }}
       >
+        <ZoomControl position="topright" />
         <TileLayer
           attribution='&copy; <a href="https://carto.com/">Carto</a> contributors'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
