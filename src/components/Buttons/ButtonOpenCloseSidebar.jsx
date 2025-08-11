@@ -11,7 +11,7 @@ export const ButtonOpenCloseSidebar = ({ toggleSidebar, isFiltrosSidebar = false
 
   
   const posClasses = isFiltrosSidebar
-    ? "top-1 right-1 md:top-1 md:left-auto md:-right-5"   // sidebar de filtros (izquierda)
+    ? "top-1 right-1 md:top-1 md:left-auto md:-left-2"   // sidebar de filtros (izquierda)
     : "top-3 right-3 md:top-1 md:right-auto md:left-1";  // sidebars de la derecha
 
     
