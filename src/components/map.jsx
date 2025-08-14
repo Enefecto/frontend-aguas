@@ -167,7 +167,6 @@ export default function Mapa() {
   };
 
   const handleShowGraphics = (nomCuenca, codCuenca) => {
-    setSidebarAbierto(false);
     setRightSidebarAbiertoPunto(false);
     setRightSidebarAbiertoCuencas(true);
     setGraphicsCuencasLoading(0);
