@@ -11,6 +11,10 @@ export default function SidebarCuenca({
   setRightSidebarAbiertoCuencas,
   loadCuencasGraphics
 }) {
+
+  const formatNumberCL = (num) =>
+  (num ?? 0).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
   return (
     <div
         className="
@@ -74,12 +78,17 @@ export default function SidebarCuenca({
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
                 data={graficosData.grafico_cantidad_registros_por_informante.slice(0, 20)}
-                margin={{ top: 8, right: 10, left: 0, bottom: 20 }}
+                margin={{ top: 8, right: 10, left: 2, bottom: 20 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="informante" angle={-45} textAnchor="end" interval={0} height={80} tickMargin={8} tick={{ fontSize: 10 }}/>
-                <YAxis />
-                <Tooltip />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(v) => formatNumberCL(v)}
+                />
+                <Tooltip
+                  formatter={(v) => [formatNumberCL(v), 'Registros']}
+                />
                 <Bar dataKey="cantidad_registros" fill="#2563eb" />
               </BarChart>
             </ResponsiveContainer>
@@ -90,12 +99,17 @@ export default function SidebarCuenca({
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
                 data={graficosData.grafico_caudal_total_por_informante.slice(0, 20)}
-                margin={{ top: 8, right: 10, left: 0, bottom: 20 }}
+                margin={{ top: 8, right: 10, left: 5, bottom: 20 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="informante" angle={-45} textAnchor="end" interval={0} height={80} tickMargin={8} tick={{ fontSize: 10 }}/>
-                <YAxis />
-                <Tooltip />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(v) => formatNumberCL(v)}
+                />
+                <Tooltip
+                  formatter={(v) => [`${formatNumberCL(v)} m³/s`, 'Caudal total']}
+                />
                 <Bar dataKey="caudal_total_extraido" fill="#0ea5e9" />
               </BarChart>
             </ResponsiveContainer>
@@ -106,12 +120,17 @@ export default function SidebarCuenca({
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
                 data={graficosData.grafico_cantidad_obras_unicas_por_informante.slice(0, 20)}
-                margin={{ top: 8, right: 10, left: 0, bottom: 20 }}
+                margin={{ top: 8, right: 10, left: -20, bottom: 20 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="informante" angle={-45} textAnchor="end" interval={0} height={80} tickMargin={8} tick={{ fontSize: 10 }}/>
-                <YAxis />
-                <Tooltip />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(v) => formatNumberCL(v)}
+                />
+                <Tooltip
+                  formatter={(v) => [formatNumberCL(v), 'Obras únicas']}
+                />
                 <Bar dataKey="cantidad_obras_unicas" fill="#10b981" />
               </BarChart>
             </ResponsiveContainer>

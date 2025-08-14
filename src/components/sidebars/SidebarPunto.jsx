@@ -11,6 +11,10 @@ export default function SidebarPunto({
   loadPuntosGraphics,
   setRightSidebarAbiertoPunto
 }) {
+
+  const formatNumberCL = (num) => 
+  (num ?? 0).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
   return (
     <div
       className="
@@ -65,22 +69,49 @@ export default function SidebarPunto({
       {graphicsPuntosLoading === 2 && (
         <div className="space-y-10 mt-6 border-t pt-6">
           <h3 className="text-lg font-semibold">Gráficos</h3>
+
           <div className="w-full h-[260px] md:h-80 lg:h-96">
             <h4 className="text-sm font-semibold mb-1 text-gray-700">Caudal por tiempo</h4>
+
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={graficosPuntosData.caudal_por_tiempo} margin={{ top: 8, right: 10, left: 0, bottom: 20 }}>
+              <LineChart
+                data={graficosPuntosData.caudal_por_tiempo}
+                // más espacio a la izquierda para que no se corte el eje Y
+                margin={{ top: 8, right: 10, left: 5, bottom: 24 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
+
                 <XAxis
                   dataKey="fecha_medicion"
-                  tickFormatter={(str) => new Date(str).toLocaleString('es-CL', { day: '2-digit', month: 'short', hour: '2-digit' })}
+                  tickFormatter={(str) =>
+                    new Date(str).toLocaleString('es-CL', {
+                      day: '2-digit',
+                      month: 'short',
+                      hour: '2-digit'
+                    })
+                  }
                   minTickGap={30}
-                  tickMargin={8} tick={{ fontSize: 10 }}
+                  tickMargin={8}
+                  tick={{ fontSize: 10 }}
                 />
-                <YAxis domain={['dataMin - 0.01', 'dataMax + 0.01']} />
+
+                <YAxis
+                  // dominio limpio: 0 a 5% sobre el máx
+                  domain={[0, (dataMax) => (dataMax ?? 0) * 1.05]}
+                  // ancho reservado para que quepan bien los números
+                  width={64}
+                  tick={{ fontSize: 10 }}
+                  // formateo con miles y decimales
+                  tickFormatter={(v) => formatNumberCL(v)}
+                />
+
                 <Tooltip
-                  labelFormatter={(label) => new Date(label).toLocaleString('es-CL')}
-                  formatter={(value) => [`${value} m³/s`, 'Caudal']}
+                  labelFormatter={(label) =>
+                    new Date(label).toLocaleString('es-CL')
+                  }
+                  formatter={(value) => [`${formatNumberCL(value)} m³/s`, 'Caudal']}
                 />
+
                 <Line type="monotone" dataKey="caudal" stroke="#2563eb" dot={false} />
               </LineChart>
             </ResponsiveContainer>
