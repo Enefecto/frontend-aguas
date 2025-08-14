@@ -28,11 +28,20 @@ export const EstadisticBox = ({ boxcolor = 'blue', label, value }) => {
 
   const { bg, text } = colorClasses[boxcolor] || colorClasses.gray;
 
+  // Función para formatear el número
+  const formatNumber = (num) => {
+    if (num == null) return '-';
+    return num.toLocaleString('es-CL', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    });
+  };
+
   return (
     <div className={`${bg} p-4 rounded shadow-sm`}>
       <p className="text-gray-500 text-xs">{label}</p>
       <p className={`${text} font-extrabold text-xl`}>
-        {value != null ? Number(value.toFixed(2)).toLocaleString() : '-'}
+        {formatNumber(value)}
       </p>
     </div>
   );
