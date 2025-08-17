@@ -84,15 +84,26 @@ export default function SidebarPunto({
                 <XAxis
                   dataKey="fecha_medicion"
                   tickFormatter={(str) =>
-                    new Date(str).toLocaleString('es-CL', {
+                    new Date(str).toLocaleDateString('es-CL', {
                       day: '2-digit',
                       month: 'short',
-                      hour: '2-digit'
-                    })
+                      year: 'numeric'
+                    }).replace('.', '') // quita el punto de "sept."
                   }
                   minTickGap={30}
                   tickMargin={8}
                   tick={{ fontSize: 10 }}
+                />
+
+                <Tooltip
+                  labelFormatter={(label) =>
+                    new Date(label).toLocaleDateString('es-CL', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric'
+                    }).replace('.', '')
+                  }
+                  formatter={(value) => [`${formatNumberCL(value)} m³/s`, 'Caudal']}
                 />
 
                 <YAxis
