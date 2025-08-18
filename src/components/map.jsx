@@ -4,8 +4,12 @@ import { MapContainer, TileLayer, Marker, Popup, FeatureGroup, ZoomControl  } fr
 import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
-
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet-draw';
+
+import L from 'leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 
 // Componentes de este proyecto
 import { PopupPunto } from './Popups/PopupPunto';
@@ -415,14 +419,55 @@ export default function Mapa() {
           />
         </FeatureGroup>
 
-        {/* Tus puntos */}
-        {puntos.map((punto, index) => (
-          <Marker key={index} position={[punto.lat, punto.lon]}>
-            <Popup>
-              <PopupPunto punto={punto} handleShowGraphics={handleShowGraphics} handleShowCoordGraphics={handleShowCoordGraphics}/>
-            </Popup>
-          </Marker>
-        ))}
+        <MarkerClusterGroup
+          chunkedLoading
+          spiderfyOnEveryZoom
+          showCoverageOnHover={false}
+          iconCreateFunction={(cluster) => {
+            const count = cluster.getChildCount();
+
+            // tamaño del icono según cantidad
+            const size =
+              count >= 100 ? 'large' : count >= 25 ? 'medium' : 'small';
+
+            return L.divIcon({
+              html: `<div style="
+                        background-color: #2E7BCC;
+                        color: white;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: bold;
+                        font-size: 14px;
+                        width: 40px;
+                        height: 40px;
+                        border: 2px solid #fff;
+                      ">
+                        ${count}
+                    </div>`,
+              className: `marker-cluster marker-cluster-${size}`,
+              iconSize: L.point(40, 40, true),
+            });
+          }}
+        >
+          {puntos.map((punto, index) => (
+            <Marker
+              key={index}
+              position={[punto.lat, punto.lon]}
+              caudal={Number(punto.caudal_promedio ?? 0)} // opcional, ya no lo usamos para sumar
+            >
+              <Popup>
+                <PopupPunto
+                  punto={punto}
+                  handleShowGraphics={handleShowGraphics}
+                  handleShowCoordGraphics={handleShowCoordGraphics}
+                />
+              </Popup>
+            </Marker>
+          ))}
+        </MarkerClusterGroup>
+
       </MapContainer>
 
       {sidebarAbierto && (
