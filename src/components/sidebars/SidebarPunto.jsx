@@ -15,6 +15,8 @@ export default function SidebarPunto({
   const formatNumberCL = (num) => 
   (num ?? 0).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
+  const { analisis = {}, datosPunto = {} } = analisisPuntoSeleccionado ?? {};
+
   return (
     <div
       className="
@@ -30,19 +32,44 @@ export default function SidebarPunto({
       <h2 className="text-2xl font-bold border-b pb-2 mt-2">Análisis del punto</h2>
 
       <h3 className="text-lg font-semibold">
-        Punto: <span className="text-cyan-800 font-bold">{analisisPuntoSeleccionado.utm_norte} - {analisisPuntoSeleccionado.utm_este}</span>
+        Punto: <span className="text-cyan-800 font-bold">{analisis.utm_norte} - {analisis.utm_este}</span>
       </h3>
+
+      {datosPunto.altura !== null && datosPunto.altura !== undefined && (
+        <div className="mt-3">
+          <div className="inline-flex items-center gap-3 rounded-lg bg-cyan-50/80 px-3 py-2 border border-cyan-100 shadow-sm">
+            {/* ícono gota */}
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-cyan-100">
+              <svg width="18" height="18" viewBox="0 0 28 36" aria-hidden="true">
+                <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
+                      fill="#0891b2" stroke="white" strokeWidth="1.5" />
+              </svg>
+            </span>
+
+            {/* texto */}
+            <div className="leading-tight">
+              <div className="text-[11px] uppercase tracking-wide text-cyan-700 font-semibold">
+                Altura limnimétrica
+              </div>
+              <div className="text-xl font-extrabold text-cyan-900 tabular-nums">
+                {new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(datosPunto.altura)}
+                <span className="ml-1 text-sm font-semibold text-cyan-700">m</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {!analisisPuntoSeleccionadoLoading ? (
         <div className="space-y-4 pt-2">
           <h3 className="text-base font-semibold text-gray-700">Análisis Estadístico</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
     
-            <EstadisticBox boxcolor="blue" label="Total de registros con caudal" value={analisisPuntoSeleccionado.total_registros_con_caudal} />
-            <EstadisticBox boxcolor="green" label="Caudal promedio (m³/s)" value={analisisPuntoSeleccionado.caudal_promedio} />
-            <EstadisticBox boxcolor="yellow" label="Caudal mínimo (m³/s)" value={analisisPuntoSeleccionado.caudal_minimo} />
-            <EstadisticBox boxcolor="red" label="Caudal máximo (m³/s)" value={analisisPuntoSeleccionado.caudal_maximo} />
-            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal" value={analisisPuntoSeleccionado.desviacion_estandar_caudal} />
+            <EstadisticBox boxcolor="blue" label="Total de registros con caudal" value={analisis.total_registros_con_caudal} />
+            <EstadisticBox boxcolor="green" label="Caudal promedio (m³/s)" value={analisis.caudal_promedio} />
+            <EstadisticBox boxcolor="yellow" label="Caudal mínimo (m³/s)" value={analisis.caudal_minimo} />
+            <EstadisticBox boxcolor="red" label="Caudal máximo (m³/s)" value={analisis.caudal_maximo} />
+            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal" value={analisis.desviacion_estandar_caudal} />
           </div>
         </div>
       ) : (
@@ -53,7 +80,7 @@ export default function SidebarPunto({
 
       {graphicsPuntosLoading === 0 && (
         <button
-          onClick={() => loadPuntosGraphics(analisisPuntoSeleccionado.utm_norte, analisisPuntoSeleccionado.utm_este)}
+          onClick={() => loadPuntosGraphics(analisis.utm_norte, analisis.utm_este)}
           className="block mt-6 bg-cyan-700 text-white font-semibold px-4 py-2 rounded cursor-pointer hover:bg-cyan-600 transition"
         >
           Cargar Gráficos

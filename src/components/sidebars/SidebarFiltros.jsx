@@ -1,5 +1,9 @@
 import Slider from "@mui/material/Slider";
 import TextField from '@mui/material/TextField';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { styled } from '@mui/material/styles';
+
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { useEffect, useState } from "react";
 
@@ -20,7 +24,9 @@ export default function SidebarFiltros({
   isLoaded,
   puntos,
   limiteSolicitado,
-  setSidebarAbierto
+  setSidebarAbierto,
+  agrupar,
+  setAgrupar
 }) {
   const handleFiltroChange = (e) => {
     const { name, value } = e.target;
@@ -64,6 +70,68 @@ export default function SidebarFiltros({
   const handleUpdateStateConsultandoPuntos = () => {
     setConsultandoPuntos(1);
   }
+
+  const AgruparSwitch = styled((props) => (
+    <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
+  ))(({ theme }) => ({
+    width: 46,
+    height: 28,
+    padding: 0,
+    display: 'inline-flex',
+    alignItems: 'center',
+    '& .MuiSwitch-switchBase': {
+      padding: 2,
+      transition: theme.transitions.create(['transform'], {
+        duration: 260,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)', // easeOutExpo-like
+      }),
+      '&.Mui-checked': {
+        transform: 'translateX(18px)',
+        color: '#fff',
+        '& + .MuiSwitch-track': {
+          backgroundColor: '#0891b2', // cyan-700
+          opacity: 1,
+          border: 0,
+        },
+        '& .MuiSwitch-thumb': {
+          transform: 'scale(1.02)',
+          boxShadow: '0 2px 6px rgba(2,132,199,.45)',
+        },
+      },
+    },
+    '& .MuiSwitch-thumb': {
+      boxSizing: 'border-box',
+      width: 24,
+      height: 24,
+      transition: theme.transitions.create(['transform', 'box-shadow'], {
+        duration: 260,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      }),
+    },
+    '& .MuiSwitch-track': {
+      borderRadius: 28 / 2,
+      backgroundColor: '#cbd5e1', // slate-300
+      opacity: 1,
+      transition: theme.transitions.create(['background-color', 'opacity'], {
+        duration: 260,
+        easing: theme.transitions.easing.easeInOut,
+      }),
+    },
+
+    // opcional: feedback al click
+    '& .MuiSwitch-switchBase:active .MuiSwitch-thumb': {
+      transform: 'scale(0.96)',
+    },
+
+    // respeta preferencias de accesibilidad
+    '@media (prefers-reduced-motion: reduce)': {
+      '& .MuiSwitch-switchBase': { transition: 'none' },
+      '& .MuiSwitch-thumb': { transition: 'none' },
+      '& .MuiSwitch-track': { transition: 'none' },
+    },
+  }));
+
+
 
   return (
     <div className="absolute left-0 z-[1000] top-0 bg-white shadow-md py-8 px-16 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm h-full
@@ -110,7 +178,7 @@ export default function SidebarFiltros({
           <option key={i} value={subcuenca}>{subcuenca}</option>
         ))}
       </select>
-
+      
       <div className="mb-6">
         <label className="block font-medium mb-10">Cantidad de puntos límite:</label>
         <div className="flex items-center gap-4">
@@ -181,6 +249,22 @@ export default function SidebarFiltros({
         >
           Mayor a menor
         </button>
+      </div>
+      
+      <div className="mt-2 border-t pt-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-slate-700">Agrupar puntos</span>
+          <AgruparSwitch
+            checked={agrupar}
+            onChange={(e) => setAgrupar(e.target.checked)}
+            inputProps={{ 'aria-label': 'Agrupar puntos' }}
+          />
+        </div>
+
+        {/* microcopia debajo, sin desplazamientos raros */}
+        <p className="text-xs text-slate-500 mt-1">
+          Combina marcadores cercanos para mejorar el rendimiento visual.
+        </p>
       </div>
 
       <hr />

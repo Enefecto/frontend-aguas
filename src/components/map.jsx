@@ -1,6 +1,6 @@
 // Librerias
-import { useEffect, useState, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, FeatureGroup, ZoomControl  } from 'react-leaflet';
+import { useEffect, useState, useMemo  } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, FeatureGroup, LayerGroup, ZoomControl } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
@@ -13,6 +13,7 @@ import MarkerClusterGroup from 'react-leaflet-cluster';
 
 // Componentes de este proyecto
 import { PopupPunto } from './Popups/PopupPunto';
+import { Legend } from './UI/Leyend';
 import SidebarFiltros from './sidebars/SidebarFiltros';
 import SidebarCuenca from './sidebars/SidebarCuenca';
 import SidebarPunto from './sidebars/SidebarPunto';
@@ -66,6 +67,8 @@ export default function Mapa() {
 
   const [analisisPuntoSeleccionado, setAnalisisPuntoSeleccionado] = useState({});
   const [analisisPuntoSeleccionadoLoading, setAnalisisPuntoSeleccionadoLoading] = useState({});
+
+  const [agrupar, setAgrupar] = useState(false);
 
   // Obtener los datos una sola vez
   useEffect(() => {
@@ -309,7 +312,7 @@ export default function Mapa() {
     return caudal_global.total_puntos_unicos || 100;
   }, [filtros, isLoaded, minMaxDatosOriginales]);
 
-  const handleShowCoordGraphics = (utmNorte, utmEste) => {
+  const handleShowCoordGraphics = (utmNorte, utmEste, altura) => {
     setRightSidebarAbiertoCuencas(false);
     setRightSidebarAbiertoPunto(true);
     setAnalisisPuntoSeleccionadoLoading(true);
@@ -332,7 +335,12 @@ export default function Mapa() {
     })
       .then((res) => res.json())
       .then((data) => {
-        setAnalisisPuntoSeleccionado(data[0]); // accede directamente al primer objeto
+        setAnalisisPuntoSeleccionado({
+          analisis: data[0],
+          datosPunto: {
+            altura: altura
+          }
+        });
         setAnalisisPuntoSeleccionadoLoading(false);
       })
       .catch((err) => {
@@ -341,6 +349,51 @@ export default function Mapa() {
       });
   };
 
+  // Gota de agua SVG como divIcon
+  const createDropIcon = (fill = "#2E7BCC") =>
+    L.divIcon({
+      className: "", // sin estilos por defecto de leaflet-div-icon
+      html: `
+        <svg width="28" height="36" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
+          <!-- contorno blanco para contraste -->
+          <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
+                fill="${fill}" stroke="white" stroke-width="2"/>
+          <!-- brillo sutil -->
+          <ellipse cx="11" cy="18" rx="2.2" ry="3.6" fill="rgba(255,255,255,0.35)"/>
+        </svg>
+      `,
+      iconSize: [28, 36],
+      iconAnchor: [14, 34],   // la punta de la gota al punto geográfico
+      popupAnchor: [0, -30],
+  });
+
+  const renderMarkers = useMemo(() => (
+    puntos
+      .filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lon))
+      .map((punto) => {
+        const color = punto?.tipoPunto?.altura != null ? "#FF5722" : "#2E7BCC";
+        const customIcon = createDropIcon(color);
+
+        return (
+          <Marker
+            key={`${punto.utm_este}-${punto.utm_norte}`}
+            position={[punto.lat, punto.lon]}
+            icon={customIcon}
+          >
+            <Popup>
+              <PopupPunto
+                punto={punto}
+                handleShowGraphics={handleShowGraphics}
+                handleShowCoordGraphics={handleShowCoordGraphics}
+              />
+            </Popup>
+          </Marker>
+        );
+      })
+  ), [puntos, handleShowGraphics, handleShowCoordGraphics]);
+
+
+
   return (
     <div className="relative">
       <MapContainer
@@ -348,11 +401,11 @@ export default function Mapa() {
         zoom={6}
         className="map-altura w-full"
         zoomControl={false}
-        whenCreated={(mapInstance) => {
-          mapRef.current = mapInstance;
-          setMapReady(true);
-        }}
       >
+        <Legend
+          position="bottomright"
+          colores={{ pozos: '#FF5722', extraccion: '#2E7BCC' }}
+        />
         <ZoomControl position="topright" />
         <TileLayer
           attribution='&copy; <a href="https://carto.com/">Carto</a> contributors'
@@ -419,17 +472,15 @@ export default function Mapa() {
           />
         </FeatureGroup>
 
+        {agrupar ? (
         <MarkerClusterGroup
+          key={`cluster-on`}             // fuerza remonte cuando se activa
           chunkedLoading
           spiderfyOnEveryZoom
           showCoverageOnHover={false}
           iconCreateFunction={(cluster) => {
             const count = cluster.getChildCount();
-
-            // tamaño del icono según cantidad
-            const size =
-              count >= 100 ? 'large' : count >= 25 ? 'medium' : 'small';
-
+            const size = count >= 100 ? "large" : count >= 25 ? "medium" : "small";
             return L.divIcon({
               html: `<div style="
                         background-color: #2E7BCC;
@@ -451,22 +502,13 @@ export default function Mapa() {
             });
           }}
         >
-          {puntos.map((punto, index) => (
-            <Marker
-              key={index}
-              position={[punto.lat, punto.lon]}
-              caudal={Number(punto.caudal_promedio ?? 0)} // opcional, ya no lo usamos para sumar
-            >
-              <Popup>
-                <PopupPunto
-                  punto={punto}
-                  handleShowGraphics={handleShowGraphics}
-                  handleShowCoordGraphics={handleShowCoordGraphics}
-                />
-              </Popup>
-            </Marker>
-          ))}
+          {renderMarkers}
         </MarkerClusterGroup>
+      ) : (
+        <LayerGroup key={`cluster-off`}> {/* sin agrupar */}
+          {renderMarkers}
+        </LayerGroup>
+      )}
 
       </MapContainer>
 
@@ -489,6 +531,8 @@ export default function Mapa() {
           puntos={puntos}
           limiteSolicitado={limiteSolicitado}
           setSidebarAbierto={setSidebarAbierto}
+          agrupar={agrupar}
+          setAgrupar={setAgrupar}
         />
       )}
 

@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
+/* Misma fuente que el resto de la app */
+.custom-legend,
+.custom-legend * {
+  font-family: "Roboto","Helvetica","Arial",sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 .map-altura {
   height: calc(100vh - 4rem); /* h-16 = 4rem */
 }

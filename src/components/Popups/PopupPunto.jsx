@@ -15,7 +15,7 @@ export const PopupPunto = ({punto, handleShowGraphics, handleShowCoordGraphics})
       <p><strong>Nº de Mediciones:</strong> {punto.n_mediciones}</p>
       <button
         className='bg-cyan-800 text-white p-2 cursor-pointer hover:bg-cyan-600'
-        onClick={() => handleShowCoordGraphics(punto.utm_norte, punto.utm_este)}
+        onClick={() => handleShowCoordGraphics(punto.utm_norte, punto.utm_este, punto.tipoPunto.altura)}
       >
         Analizar Punto
       </button>
