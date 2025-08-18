@@ -45,6 +45,12 @@ export default function SidebarFiltros({
   }, [puntos])
 
   useEffect(() => {
+    if (isLoaded){
+      handleCoordenadasUnicas();
+    }
+  },[isLoaded])
+
+  useEffect(() => {
     setConsultandoPuntos(0);
   }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.limit, filtroCaudal, ordenCaudal]);
 
@@ -54,7 +60,6 @@ export default function SidebarFiltros({
       return () => clearTimeout(t);
     }
   }, [consultandoPuntos]);
-
 
   const handleUpdateStateConsultandoPuntos = () => {
     setConsultandoPuntos(1);
