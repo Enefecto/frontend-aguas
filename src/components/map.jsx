@@ -60,7 +60,9 @@ export default function Mapa() {
   const [graficosData, setGraficosData] = useState({
     grafico_cantidad_registros_por_informante: [],
     grafico_caudal_total_por_informante: [],
-    grafico_cantidad_obras_unicas_por_informante: []
+    grafico_cantidad_obras_unicas_por_informante: [],
+    grafico_caudal_mensual_min_prom_max: [],
+    grafico_caudal_diario_min_prom_max: []
   });
 
   const [graficosPuntosData, setGraficosPuntosData] = useState([]);
@@ -209,10 +211,13 @@ export default function Mapa() {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
+        console.log(data);
         setGraficosData({
           grafico_cantidad_registros_por_informante: data.grafico_cantidad_registros_por_informante || [],
           grafico_caudal_total_por_informante: data.grafico_caudal_total_por_informante || [],
-          grafico_cantidad_obras_unicas_por_informante: data.grafico_cantidad_obras_unicas_por_informante || []
+          grafico_cantidad_obras_unicas_por_informante: data.grafico_cantidad_obras_unicas_por_informante || [],
+          grafico_caudal_mensual_min_prom_max: data.grafico_caudal_mensual_min_prom_max || [],
+          grafico_caudal_diario_min_prom_max: data.grafico_caudal_diario_min_prom_max || []
         });
         setGraphicsCuencasLoading(2);
       })
