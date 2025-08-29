@@ -446,14 +446,58 @@ export default function Mapa() {
               const layer = e.layer;
 
               if (e.layerType === 'circle') {
+                const layer = e.layer;
                 const center = layer.getLatLng();
                 const radius = layer.getRadius();
 
-                // Mostrar mensaje temporal
-                layer.bindPopup("Cargando...").openPopup();
+                // Calcular un punto en el perímetro hacia el este
+                const puntoPerimetro = L.latLng(
+                  center.lat,
+                  center.lng + (radius / (111320 * Math.cos(center.lat * Math.PI / 180)))
+                );
 
-                // Llama la función y pasa el layer
+                // Dibujar la línea (radio)
+                const radioLine = L.polyline([center, puntoPerimetro], {
+                  color: "#1d4ed8",
+                  weight: 3,
+                  dashArray: "6, 6"
+                }).addTo(layer._map);
+
+                // Formatear radio
+                const radioTexto = radius >= 1000
+                  ? `${(radius / 1000).toFixed(2)} km`
+                  : `${radius.toFixed(0)} m`;
+
+                // 📍 Crear un marcador de texto en el medio de la línea
+                const midPoint = L.latLng(
+                  (center.lat + puntoPerimetro.lat) / 2,
+                  (center.lng + puntoPerimetro.lng) / 2
+                );
+
+                const radioLabel = L.marker(midPoint, {
+                  icon: L.divIcon({
+                    className: "radio-label",
+                    html: `<div style="
+                      padding: 2px 0px;
+                      color: #1d4ed8;
+                      font-size: 12px;
+                      font-weight: bold;
+                      white-space: nowrap;
+                    ">${radioTexto}</div>`,
+                    iconSize: [0, 0],
+                    iconAnchor: [-5, -5] // ajusta la posición
+                  })
+                }).addTo(layer._map);
+
+                // Popup del círculo (tus estadísticas)
+                layer.bindPopup("Cargando...").openPopup();
                 getPointsInCircle(puntos, center, radius, layer);
+
+                // 🔑 Borrar todo junto si eliminan el círculo
+                layer.on("remove", () => {
+                  layer._map.removeLayer(radioLine);
+                  layer._map.removeLayer(radioLabel);
+                });
               }
 
               if (e.layerType === 'polyline') {

@@ -2,6 +2,7 @@ import { TrophySpin, Slab } from 'react-loading-indicators';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
+import { formatNumberCL } from '../../utils/formatNumberCL';
 
 export default function SidebarPunto({
   analisisPuntoSeleccionado,
@@ -11,9 +12,6 @@ export default function SidebarPunto({
   loadPuntosGraphics,
   setRightSidebarAbiertoPunto
 }) {
-
-  const formatNumberCL = (num) => 
-  (num ?? 0).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
   const { analisis = {}, datosPunto = {} } = analisisPuntoSeleccionado ?? {};
 
@@ -69,7 +67,7 @@ export default function SidebarPunto({
             <EstadisticBox boxcolor="green" label="Caudal promedio (m³/s)" value={analisis.caudal_promedio} />
             <EstadisticBox boxcolor="yellow" label="Caudal mínimo (m³/s)" value={analisis.caudal_minimo} />
             <EstadisticBox boxcolor="red" label="Caudal máximo (m³/s)" value={analisis.caudal_maximo} />
-            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal" value={analisis.desviacion_estandar_caudal} />
+            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (m³/s)" value={analisis.desviacion_estandar_caudal} />
           </div>
         </div>
       ) : (

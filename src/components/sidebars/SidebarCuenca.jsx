@@ -3,6 +3,7 @@ import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, Cart
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
 import { useEffect, useState } from "react";
+import { formatNumberCL } from '../../utils/formatNumberCL';
 
 export default function SidebarCuenca({
   cuencaAnalysis,
@@ -15,9 +16,6 @@ export default function SidebarCuenca({
 
   const [selectedMes, setSelectedMes] = useState(null);
   const [caudalDiarioFiltrado, setCaudalDiarioFiltrado] = useState(null);
-
-  const formatNumberCL = (num) =>
-    (num ?? 0).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
   // --- Función para limpiar outliers ---
   function winsorizeData(data, keys = ["min_caudal", "avg_caudal", "max_caudal"]) {

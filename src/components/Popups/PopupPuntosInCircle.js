@@ -12,14 +12,6 @@ export const getPointsInCircle = async (puntos, center, radius, layer) => {
     return;
   }
 
-  // Formatear radio en m o km
-  let radioTexto;
-  if (radius >= 1000) {
-    radioTexto = `${(radius / 1000).toFixed(2)} km`;
-  } else {
-    radioTexto = `${radius.toFixed(0)} m`;
-  }
-
   const payload = puntosFiltrados.map(p => ({
     utm_norte: p.utm_norte,
     utm_este: p.utm_este
@@ -51,7 +43,6 @@ export const getPointsInCircle = async (puntos, center, radius, layer) => {
           Análisis estadístico del área
         </div>
         
-        <div class="flex justify-between"><span class="text-gray-600">Radio:</span><span class="text-gray-800 font-medium">${radioTexto}</span></div>
         <div class="flex justify-between"><span class="text-gray-600">Puntos:</span><span class="text-gray-800 font-medium">${stats.puntos_consultados ?? '1'}</span></div>
         <div class="flex justify-between"><span class="text-gray-600">Mediciones:</span><span class="text-gray-800 font-medium">${Number(stats.total_registros_con_caudal ?? 0).toLocaleString('es-CL')}</span></div>
         <div class="flex justify-between"><span class="text-green-600">Promedio:</span><span class="font-semibold text-green-700">${Number(stats.caudal_promedio ?? 0).toFixed(2)} m³/s</span></div>
