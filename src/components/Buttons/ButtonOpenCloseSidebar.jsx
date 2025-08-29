@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-export const ButtonOpenCloseSidebar = ({ toggleSidebar, isFiltrosSidebar = false }) => {
+export const ButtonOpenCloseSidebar = ({ toggleSidebar, isFiltrosSidebar = false, setIsOpen }) => {
   // en móvil, ambos usan top-3/left-3; en md+ cambian a su posición “clásica”
   
   useEffect(() => {
@@ -18,7 +18,15 @@ export const ButtonOpenCloseSidebar = ({ toggleSidebar, isFiltrosSidebar = false
   return (
     <button
       type="button"
-      onClick={() => toggleSidebar(false)}
+      onClick={() => {
+        setIsOpen(false);
+
+        // espera el tiempo de la transición antes de desmontar (500ms)
+        setTimeout(() => {
+          toggleSidebar(false);
+        }, 500);
+      }}
+
       className={`
         absolute ${posClasses}
         z-[1100]

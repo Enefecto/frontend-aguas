@@ -3,6 +3,7 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
 import { formatNumberCL } from '../../utils/formatNumberCL';
+import { useState, useEffect } from 'react';
 
 export default function SidebarPunto({
   analisisPuntoSeleccionado,
@@ -15,17 +16,28 @@ export default function SidebarPunto({
 
   const { analisis = {}, datosPunto = {} } = analisisPuntoSeleccionado ?? {};
 
+  const [isOpen, setIsOpen] = useState(false); 
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsOpen(true);
+    }, 100);
+  },[])
+
   return (
     <div
-      className="
+      className={`
         fixed inset-0 z-[1000] bg-white text-sm overflow-y-auto
         p-4 space-y-6
         md:absolute md:inset-auto md:right-0 md:top-0 md:h-full md:shadow-md
         md:p-6 lg:p-8
         w-screen md:w-[24rem] lg:w-[32rem] xl:w-[45rem]
-      "
+
+        transform transition-transform duration-500 ease-in-out
+        ${isOpen ? "translate-x-0" : "translate-x-full"}
+      `}
     >
-      <ButtonOpenCloseSidebar toggleSidebar={setRightSidebarAbiertoPunto} />
+      <ButtonOpenCloseSidebar toggleSidebar={setRightSidebarAbiertoPunto} setIsOpen={setIsOpen} />
 
       <h2 className="text-2xl font-bold border-b pb-2 mt-2">Análisis del punto</h2>
 

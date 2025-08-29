@@ -17,6 +17,14 @@ export default function SidebarCuenca({
   const [selectedMes, setSelectedMes] = useState(null);
   const [caudalDiarioFiltrado, setCaudalDiarioFiltrado] = useState(null);
 
+  const [isOpen, setIsOpen] = useState(false); 
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsOpen(true);
+    }, 100);
+  },[])
+
   // --- Función para limpiar outliers ---
   function winsorizeData(data, keys = ["min_caudal", "avg_caudal", "max_caudal"]) {
     const cleaned = [...data];
@@ -81,16 +89,19 @@ export default function SidebarCuenca({
 
   return (
     <div
-      className="
+      className={`
         fixed inset-0 z-[1000] bg-white text-sm overflow-y-auto
         p-4 space-y-6
         md:absolute md:inset-auto md:right-0 md:top-0 md:h-full md:shadow-md
         md:p-6 lg:p-8
         w-screen md:w-[24rem] lg:w-[32rem] xl:w-[45rem]
-      "
+
+        transform transition-transform duration-500 ease-in-out
+        ${isOpen ? "translate-x-0" : "translate-x-full"}
+      `}
     >
 
-      <ButtonOpenCloseSidebar toggleSidebar={setRightSidebarAbiertoCuencas}/>
+      <ButtonOpenCloseSidebar toggleSidebar={setRightSidebarAbiertoCuencas} setIsOpen={setIsOpen}/>
 
       <h2 className="text-2xl font-bold border-b pb-2 mt-2">Análisis de Cuenca</h2>
 

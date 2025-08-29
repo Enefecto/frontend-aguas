@@ -1,7 +1,6 @@
 import Slider from "@mui/material/Slider";
 import TextField from '@mui/material/TextField';
 import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import { styled } from '@mui/material/styles';
 
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
@@ -42,7 +41,14 @@ export default function SidebarFiltros({
     }
   };
 
-  const [consultandoPuntos, setConsultandoPuntos] = useState(0);
+  const [consultandoPuntos, setConsultandoPuntos] = useState(0); 
+  const [isOpen, setIsOpen] = useState(false); 
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsOpen(true);
+    }, 100);
+  },[])
 
   useEffect(() => {
     if (puntos.length !== 0) {
@@ -134,9 +140,12 @@ export default function SidebarFiltros({
 
 
   return (
-    <div className="absolute left-0 z-[1000] top-0 bg-white shadow-md py-8 px-16 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm h-full
-  w-full sm:w-100 max-h-screen overflow-y-auto">
-      <ButtonOpenCloseSidebar toggleSidebar={setSidebarAbierto} isFiltrosSidebar={true} />
+    <div
+      className={`absolute left-0 top-0 z-[1000] bg-white shadow-md py-8 px-16 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm h-full
+        w-full sm:w-100 max-h-screen overflow-y-auto transform transition-transform duration-500 ease-in-out
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+    >
+      <ButtonOpenCloseSidebar toggleSidebar={setSidebarAbierto} isFiltrosSidebar={true} setIsOpen={setIsOpen} />
 
       <h2 className="text-lg font-bold mb-4">Filtros</h2>
 

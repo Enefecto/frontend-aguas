@@ -175,7 +175,7 @@ export default function Mapa() {
 
   };
 
-  const handleShowGraphics = (nomCuenca, codCuenca) => {
+  const handleShowSidebarCuencas = (nomCuenca, codCuenca) => {
     setRightSidebarAbiertoPunto(false);
     setRightSidebarAbiertoCuencas(true);
     setGraphicsCuencasLoading(0);
@@ -317,7 +317,7 @@ export default function Mapa() {
     return caudal_global.total_puntos_unicos || 100;
   }, [filtros, isLoaded, minMaxDatosOriginales]);
 
-  const handleShowCoordGraphics = (utmNorte, utmEste, altura) => {
+  const handleShowSidebarPunto = (utmNorte, utmEste, altura) => {
     setRightSidebarAbiertoCuencas(false);
     setRightSidebarAbiertoPunto(true);
     setAnalisisPuntoSeleccionadoLoading(true);
@@ -388,19 +388,19 @@ export default function Mapa() {
             <Popup>
               <PopupPunto
                 punto={punto}
-                handleShowGraphics={handleShowGraphics}
-                handleShowCoordGraphics={handleShowCoordGraphics}
+                handleShowSidebarCuencas={handleShowSidebarCuencas}
+                handleShowSidebarPunto={handleShowSidebarPunto}
               />
             </Popup>
           </Marker>
         );
       })
-  ), [puntos, handleShowGraphics, handleShowCoordGraphics]);
+  ), [puntos, handleShowSidebarCuencas, handleShowSidebarPunto]);
 
 
 
   return (
-    <div className="relative">
+    <div className="relative overflow-hidden">
       <MapContainer
         center={[-33.45, -70.66]}
         zoom={6}
