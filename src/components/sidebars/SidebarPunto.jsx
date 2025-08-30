@@ -14,7 +14,7 @@ export default function SidebarPunto({
   setRightSidebarAbiertoPunto
 }) {
 
-  const { analisis = {}, datosPunto = {} } = analisisPuntoSeleccionado ?? {};
+  const { analisis = {}, punto = {} } = analisisPuntoSeleccionado ?? {};
 
   const [isOpen, setIsOpen] = useState(false); 
 
@@ -42,10 +42,13 @@ export default function SidebarPunto({
       <h2 className="text-2xl font-bold border-b pb-2 mt-2">Análisis del punto</h2>
 
       <h3 className="text-lg font-semibold">
-        Punto: <span className="text-cyan-800 font-bold">{analisis.utm_norte} - {analisis.utm_este}</span>
+        Punto: <span className="text-cyan-800 font-bold">
+          {punto.lat?.toFixed(5)} / {punto.lon?.toFixed(5)}
+        </span>
       </h3>
 
-      {datosPunto.altura !== null && datosPunto.altura !== undefined && (
+
+      {punto.tipoPunto?.altura !== null && punto.tipoPunto?.altura !== undefined && (
         <div className="mt-3">
           <div className="inline-flex items-center gap-3 rounded-lg bg-cyan-50/80 px-3 py-2 border border-cyan-100 shadow-sm">
             {/* ícono gota */}
@@ -62,7 +65,7 @@ export default function SidebarPunto({
                 Altura limnimétrica
               </div>
               <div className="text-xl font-extrabold text-cyan-900 tabular-nums">
-                {new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(datosPunto.altura)}
+                {new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(punto.tipoPunto?.altura)}
                 <span className="ml-1 text-sm font-semibold text-cyan-700">m</span>
               </div>
             </div>
@@ -70,7 +73,7 @@ export default function SidebarPunto({
         </div>
       )}
       
-      {datosPunto.nivel_freatico !== null && datosPunto.nivel_freatico !== undefined && (
+      {punto.tipoPunto?.nivel_freatico !== null && punto.tipoPunto?.nivel_freatico !== undefined && (
         <div className="mt-3">
           <div className="inline-flex items-center gap-3 rounded-lg bg-orange-50/80 px-3 py-2 border border-orange-100 shadow-sm">
             {/* ícono gota */}
@@ -87,7 +90,7 @@ export default function SidebarPunto({
                 Nivel Freatico
               </div>
               <div className="text-xl font-extrabold text-orange-900 tabular-nums">
-                {new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(datosPunto.nivel_freatico)}
+                {new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(punto.tipoPunto?.nivel_freatico)}
                 <span className="ml-1 text-sm font-semibold text-orange-700">m</span>
               </div>
             </div>
@@ -115,7 +118,7 @@ export default function SidebarPunto({
 
       {graphicsPuntosLoading === 0 && (
         <button
-          onClick={() => loadPuntosGraphics(analisis.utm_norte, analisis.utm_este)}
+          onClick={() => loadPuntosGraphics(punto.utm_norte, punto.utm_este)}
           className="block mt-6 bg-cyan-700 text-white font-semibold px-4 py-2 rounded cursor-pointer hover:bg-cyan-600 transition"
         >
           Cargar Gráficos

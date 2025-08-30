@@ -163,7 +163,6 @@ export default function Mapa() {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          console.log(data);
           setPuntos(data);
           setLimiteSolicitado(filtros.limit);
         } else {
@@ -317,7 +316,8 @@ export default function Mapa() {
     return caudal_global.total_puntos_unicos || 100;
   }, [filtros, isLoaded, minMaxDatosOriginales]);
 
-  const handleShowSidebarPunto = (utmNorte, utmEste, altura, nivelFreatico) => {
+  const handleShowSidebarPunto = (punto) => {
+    
     setRightSidebarAbiertoCuencas(false);
     setRightSidebarAbiertoPunto(true);
     setAnalisisPuntoSeleccionadoLoading(true);
@@ -333,8 +333,8 @@ export default function Mapa() {
       },
       body: JSON.stringify([
         {
-          utm_norte: utmNorte,
-          utm_este: utmEste
+          utm_norte: punto.utm_norte,
+          utm_este: punto.utm_este
         }
       ])
     })
@@ -342,10 +342,7 @@ export default function Mapa() {
       .then((data) => {
         setAnalisisPuntoSeleccionado({
           analisis: data[0],
-          datosPunto: {
-            altura: altura,
-            nivel_freatico: nivelFreatico
-          }
+          punto: punto
         });
         setAnalisisPuntoSeleccionadoLoading(false);
       })

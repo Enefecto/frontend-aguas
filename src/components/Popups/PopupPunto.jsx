@@ -18,7 +18,7 @@ export const PopupPunto = ({punto, handleShowSidebarCuencas, handleShowSidebarPu
       <p><strong>Nº de Mediciones:</strong> {formatNumberCL(punto.n_mediciones)}</p>
       <button
         className='bg-cyan-800 text-white p-2 cursor-pointer hover:bg-cyan-600'
-        onClick={() => handleShowSidebarPunto(punto.utm_norte, punto.utm_este, punto.tipoPunto.altura, punto.tipoPunto.nivel_freatico)}
+        onClick={() => handleShowSidebarPunto(punto)}
       >
         Analizar Punto
       </button>
