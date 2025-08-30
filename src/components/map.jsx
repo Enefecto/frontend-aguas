@@ -163,6 +163,7 @@ export default function Mapa() {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
+          console.log(data);
           setPuntos(data);
           setLimiteSolicitado(filtros.limit);
         } else {
@@ -211,7 +212,6 @@ export default function Mapa() {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setGraficosData({
           grafico_cantidad_registros_por_informante: data.grafico_cantidad_registros_por_informante || [],
           grafico_caudal_total_por_informante: data.grafico_caudal_total_por_informante || [],
@@ -317,7 +317,7 @@ export default function Mapa() {
     return caudal_global.total_puntos_unicos || 100;
   }, [filtros, isLoaded, minMaxDatosOriginales]);
 
-  const handleShowSidebarPunto = (utmNorte, utmEste, altura) => {
+  const handleShowSidebarPunto = (utmNorte, utmEste, altura, nivelFreatico) => {
     setRightSidebarAbiertoCuencas(false);
     setRightSidebarAbiertoPunto(true);
     setAnalisisPuntoSeleccionadoLoading(true);
@@ -343,7 +343,8 @@ export default function Mapa() {
         setAnalisisPuntoSeleccionado({
           analisis: data[0],
           datosPunto: {
-            altura: altura
+            altura: altura,
+            nivel_freatico: nivelFreatico
           }
         });
         setAnalisisPuntoSeleccionadoLoading(false);
@@ -376,7 +377,8 @@ export default function Mapa() {
     puntos
       .filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lon))
       .map((punto) => {
-        const color = punto?.tipoPunto?.altura != null ? "#FF5722" : "#2E7BCC";
+        // Si es extraccion superficial o un pozo
+        const color = punto?.tipoPunto?.altura != null ? "#2E7BCC" : "#FF5722";
         const customIcon = createDropIcon(color);
 
         return (
@@ -396,8 +398,6 @@ export default function Mapa() {
         );
       })
   ), [puntos, handleShowSidebarCuencas, handleShowSidebarPunto]);
-
-
 
   return (
     <div className="relative overflow-hidden">

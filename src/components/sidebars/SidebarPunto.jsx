@@ -69,6 +69,31 @@ export default function SidebarPunto({
           </div>
         </div>
       )}
+      
+      {datosPunto.nivel_freatico !== null && datosPunto.nivel_freatico !== undefined && (
+        <div className="mt-3">
+          <div className="inline-flex items-center gap-3 rounded-lg bg-orange-50/80 px-3 py-2 border border-orange-100 shadow-sm">
+            {/* ícono gota */}
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100">
+              <svg width="18" height="18" viewBox="0 0 28 36" aria-hidden="true">
+                <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
+                      fill="#FF5722" stroke="white" strokeWidth="1.5" />
+              </svg>
+            </span>
+
+            {/* texto */}
+            <div className="leading-tight">
+              <div className="text-[11px] uppercase tracking-wide text-orange-700 font-semibold">
+                Nivel Freatico
+              </div>
+              <div className="text-xl font-extrabold text-orange-900 tabular-nums">
+                {new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(datosPunto.nivel_freatico)}
+                <span className="ml-1 text-sm font-semibold text-orange-700">m</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {!analisisPuntoSeleccionadoLoading ? (
         <div className="space-y-4 pt-2">
