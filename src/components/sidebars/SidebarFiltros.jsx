@@ -27,6 +27,8 @@ export default function SidebarFiltros({
   agrupar,
   setAgrupar
 }) {
+
+
   const handleFiltroChange = (e) => {
     const { name, value } = e.target;
 
@@ -34,12 +36,15 @@ export default function SidebarFiltros({
       setFiltros({ region: value, cuenca: '', subcuenca: '', limit: filtros.limit });
     } else if (name === 'cuenca') {
       setFiltros(prev => ({ ...prev, cuenca: value, subcuenca: '' }));
+    } else if (name === 'tipoPunto') {
+      setFiltros(prev => ({ ...prev, tipoPunto: value })); // 🔹 manejar tipo de punto
     } else if (name === 'limit') {
       setFiltros(prev => ({ ...prev, limit: parseInt(value, 10) || 0 }));
     } else {
       setFiltros(prev => ({ ...prev, [name]: value }));
     }
   };
+
 
   const [consultandoPuntos, setConsultandoPuntos] = useState(0); 
   const [isOpen, setIsOpen] = useState(false); 
@@ -259,6 +264,19 @@ export default function SidebarFiltros({
           Mayor a menor
         </button>
       </div>
+
+      <label className="block font-medium mt-4">Tipo de punto:</label>
+      <select
+        className="w-full p-2 border rounded"
+        name="tipoPunto"
+        value={filtros.tipoPunto || ""}
+        onChange={handleFiltroChange}
+      >
+        <option value="">-- Todos --</option>
+        <option value="superficial">Extracción superficial</option>
+        <option value="pozo">Pozo</option>
+      </select>
+
       
       <div className="mt-2 border-t pt-3">
         <div className="flex items-center justify-between">

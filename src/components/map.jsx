@@ -36,7 +36,8 @@ export default function Mapa() {
     region: '',
     cuenca: '',
     subcuenca: '',
-    limit: 10
+    limit: 10,
+    tipoPunto: ''
   });
 
   const [limiteSolicitado, setLimiteSolicitado] = useState();
@@ -144,6 +145,7 @@ export default function Mapa() {
     const queryParams = new URLSearchParams();
 
     if (filtros.region) queryParams.append("region", filtros.region);
+    if (filtros.tipoPunto) queryParams.append("tipo_punto", filtros.tipoPunto);
     if (cuencaCod !== undefined) queryParams.append("cod_cuenca", cuencaCod);
     if (filtros.subcuenca === 'No registrada') {
       // No se agrega el parámetro, el backend asumirá que debe filtrar por null
