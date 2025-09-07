@@ -9,12 +9,9 @@ import "leaflet-draw";
 export const ToolsEditControl = ({puntos}) => {
 
    // 🔹 Sobrescribir textos de la barra de dibujo y edición
-  L.drawLocal.draw.toolbar.buttons.polyline = "Dibujar línea";
-  L.drawLocal.draw.toolbar.buttons.polygon = "Dibujar área";
-  L.drawLocal.draw.toolbar.buttons.circle = "Dibujar círculo";
-  L.drawLocal.draw.toolbar.buttons.rectangle = "Dibujar rectángulo";
-  L.drawLocal.draw.toolbar.buttons.marker = "Agregar marcador";
-  L.drawLocal.draw.toolbar.buttons.circlemarker = "Agregar círculo marcador";
+  L.drawLocal.draw.toolbar.buttons.polyline = "Calcular Distancia";
+  L.drawLocal.draw.toolbar.buttons.polygon = "Crear Área Personalizada";
+  L.drawLocal.draw.toolbar.buttons.circle = "Crear círculo";
 
   L.drawLocal.draw.toolbar.actions = {
     title: 'Cancelar dibujo',
@@ -123,10 +120,8 @@ export const ToolsEditControl = ({puntos}) => {
               },
             },
             polyline: {
-              shapeOptions: {
-                color: '#1d4ed8',
-                weight: 4,
-              },
+              shapeOptions: { color: '#1d4ed8', weight: 4 },
+              maxPoints: 2 // 🔑 Limitar a solo 2 puntos
             },
           }}
           edit={{
