@@ -19,6 +19,7 @@ import SidebarCuenca from './sidebars/SidebarCuenca';
 import SidebarPunto from './sidebars/SidebarPunto';
 import BotonAbrirSidebarFiltros from './Buttons/BotonAbrirSidebarFiltros';
 import { getPointsInCircle } from './Popups/PopupPuntosInCircle';
+import { getPointsInPolygon } from './Popups/PopupPuntosInPersonalizado';
 
 export default function Mapa() {
   const [sidebarAbierto, setSidebarAbierto] = useState(true);
@@ -422,7 +423,21 @@ export default function Mapa() {
             position="topright"
             draw={{
               rectangle: false,
-              polygon: false,
+              polygon: {
+                allowIntersection: false, // evita que se crucen las líneas
+                showArea: false,           // muestra el área en tiempo real
+                shapeOptions: {
+                  color: "#10b981",
+                  weight: 2,
+                },
+                drawError: {
+                  color: "#ff0000",
+                  message: "<strong>Error:</strong> los bordes no pueden cruzarse.",
+                },
+                // 🔑 aquí el control de cuántos puntos como mínimo y máximo
+                minimumVertexCount: 3, // mínimo 3 (triángulo)
+                maxVertices: null,      // o null para ilimitado
+              },
               marker: false,
               circlemarker: false,
               circle: {
@@ -432,7 +447,7 @@ export default function Mapa() {
               },
               polyline: {
                 shapeOptions: {
-                  color: '#1d4ed8', // azul elegante
+                  color: '#1d4ed8',
                   weight: 4,
                 },
               },
@@ -515,6 +530,14 @@ export default function Mapa() {
 
                 }
 
+              }
+              if (e.layerType === "polygon") {
+                const latlngs = layer.getLatLngs()[0]; // vértices
+
+                layer.bindPopup("Cargando...").openPopup();
+
+                // 🔥 aquí llamamos a la función
+                getPointsInPolygon(puntos, latlngs, layer);
               }
             }}
           />
