@@ -3,7 +3,96 @@ import { EditControl } from 'react-leaflet-draw';
 import { getPointsInPolygon } from '../Popups/PopupPuntosInPersonalizado';
 import { getPointsInCircle } from '../Popups/PopupPuntosInCircle';
 
+import L from "leaflet";
+import "leaflet-draw";
+
 export const ToolsEditControl = ({puntos}) => {
+
+   // 🔹 Sobrescribir textos de la barra de dibujo y edición
+  L.drawLocal.draw.toolbar.buttons.polyline = "Dibujar línea";
+  L.drawLocal.draw.toolbar.buttons.polygon = "Dibujar área";
+  L.drawLocal.draw.toolbar.buttons.circle = "Dibujar círculo";
+  L.drawLocal.draw.toolbar.buttons.rectangle = "Dibujar rectángulo";
+  L.drawLocal.draw.toolbar.buttons.marker = "Agregar marcador";
+  L.drawLocal.draw.toolbar.buttons.circlemarker = "Agregar círculo marcador";
+
+  L.drawLocal.draw.toolbar.actions = {
+    title: 'Cancelar dibujo',
+    text: 'Cancelar',
+    undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' }
+  };
+
+  L.drawLocal.draw.toolbar.finish = {
+    title: 'Finalizar dibujo',
+    text: 'Finalizar'
+  };
+
+  // 🔹 Textos de los tooltips durante el dibujo (cerca del cursor)
+  L.drawLocal.draw.handlers = {
+    polyline: {
+      tooltip: {
+        start: 'Haz clic para comenzar a dibujar una línea',
+        cont: 'Haz clic para continuar dibujando la línea',
+        end: 'Haz doble clic para finalizar'
+      },
+      actions: {
+        finish: { title: 'Finalizar dibujo', text: 'Finalizar' },
+        undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' },
+        cancel: { title: 'Cancelar dibujo', text: 'Cancelar' }
+      }
+    },
+    polygon: {
+      tooltip: {
+        start: 'Haz clic para comenzar a dibujar un área',
+        cont: 'Haz clic para continuar dibujando',
+        end: 'Haz clic en el primer punto para cerrar el área'
+      },
+      actions: {
+        finish: { title: 'Finalizar dibujo', text: 'Finalizar' },
+        undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' },
+        cancel: { title: 'Cancelar dibujo', text: 'Cancelar' }
+      }
+    },
+    rectangle: {
+      tooltip: { start: 'Haz click y arrastra para dibujar un rectángulo' }
+    },
+    circle: {
+      tooltip: { start: 'Haz click y arrastra para dibujar un círculo' },
+      radius: 'Radio'
+    },
+    marker: {
+      tooltip: { start: 'Haz click en el mapa para colocar un marcador' }
+    },
+    circlemarker: {
+      tooltip: { start: 'Haz click en el mapa para colocar un círculo marcador' }
+    },
+    simpleshape: {
+      tooltip: { end: 'Suelta el mouse para finalizar el dibujo' }
+    }
+  };
+
+  // 🔹 Textos de la edición
+  L.drawLocal.edit.toolbar.buttons.edit = "Editar capas";
+  L.drawLocal.edit.toolbar.buttons.editDisabled = "No hay capas para editar";
+  L.drawLocal.edit.toolbar.buttons.remove = "Eliminar capas";
+  L.drawLocal.edit.toolbar.buttons.removeDisabled = "No hay capas para eliminar";
+
+  L.drawLocal.edit.toolbar.actions = {
+    save: { title: "Guardar cambios", text: "Guardar" },
+    cancel: { title: "Cancelar edición", text: "Cancelar" },
+    clearAll: { title: "Eliminar todas las capas", text: "Eliminar todo" },
+    undo: { title: "Deshacer", text: "Deshacer último punto" }
+  };
+
+  L.drawLocal.edit.handlers.edit.tooltip = {
+    text: "Arrastra los marcadores para editar",
+    subtext: 'Haz click en "Cancelar" para deshacer los cambios'
+  };
+
+  L.drawLocal.edit.handlers.remove.tooltip = {
+    text: "Haz click en un marcador para eliminarlo"
+  };
+
   return (
     <>
       <FeatureGroup>
