@@ -2,7 +2,7 @@ import * as turf from "@turf/turf";
 import { formatNumberCL } from "../../utils/formatNumberCL";
 
 // Función para filtrar puntos dentro de un polígono
-export const getPointsInPolygon = async (puntos, latlngs, layer) => {
+export const getPointsInPolygon = async (apiUrl, puntos, latlngs, layer) => {
   // Construir coords en formato [lng, lat]
   let coords = latlngs.map(ll => [ll.lng, ll.lat]);
 
@@ -34,7 +34,7 @@ export const getPointsInPolygon = async (puntos, latlngs, layer) => {
   }));
 
   try {
-    const res = await fetch("http://localhost:8000/puntos/estadisticas", {
+    const res = await fetch(`${apiUrl}/puntos/estadisticas`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

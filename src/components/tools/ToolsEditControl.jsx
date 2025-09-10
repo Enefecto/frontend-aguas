@@ -6,7 +6,7 @@ import { getPointsInCircle } from '../Popups/PopupPuntosInCircle';
 import L from "leaflet";
 import "leaflet-draw";
 
-export const ToolsEditControl = ({puntos}) => {
+export const ToolsEditControl = ({apiUrl,puntos}) => {
 
    // 🔹 Sobrescribir textos de la barra de dibujo y edición
   L.drawLocal.draw.toolbar.buttons.polyline = "Calcular Distancia";
@@ -177,7 +177,7 @@ export const ToolsEditControl = ({puntos}) => {
 
               // Popup del círculo (tus estadísticas)
               layer.bindPopup("Cargando...").openPopup();
-              getPointsInCircle(puntos, center, radius, layer);
+              getPointsInCircle(apiUrl,puntos, center, radius, layer);
 
               // 🔑 Borrar todo junto si eliminan el círculo
               layer.on("remove", () => {
@@ -209,7 +209,7 @@ export const ToolsEditControl = ({puntos}) => {
               layer.bindPopup("Cargando...").openPopup();
 
               // 🔥 aquí llamamos a la función
-              getPointsInPolygon(puntos, latlngs, layer);
+              getPointsInPolygon(apiUrl, puntos, latlngs, layer);
             }
           }}
         />

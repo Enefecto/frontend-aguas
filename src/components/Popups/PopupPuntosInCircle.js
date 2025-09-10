@@ -2,7 +2,7 @@ import { getDistance } from "../../utils/geoCalculos";
 import { formatNumberCL } from "../../utils/formatNumberCL";
 
 // Función para filtrar puntos dentro del círculo
-export const getPointsInCircle = async (puntos, center, radius, layer) => {
+export const getPointsInCircle = async (apiUrl,puntos, center, radius, layer) => {
   const puntosFiltrados = puntos.filter((p) => {
     const dist = getDistance(center.lat, center.lng, p.lat, p.lon);
     return dist <= radius;
@@ -19,7 +19,7 @@ export const getPointsInCircle = async (puntos, center, radius, layer) => {
   }));
 
   try {
-    const res = await fetch('http://localhost:8000/puntos/estadisticas', {
+    const res = await fetch(`${apiUrl}/puntos/estadisticas`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

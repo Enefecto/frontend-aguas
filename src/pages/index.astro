@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import Map from "../components/map.jsx";
+const apiUrl = import.meta.env.API_URL;
 ---
 
 <html lang="es">
@@ -13,7 +14,7 @@ import Map from "../components/map.jsx";
       <h1 class="text-2xl font-bold text-center">Aguas Transparentes</h1>
     </nav>
     <div class="w-full">
-      <Map client:only="react" />
+      <Map client:only="react" apiUrl={apiUrl} />
     </div>
   </body>
 </html>

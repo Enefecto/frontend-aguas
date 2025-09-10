@@ -19,7 +19,7 @@ import SidebarPunto from './sidebars/SidebarPunto';
 import BotonAbrirSidebarFiltros from './Buttons/BotonAbrirSidebarFiltros';
 import { ToolsEditControl } from './tools/ToolsEditControl';
 
-export default function Mapa() {
+export default function Mapa({apiUrl}) {
   const [sidebarAbierto, setSidebarAbierto] = useState(true);
   const [rightSidebarAbiertoCuencas, setRightSidebarAbiertoCuencas] = useState(false);
   const [rightSidebarAbiertoPunto, setRightSidebarAbiertoPunto] = useState(false);
@@ -74,7 +74,7 @@ export default function Mapa() {
 
   // Obtener los datos una sola vez
   useEffect(() => {
-    fetch("http://localhost:8000/cuencas")
+    fetch(`${apiUrl}/cuencas`)
       .then((res) => res.json())
       .then((data) => { 
         setDatosOriginales(data.cuencas);
@@ -86,7 +86,7 @@ export default function Mapa() {
 
   // Obtener los datos una sola vez
   useEffect(() => {
-    fetch("http://localhost:8000/cuencas/stats")
+    fetch(`${apiUrl}/cuencas/stats`)
       .then((res) => res.json())
       .then((data) => {
         setMinMaxDatosOriginales(data.estadisticas);
@@ -158,7 +158,7 @@ export default function Mapa() {
     queryParams.append("caudal_maximo", filtroCaudal[1]);
     queryParams.append("orden_caudal", ordenCaudal);
     
-    const url = `http://localhost:8000/puntos?${queryParams.toString()}`;
+    const url = `${apiUrl}/puntos?${queryParams.toString()}`;
 
     fetch(url)
       .then((res) => res.json())
@@ -183,7 +183,7 @@ export default function Mapa() {
     setCuencaAnalysis({nombreCuenca: nomCuenca, codigoCuenca:codCuenca});
 
 
-    const url = `http://localhost:8000/cuencas/analisis_caudal?cuenca_identificador=${codCuenca}`;
+    const url = `${apiUrl}/cuencas/analisis_caudal?cuenca_identificador=${codCuenca}`;
 
     setCuencaLoading(true)
 
@@ -207,7 +207,7 @@ export default function Mapa() {
   const loadCuencasGraphics = () => {
     setGraphicsCuencasLoading(1);
 
-    const url = `http://localhost:8000/cuencas/analisis_informantes?cuenca_identificador=${cuencaAnalysis.codigoCuenca}`
+    const url = `${apiUrl}/cuencas/analisis_informantes?cuenca_identificador=${cuencaAnalysis.codigoCuenca}`
 
     fetch(url)
       .then((res) => res.json())
@@ -230,7 +230,7 @@ export default function Mapa() {
   const loadPuntosGraphics = (utmNorte, utmEste) => {
     setGraphicsPuntosLoading(1);
 
-    const url = `http://localhost:8000/puntos/series_de_tiempo/caudal?utm_norte=${utmNorte}&utm_este=${utmEste}`
+    const url = `${apiUrl}/puntos/series_de_tiempo/caudal?utm_norte=${utmNorte}&utm_este=${utmEste}`
 
     fetch(url)
       .then((res) => res.json())
@@ -324,7 +324,7 @@ export default function Mapa() {
     setAnalisisPuntoSeleccionadoLoading(true);
     setGraphicsPuntosLoading(0);
 
-    const url = 'http://localhost:8000/puntos/estadisticas';
+    const url = `${apiUrl}/puntos/estadisticas`;
 
     fetch(url, {
       method: 'POST',
@@ -416,7 +416,8 @@ export default function Mapa() {
         />
 
         {/* CONTENEDOR PARA LAS CAPAS DIBUJADAS */}
-        <ToolsEditControl 
+        <ToolsEditControl
+          apiUrl={apiUrl}
           puntos={puntos}
         />
 
