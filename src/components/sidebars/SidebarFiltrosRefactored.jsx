@@ -1,7 +1,7 @@
 import React from 'react';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar.jsx';
-import { CustomSwitch } from '../ui/CustomSwitch.jsx';
-import { StatusButton } from '../ui/StatusButton.jsx';
+import { CustomSwitch } from '../UI/CustomSwitch.jsx';
+import { StatusButton } from '../UI/StatusButton.jsx';
 import { useFilterStatus } from '../../hooks/useFilterStatus.js';
 import {
   RegionFilter,
@@ -34,14 +34,15 @@ export default function SidebarFiltrosRefactored({
   setSidebarAbierto,
   agrupar,
   setAgrupar,
-  handleFiltroChange
+  handleFiltroChange,
+  queryCompleted
 }) {
   const {
     consultandoPuntos,
     isOpen,
     setIsOpen,
     handleUpdateStateConsultandoPuntos
-  } = useFilterStatus(puntos, filtros, filtroCaudal, ordenCaudal, isLoaded, handleCoordenadasUnicas);
+  } = useFilterStatus(puntos, filtros, filtroCaudal, ordenCaudal, isLoaded, handleCoordenadasUnicas, queryCompleted);
 
   const handleConsultarClick = () => {
     handleCoordenadasUnicas();

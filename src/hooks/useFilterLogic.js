@@ -13,6 +13,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   const [ordenCaudal, setOrdenCaudal] = useState(FILTER_CONFIG.DEFAULT_ORDEN_CAUDAL);
   const [puntos, setPuntos] = useState([]);
   const [limiteSolicitado, setLimiteSolicitado] = useState();
+  const [queryCompleted, setQueryCompleted] = useState(false);
 
   // Opciones filtradas para los selects
   const filteredOptions = useMemo(() =>
@@ -65,21 +66,25 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   // Función para obtener coordenadas únicas
   const handleCoordenadasUnicas = async () => {
     try {
+      setQueryCompleted(false); // Reset del estado de consulta
       const queryParams = buildQueryParams(filtros, filtroCaudal, ordenCaudal, datosOriginales);
       const data = await apiService.getPuntos(queryParams);
 
       if (Array.isArray(data)) {
         setPuntos(data);
         setLimiteSolicitado(filtros.limit);
+        setQueryCompleted(true); // ✅ Marcar como completado independientemente de si hay resultados
       } else {
         console.error("Respuesta inesperada:", data);
         setPuntos([]);
         setLimiteSolicitado();
+        setQueryCompleted(true); // ✅ También marcar como completado en caso de error de formato
       }
     } catch (err) {
       console.error("Error al obtener coordenadas:", err);
       setPuntos([]);
       setLimiteSolicitado();
+      setQueryCompleted(true); // ✅ Marcar como completado incluso en caso de error
     }
   };
 
@@ -94,6 +99,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
     puntos,
     setPuntos,
     limiteSolicitado,
+    queryCompleted, // ✅ Nuevo estado para saber si la consulta terminó
 
     // Datos calculados
     filteredOptions,

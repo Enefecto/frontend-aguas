@@ -1,7 +1,7 @@
 import React from 'react';
 import Slider from "@mui/material/Slider";
 import TextField from '@mui/material/TextField';
-import { SelectFilter } from '../ui/FilterGroup.jsx';
+import { SelectFilter } from '../UI/FilterGroup.jsx';
 import { FILTER_CONFIG } from '../../constants/apiEndpoints.js';
 
 export const RegionFilter = ({ filtros, handleFiltroChange, regionesUnicas }) => (

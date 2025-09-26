@@ -31,6 +31,7 @@ export const SidebarManager = ({
   limiteSolicitado,
   agrupar,
   setAgrupar,
+  queryCompleted,
 
   // Props para SidebarCuenca
   cuencaAnalysis,
@@ -70,6 +71,7 @@ export const SidebarManager = ({
           agrupar={agrupar}
           setAgrupar={setAgrupar}
           handleFiltroChange={handleFiltroChange}
+          queryCompleted={queryCompleted}
         />
       )}
 

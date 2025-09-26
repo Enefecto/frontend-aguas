@@ -48,6 +48,7 @@ const MapaContent = () => {
     max,
     handleFiltroChange,
     handleCoordenadasUnicas,
+    queryCompleted,
 
     // Estados de sidebars
     sidebarAbierto,
@@ -138,6 +139,7 @@ const MapaContent = () => {
         limiteSolicitado={limiteSolicitado}
         agrupar={agrupar}
         setAgrupar={setAgrupar}
+        queryCompleted={queryCompleted}
 
         // Props para SidebarCuenca
         cuencaAnalysis={cuencaAnalysis}
