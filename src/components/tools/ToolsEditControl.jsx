@@ -1,94 +1,129 @@
+import React, { useEffect, useState } from 'react';
 import { FeatureGroup } from 'react-leaflet';
-import { EditControl } from 'react-leaflet-draw';
 import { getPointsInPolygon } from '../Popups/PopupPuntosInPersonalizado';
 import { getPointsInCircle } from '../Popups/PopupPuntosInCircle';
 
-import L from "leaflet";
-import "leaflet-draw";
-
 export const ToolsEditControl = ({apiUrl,puntos}) => {
+  const [EditControl, setEditControl] = useState(null);
+  const [isReady, setIsReady] = useState(false);
 
-   // 🔹 Sobrescribir textos de la barra de dibujo y edición
-  L.drawLocal.draw.toolbar.buttons.polyline = "Calcular Distancia";
-  L.drawLocal.draw.toolbar.buttons.polygon = "Crear Área Personalizada";
-  L.drawLocal.draw.toolbar.buttons.circle = "Crear círculo";
+  useEffect(() => {
+    let isMounted = true;
 
-  L.drawLocal.draw.toolbar.actions = {
-    title: 'Cancelar dibujo',
-    text: 'Cancelar',
-    undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' }
-  };
+    const loadEditControl = async () => {
+      if (typeof window !== 'undefined' && window.L) {
+        try {
+          // Cargar react-leaflet-draw dinámicamente
+          const { EditControl: EC } = await import('react-leaflet-draw');
 
-  L.drawLocal.draw.toolbar.finish = {
-    title: 'Finalizar dibujo',
-    text: 'Finalizar'
-  };
+          if (isMounted) {
+            setEditControl(() => EC);
 
-  // 🔹 Textos de los tooltips durante el dibujo (cerca del cursor)
-  L.drawLocal.draw.handlers = {
-    polyline: {
-      tooltip: {
-        start: 'Haz clic para comenzar a dibujar una línea',
-        cont: 'Haz clic para continuar dibujando la línea',
-        end: 'Haz doble clic para finalizar'
-      },
-      actions: {
-        finish: { title: 'Finalizar dibujo', text: 'Finalizar' },
-        undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' },
-        cancel: { title: 'Cancelar dibujo', text: 'Cancelar' }
+            // Configurar textos de leaflet-draw
+            const L = window.L;
+
+            // 🔹 Sobrescribir textos de la barra de dibujo y edición
+            L.drawLocal.draw.toolbar.buttons.polyline = "Calcular Distancia";
+            L.drawLocal.draw.toolbar.buttons.polygon = "Crear Área Personalizada";
+            L.drawLocal.draw.toolbar.buttons.circle = "Crear círculo";
+
+            L.drawLocal.draw.toolbar.actions = {
+              title: 'Cancelar dibujo',
+              text: 'Cancelar',
+              undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' }
+            };
+
+            L.drawLocal.draw.toolbar.finish = {
+              title: 'Finalizar dibujo',
+              text: 'Finalizar'
+            };
+
+            // 🔹 Textos de los tooltips durante el dibujo (cerca del cursor)
+            L.drawLocal.draw.handlers = {
+              polyline: {
+                tooltip: {
+                  start: 'Haz clic para comenzar a dibujar una línea',
+                  cont: 'Haz clic para continuar dibujando la línea',
+                  end: 'Haz doble clic para finalizar'
+                },
+                actions: {
+                  finish: { title: 'Finalizar dibujo', text: 'Finalizar' },
+                  undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' },
+                  cancel: { title: 'Cancelar dibujo', text: 'Cancelar' }
+                }
+              },
+              polygon: {
+                tooltip: {
+                  start: 'Haz clic para comenzar a dibujar un área',
+                  cont: 'Haz clic para continuar dibujando',
+                  end: 'Haz clic en el primer punto para cerrar el área'
+                },
+                actions: {
+                  finish: { title: 'Finalizar dibujo', text: 'Finalizar' },
+                  undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' },
+                  cancel: { title: 'Cancelar dibujo', text: 'Cancelar' }
+                }
+              },
+              rectangle: {
+                tooltip: { start: 'Haz click y arrastra para dibujar un rectángulo' }
+              },
+              circle: {
+                tooltip: { start: 'Haz click y arrastra para dibujar un círculo' },
+                radius: 'Radio'
+              },
+              marker: {
+                tooltip: { start: 'Haz click en el mapa para colocar un marcador' }
+              },
+              circlemarker: {
+                tooltip: { start: 'Haz click en el mapa para colocar un círculo marcador' }
+              },
+              simpleshape: {
+                tooltip: { end: 'Suelta el mouse para finalizar el dibujo' }
+              }
+            };
+
+            // 🔹 Textos de la edición
+            L.drawLocal.edit.toolbar.buttons.edit = "Editar capas";
+            L.drawLocal.edit.toolbar.buttons.editDisabled = "No hay capas para editar";
+            L.drawLocal.edit.toolbar.buttons.remove = "Eliminar capas";
+            L.drawLocal.edit.toolbar.buttons.removeDisabled = "No hay capas para eliminar";
+
+            L.drawLocal.edit.toolbar.actions = {
+              save: { title: "Guardar cambios", text: "Guardar" },
+              cancel: { title: "Cancelar edición", text: "Cancelar" },
+              clearAll: { title: "Eliminar todas las capas", text: "Eliminar todo" },
+              undo: { title: "Deshacer", text: "Deshacer último punto" }
+            };
+
+            L.drawLocal.edit.handlers.edit.tooltip = {
+              text: "Arrastra los marcadores para editar",
+              subtext: 'Haz click en "Cancelar" para deshacer los cambios'
+            };
+
+            L.drawLocal.edit.handlers.remove.tooltip = {
+              text: "Haz click en un marcador para eliminarlo"
+            };
+
+            setIsReady(true);
+          }
+        } catch (error) {
+          console.error('Error loading EditControl:', error);
+        }
       }
-    },
-    polygon: {
-      tooltip: {
-        start: 'Haz clic para comenzar a dibujar un área',
-        cont: 'Haz clic para continuar dibujando',
-        end: 'Haz clic en el primer punto para cerrar el área'
-      },
-      actions: {
-        finish: { title: 'Finalizar dibujo', text: 'Finalizar' },
-        undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' },
-        cancel: { title: 'Cancelar dibujo', text: 'Cancelar' }
-      }
-    },
-    rectangle: {
-      tooltip: { start: 'Haz click y arrastra para dibujar un rectángulo' }
-    },
-    circle: {
-      tooltip: { start: 'Haz click y arrastra para dibujar un círculo' },
-      radius: 'Radio'
-    },
-    marker: {
-      tooltip: { start: 'Haz click en el mapa para colocar un marcador' }
-    },
-    circlemarker: {
-      tooltip: { start: 'Haz click en el mapa para colocar un círculo marcador' }
-    },
-    simpleshape: {
-      tooltip: { end: 'Suelta el mouse para finalizar el dibujo' }
-    }
-  };
+    };
 
-  // 🔹 Textos de la edición
-  L.drawLocal.edit.toolbar.buttons.edit = "Editar capas";
-  L.drawLocal.edit.toolbar.buttons.editDisabled = "No hay capas para editar";
-  L.drawLocal.edit.toolbar.buttons.remove = "Eliminar capas";
-  L.drawLocal.edit.toolbar.buttons.removeDisabled = "No hay capas para eliminar";
+    // Intentar cargar con un pequeño delay para asegurar que leaflet esté listo
+    const timer = setTimeout(loadEditControl, 100);
 
-  L.drawLocal.edit.toolbar.actions = {
-    save: { title: "Guardar cambios", text: "Guardar" },
-    cancel: { title: "Cancelar edición", text: "Cancelar" },
-    clearAll: { title: "Eliminar todas las capas", text: "Eliminar todo" },
-    undo: { title: "Deshacer", text: "Deshacer último punto" }
-  };
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, []);
 
-  L.drawLocal.edit.handlers.edit.tooltip = {
-    text: "Arrastra los marcadores para editar",
-    subtext: 'Haz click en "Cancelar" para deshacer los cambios'
-  };
-
-  L.drawLocal.edit.handlers.remove.tooltip = {
-    text: "Haz click en un marcador para eliminarlo"
-  };
+  if (!isReady || !EditControl) {
+    return <FeatureGroup />;
+  }
 
   return (
     <>
@@ -135,6 +170,7 @@ export const ToolsEditControl = ({apiUrl,puntos}) => {
               const layer = e.layer;
               const center = layer.getLatLng();
               const radius = layer.getRadius();
+              const L = window.L;
 
               // Calcular un punto en el perímetro hacia el este
               const puntoPerimetro = L.latLng(

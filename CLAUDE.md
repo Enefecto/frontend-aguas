@@ -23,25 +23,43 @@ Esta es una aplicación **Astro + React + Leaflet** que crea un mapa interactivo
 ### Estructura de la Aplicación
 
 **Punto de Entrada Principal**: `src/pages/index.astro`
-- Renderiza la navegación principal e incrusta el componente de Mapa de React
+- Renderiza la navegación principal e incrusta el componente MapaRefactorizado
 - Usa la directiva `client:only="react"` para el componente del mapa
 - Pasa la URL de la API desde variables de entorno
 
-**Componente Principal del Mapa**: `src/components/map.jsx`
-- Lógica central de la aplicación que maneja el estado del mapa, obtención de datos e interacciones de UI
-- Maneja múltiples capas de datos: cuencas, puntos y análisis
-- Gestiona tres tipos de sidebars: filtros, análisis de cuencas y análisis de puntos
-- Implementa funcionalidad de agrupación para marcadores del mapa
-- Usa iconos SVG personalizados de gotas de agua para diferentes tipos de puntos
+**Componente Principal Refactorizado**: `src/components/MapaRefactorizado.jsx`
+- Implementa el patrón Provider/Consumer con Context API
+- Divide la lógica en custom hooks especializados
+- Gestiona estado global mediante MapContext
+- Utiliza componentes modulares para el mapa y sidebars
+
+**Arquitectura Modular**:
+- **Context API**: `src/contexts/MapContext.jsx` - Estado global de la aplicación
+- **Custom Hooks**: `src/hooks/` - Lógica de negocio especializada
+- **Servicios**: `src/services/apiService.js` - Abstracción de llamadas API
+- **Utilidades**: `src/utils/` - Funciones puras reutilizables
+- **Constantes**: `src/constants/` - Configuraciones centralizadas
 
 ### Organización de Componentes Clave
 
+**Componentes del Mapa** (`src/components/map/`):
+- `MapContainer.jsx` - Contenedor principal del mapa con capas base
+- `MarkerLayer.jsx` - Gestión de marcadores y clustering
+- `SidebarManager.jsx` - Orquestador de todos los sidebars
+
 **Sidebars** (`src/components/sidebars/`):
-- `SidebarFiltros.jsx` - Controles principales de filtro para regiones, cuencas, caudales
+- `SidebarFiltrosRefactored.jsx` - Controles de filtro modulares y optimizados
+- `FilterSection.jsx` - Componentes de filtro reutilizables
 - `SidebarCuenca.jsx` - Análisis de cuencas con gráficos y estadísticas
 - `SidebarPunto.jsx` - Análisis específico de puntos y datos de series temporales
 
-**Componentes UI** (`src/components/UI/`):
+**Componentes UI Reutilizables** (`src/components/ui/`):
+- `LoadingSpinner.jsx` - Spinner de carga reutilizable
+- `StatusButton.jsx` - Botón con estados (loading, success, error)
+- `FilterGroup.jsx` - Contenedores y controles de filtro
+- `CustomSwitch.jsx` - Switch personalizado con Material-UI
+
+**Componentes Legacy** (`src/components/UI/`):
 - `Leyend.jsx` - Componente de leyenda del mapa
 - `EstadisticBox.jsx` - Cajas de visualización de estadísticas
 
@@ -64,12 +82,14 @@ La aplicación obtiene datos de una API backend (configurada vía archivo `.env`
 - `/puntos/estadisticas` - Estadísticas de puntos individuales
 - `/puntos/series_de_tiempo/caudal` - Datos de series temporales de caudal
 
-**Patrón de Gestión de Estado**:
-El componente principal del mapa usa múltiples hooks useState para gestionar:
-- Estados de filtros (región, cuenca, subcuenca, rango de caudal)
-- Estados de visibilidad de sidebars
-- Estados de carga para diferentes operaciones de datos
-- Datos de gráficos y análisis
+**Patrón de Gestión de Estado Refactorizado**:
+La aplicación usa un enfoque modular con Context API y custom hooks:
+- **MapContext**: Estado global compartido entre componentes
+- **useMapData**: Gestión de datos iniciales y API service
+- **useFilterLogic**: Lógica compleja de filtros y cálculos derivados
+- **useSidebarState**: Estados de visibilidad de sidebars
+- **useAnalysisData**: Datos de análisis de cuencas y puntos
+- **useFilterStatus**: Estados de UI para controles de filtros
 
 ### Características del Mapa
 

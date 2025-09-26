@@ -151,11 +151,25 @@ export default function SidebarCuenca({
 
           {/* LineChart mensual */}
           <div className="w-full h-[260px] md:h-80 lg:h-96">
-            <h4 className="text-sm font-semibold mb-1 text-gray-700">Caudal mensual</h4>
+            <div className="flex justify-between items-center mb-1">
+              <h4 className="text-sm font-semibold text-gray-700">Caudal mensual</h4>
+              <p className="text-xs text-gray-500">Haz clic en un punto para ver detalles diarios</p>
+            </div>
+            {selectedMes && (
+              <p className="text-xs text-cyan-600 mb-2">
+                <strong>Mes seleccionado:</strong> {selectedMes}
+              </p>
+            )}
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart 
+              <LineChart
                 data={caudalMensualLimpio}
                 margin={{ top: 8, right: 10, left: 5, bottom: 20 }}
+                onClick={(data) => {
+                  if (data && data.activeLabel) {
+                    setSelectedMes(data.activeLabel);
+                  }
+                }}
+                style={{ cursor: 'pointer' }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="mes" angle={-45} textAnchor="end" interval={5} height={80} tickMargin={8} tick={{ fontSize: 10 }} />
@@ -163,7 +177,6 @@ export default function SidebarCuenca({
                 <Tooltip
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
-                      setSelectedMes(label);
                       return (
                         <div className="bg-white p-2 border rounded shadow text-sm">
                           <p><strong>{label}</strong></p>

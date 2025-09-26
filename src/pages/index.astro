@@ -1,6 +1,6 @@
 ---
 import "../styles/global.css";
-import Map from "../components/map.jsx";
+import MapaRefactorizado from "../components/MapaRefactorizado.jsx";
 const apiUrl = import.meta.env.API_URL;
 ---
 
@@ -14,7 +14,7 @@ const apiUrl = import.meta.env.API_URL;
       <h1 class="text-2xl font-bold text-center">Aguas Transparentes</h1>
     </nav>
     <div class="w-full">
-      <Map client:only="react" apiUrl={apiUrl} />
+      <MapaRefactorizado client:only="react" apiUrl={apiUrl} />
     </div>
   </body>
 </html>
