@@ -27,8 +27,19 @@ export const MAP_CONFIG = {
   },
 
   // Configuración de tiles
-  TILE_LAYER: {
-    URL: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    ATTRIBUTION: '&copy; <a href="https://carto.com/">Carto</a> contributors'
-  }
+  TILE_LAYERS: {
+    OPENSTREETMAP: {
+      name: "Mapa",
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+    },
+    SATELLITE: {
+      name: "Satélite",
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      attribution: 'Tiles &copy; Esri'
+    }
+  },
+
+  // Capa por defecto
+  DEFAULT_TILE_LAYER: 'OPENSTREETMAP'
 };

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MapContainer as LeafletMapContainer, TileLayer, ZoomControl } from 'react-leaflet';
 import { MAP_CONFIG } from '../../constants/mapConfig.js';
 import { Legend } from '../UI/Leyend.jsx';
 import { ToolsEditControl } from '../tools/ToolsEditControl.jsx';
 import { MarkerLayer } from './MarkerLayer.jsx';
+import { LayerSelector } from './LayerSelector.jsx';
 
 export const MapContainer = React.memo(({
   puntos,
@@ -12,6 +13,14 @@ export const MapContainer = React.memo(({
   handleShowSidebarCuencas,
   handleShowSidebarPunto
 }) => {
+  const [currentLayer, setCurrentLayer] = useState(MAP_CONFIG.DEFAULT_TILE_LAYER);
+
+  const handleLayerChange = (layerKey) => {
+    setCurrentLayer(layerKey);
+  };
+
+  const selectedLayer = MAP_CONFIG.TILE_LAYERS[currentLayer];
+
   return (
     <LeafletMapContainer
       center={MAP_CONFIG.DEFAULT_CENTER}
@@ -27,9 +36,16 @@ export const MapContainer = React.memo(({
         }}
       />
       <ZoomControl position="topright" />
+
+      <LayerSelector
+        currentLayer={currentLayer}
+        onLayerChange={handleLayerChange}
+      />
+
       <TileLayer
-        attribution={MAP_CONFIG.TILE_LAYER.ATTRIBUTION}
-        url={MAP_CONFIG.TILE_LAYER.URL}
+        key={currentLayer}
+        attribution={selectedLayer.attribution}
+        url={selectedLayer.url}
       />
 
       <ToolsEditControl
