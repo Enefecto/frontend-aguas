@@ -64,7 +64,7 @@ export const LayerSelector = ({ currentLayer, onLayerChange }) => {
           className={`
             w-12 h-12 bg-white shadow-lg border border-gray-300 rounded-lg
             flex items-center justify-center transition-all duration-300 group
-            hover:shadow-xl hover:scale-105 active:scale-95
+            hover:shadow-xl hover:scale-105 active:scale-95 cursor-pointer
             ${isExpanded ? 'bg-cyan-50 border-cyan-200 shadow-cyan-100' : 'hover:bg-gray-50'}
           `}
         >
@@ -120,7 +120,7 @@ export const LayerSelector = ({ currentLayer, onLayerChange }) => {
                 </div>
                 <button
                   onClick={() => setIsExpanded(false)}
-                  className="text-cyan-600 hover:text-cyan-800 transition-colors"
+                  className="text-cyan-600 hover:text-cyan-800 transition-colors cursor-pointer"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -136,7 +136,7 @@ export const LayerSelector = ({ currentLayer, onLayerChange }) => {
                   key={key}
                   onClick={() => handleLayerSelect(key)}
                   className={`
-                    w-full px-4 py-3 flex items-center space-x-3 transition-all duration-200 group
+                    w-full px-4 py-3 flex items-center space-x-3 transition-all duration-200 group cursor-pointer
                     ${currentLayer === key
                       ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white'
                       : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100'

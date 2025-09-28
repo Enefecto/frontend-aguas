@@ -171,6 +171,32 @@ export const ToolsEditControl = ({apiUrl,puntos}) => {
 
   return (
     <>
+      {/* Estilos para Leaflet Draw */}
+      <style jsx global>{`
+        /* Cursor pointer para botones de Leaflet Draw */
+        .leaflet-draw-toolbar a,
+        .leaflet-draw-actions a,
+        .leaflet-draw-edit-remove,
+        .leaflet-draw-edit-edit,
+        .leaflet-draw-actions-bottom a,
+        .leaflet-draw-actions-top a {
+          cursor: pointer !important;
+        }
+
+        /* Específicamente para el botón de eliminar/basura */
+        .leaflet-draw-toolbar-button-remove,
+        .leaflet-draw-remove-remove,
+        .leaflet-draw-edit-remove,
+        a[title*="Eliminar"],
+        a[title*="eliminar"],
+        a[title*="Remove"],
+        a[title*="remove"],
+        a[title*="Delete"],
+        a[title*="delete"] {
+          cursor: pointer !important;
+        }
+      `}</style>
+
       <FeatureGroup>
         <EditControl
           position="topright"
