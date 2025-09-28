@@ -1,4 +1,5 @@
 import { FILTER_CONFIG } from '../constants/apiEndpoints.js';
+import { getNombreRegion } from '../constants/regionesChile.js';
 
 export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOriginales) => {
   const cuencaCod = datosOriginales.find(
@@ -36,7 +37,12 @@ export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOrigin
 };
 
 export const getFilteredOptions = (datosOriginales, filtros) => {
-  const regionesUnicas = [...new Set(datosOriginales.map(d => d.cod_region))];
+  // Obtener códigos únicos y mapearlos a objetos con código y nombre
+  const codigosRegionesUnicas = [...new Set(datosOriginales.map(d => d.cod_region))];
+  const regionesUnicas = codigosRegionesUnicas.map(codigo => ({
+    value: codigo,
+    label: getNombreRegion(codigo)
+  }));
 
   const cuencasFiltradas = datosOriginales
     .filter(d => !filtros.region || d.cod_region.toString() === filtros.region)
