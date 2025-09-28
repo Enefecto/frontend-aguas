@@ -1,0 +1,88 @@
+---
+// Componente de navegación con animación de río
+---
+
+<nav class="relative flex items-center justify-center bg-gradient-to-b from-cyan-700 to-cyan-900 h-16 text-white overflow-hidden">
+  <!-- Efecto de río con burbujas y vida -->
+  <div class="absolute inset-0">
+    <!-- Ondas principales más animadas -->
+    <div class="absolute inset-0 opacity-20 bg-gradient-to-r from-transparent via-cyan-300 to-transparent animate-bigwave"></div>
+    <div class="absolute inset-0 opacity-15 bg-gradient-to-r from-transparent via-blue-200 to-transparent animate-medwave"></div>
+
+    <!-- Burbujas de agua -->
+    <div class="absolute w-2 h-2 bg-white rounded-full opacity-40 animate-bubble1"></div>
+    <div class="absolute w-1 h-1 bg-cyan-200 rounded-full opacity-60 animate-bubble2"></div>
+    <div class="absolute w-1.5 h-1.5 bg-white rounded-full opacity-30 animate-bubble3"></div>
+    <div class="absolute w-1 h-1 bg-cyan-100 rounded-full opacity-50 animate-bubble4"></div>
+    <div class="absolute w-2 h-2 bg-cyan-200 rounded-full opacity-35 animate-bubble5"></div>
+
+    <!-- Pequeño pez sutil -->
+    <div class="absolute animate-fish opacity-25">
+      <div class="w-4 h-2 bg-gradient-to-r from-cyan-300 to-cyan-500 rounded-full relative">
+        <div class="absolute -right-1 top-0 w-2 h-2 bg-cyan-400 transform rotate-45 rounded-sm"></div>
+      </div>
+    </div>
+  </div>
+
+  <h1 class="text-2xl font-bold text-center relative z-10 drop-shadow-md">Aguas Transparentes</h1>
+</nav>
+
+<style>
+  @keyframes bigwave {
+    0% { transform: translateX(-120%) scaleX(0.8) scaleY(1.1); }
+    50% { transform: translateX(50vw) scaleX(1.4) scaleY(0.9); }
+    100% { transform: translateX(calc(100vw + 200px)) scaleX(1) scaleY(1.2); }
+  }
+  @keyframes medwave {
+    0% { transform: translateX(-80%) scaleX(1.2) scaleY(0.8); }
+    60% { transform: translateX(70vw) scaleX(0.9) scaleY(1.3); }
+    100% { transform: translateX(calc(100vw + 150px)) scaleX(1.1) scaleY(1); }
+  }
+
+  @keyframes bubble1 {
+    0% { transform: translate(-50px, 60px) scale(0); opacity: 0; }
+    10% { transform: translate(-30px, 50px) scale(0.3); opacity: 0.2; }
+    20% { opacity: 0.4; transform: translate(-10px, 40px) scale(1); }
+    80% { opacity: 0.4; }
+    100% { transform: translate(100vw, -10px) scale(0.5); opacity: 0; }
+  }
+  @keyframes bubble2 {
+    0% { transform: translate(-40px, 50px) scale(0); opacity: 0; }
+    15% { transform: translate(-20px, 45px) scale(0.4); opacity: 0.3; }
+    30% { opacity: 0.6; transform: translate(0px, 35px) scale(1); }
+    100% { transform: translate(100vw, -5px) scale(0.3); opacity: 0; }
+  }
+  @keyframes bubble3 {
+    0% { transform: translate(-60px, 45px) scale(0); opacity: 0; }
+    12% { transform: translate(-35px, 40px) scale(0.2); opacity: 0.1; }
+    25% { opacity: 0.3; transform: translate(-10px, 30px) scale(1); }
+    100% { transform: translate(100vw, 0px) scale(0.4); opacity: 0; }
+  }
+  @keyframes bubble4 {
+    0% { transform: translate(-45px, 55px) scale(0); opacity: 0; }
+    20% { transform: translate(-25px, 50px) scale(0.3); opacity: 0.2; }
+    40% { opacity: 0.5; transform: translate(-5px, 40px) scale(1); }
+    100% { transform: translate(100vw, -8px) scale(0.2); opacity: 0; }
+  }
+  @keyframes bubble5 {
+    0% { transform: translate(-55px, 40px) scale(0); opacity: 0; }
+    18% { transform: translate(-30px, 38px) scale(0.4); opacity: 0.15; }
+    35% { opacity: 0.35; transform: translate(-8px, 32px) scale(1); }
+    100% { transform: translate(100vw, -12px) scale(0.6); opacity: 0; }
+  }
+
+  @keyframes fish {
+    0% { transform: translate(-50px, 25px) scaleX(1); }
+    50% { transform: translate(50vw, 20px) scaleX(1); }
+    100% { transform: translate(calc(100vw + 50px), 30px) scaleX(1); }
+  }
+
+  .animate-bigwave { animation: bigwave 14s ease-in-out infinite; }
+  .animate-medwave { animation: medwave 11s ease-in-out infinite 3s; }
+  .animate-bubble1 { animation: bubble1 20s linear infinite -15s; }
+  .animate-bubble2 { animation: bubble2 25s linear infinite -8s; }
+  .animate-bubble3 { animation: bubble3 18s linear infinite -12s; }
+  .animate-bubble4 { animation: bubble4 22s linear infinite -6s; }
+  .animate-bubble5 { animation: bubble5 16s linear infinite -10s; }
+  .animate-fish { animation: fish 30s linear infinite -20s; }
+</style>
