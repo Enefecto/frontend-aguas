@@ -2,6 +2,7 @@ import { TrophySpin, Slab } from 'react-loading-indicators';
 import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
+import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import { useEffect, useState } from "react";
 import { formatNumberCL } from '../../utils/formatNumberCL';
 
@@ -137,11 +138,9 @@ export default function SidebarCuenca({
         </button>
       )}
 
-      {/* Loader */}
+      {/* Loader con estructura */}
       {graphicsCuencasLoading === 1 && (
-        <div className="space-y-2 mt-16 mx-auto flex justify-center">
-          <Slab color="#155e75" size="large" text="Cargando..." textColor="#000000" />
-        </div>
+        <GraphicsLoadingSkeleton />
       )}
 
       {/* Gráficos */}

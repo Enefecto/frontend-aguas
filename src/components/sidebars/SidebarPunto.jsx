@@ -2,6 +2,7 @@ import { TrophySpin, Slab } from 'react-loading-indicators';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
+import { PuntoGraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import { formatNumberCL } from '../../utils/formatNumberCL';
 import { useState, useEffect } from 'react';
 
@@ -126,9 +127,7 @@ export default function SidebarPunto({
       )}
 
       {graphicsPuntosLoading === 1 && (
-        <div className="space-y-2 mt-16 mx-auto flex justify-center">
-          <Slab color="#155e75" size="large" text="Cargando..." textColor="#000000" />
-        </div>
+        <PuntoGraphicsLoadingSkeleton />
       )}
 
       {graphicsPuntosLoading === 2 && (
