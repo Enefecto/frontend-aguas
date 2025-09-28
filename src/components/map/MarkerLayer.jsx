@@ -1,5 +1,5 @@
-import React, { useMemo, useCallback } from 'react';
-import { Marker, Popup, LayerGroup } from 'react-leaflet';
+import React, { useMemo, useCallback, useRef, useEffect } from 'react';
+import { Marker, Popup, LayerGroup, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { createDropIcon, getMarkerColor, createClusterIcon, isValidCoordinate } from '../../utils/mapUtils.js';
 import { PopupPunto } from '../Popups/PopupPunto.jsx';
@@ -10,6 +10,8 @@ export const MarkerLayer = React.memo(({
   handleShowSidebarCuencas,
   handleShowSidebarPunto
 }) => {
+  const map = useMap();
+  const clusterGroupRef = useRef(null);
   const renderMarkers = useMemo(() => (
     puntos
       .filter(isValidCoordinate)
@@ -39,14 +41,61 @@ export const MarkerLayer = React.memo(({
       .filter(Boolean) // Filtrar elementos null
   ), [puntos, handleShowSidebarCuencas, handleShowSidebarPunto]);
 
+  // Hook para refrescar clusters después de zoom automático
+  useEffect(() => {
+    if (agrupar && clusterGroupRef.current && map) {
+      const clusterGroup = clusterGroupRef.current;
+
+      // Listener para cuando termina el zoom automático
+      const onZoomEnd = () => {
+        // Pequeño delay para asegurar que el zoom haya terminado completamente
+        setTimeout(() => {
+          if (clusterGroup?.refreshClusters) {
+            clusterGroup.refreshClusters();
+          }
+        }, 100);
+      };
+
+      // Listener para cuando termina cualquier animación de zoom
+      const onMoveEnd = () => {
+        setTimeout(() => {
+          if (clusterGroup?.refreshClusters) {
+            clusterGroup.refreshClusters();
+          }
+        }, 50);
+      };
+
+      map.on('zoomend', onZoomEnd);
+      map.on('moveend', onMoveEnd);
+
+      return () => {
+        map.off('zoomend', onZoomEnd);
+        map.off('moveend', onMoveEnd);
+      };
+    }
+  }, [agrupar, map]);
+
   if (agrupar) {
     return (
       <MarkerClusterGroup
         key="cluster-on"
+        ref={clusterGroupRef}
         chunkedLoading
-        spiderfyOnEveryZoom
+        spiderfyOnEveryZoom={false}
         showCoverageOnHover={false}
         iconCreateFunction={createClusterIcon}
+        maxClusterRadius={80}
+        disableClusteringAtZoom={18}
+        animate={true}
+        animateAddingMarkers={true}
+        spiderfyDistanceMultiplier={1.5}
+        polygonOptions={{
+          fillColor: '#2E7BCC',
+          color: '#2E7BCC',
+          weight: 2,
+          opacity: 0.5,
+          fillOpacity: 0.2
+        }}
       >
         {renderMarkers}
       </MarkerClusterGroup>
