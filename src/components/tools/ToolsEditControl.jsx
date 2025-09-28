@@ -18,92 +18,6 @@ export const ToolsEditControl = ({apiUrl,puntos}) => {
 
           if (isMounted) {
             setEditControl(() => EC);
-
-            // Configurar textos de leaflet-draw
-            const L = window.L;
-
-            // 🔹 Sobrescribir textos de la barra de dibujo y edición
-            L.drawLocal.draw.toolbar.buttons.polyline = "Calcular Distancia";
-            L.drawLocal.draw.toolbar.buttons.polygon = "Crear Área Personalizada";
-            L.drawLocal.draw.toolbar.buttons.circle = "Crear círculo";
-
-            L.drawLocal.draw.toolbar.actions = {
-              title: 'Cancelar dibujo',
-              text: 'Cancelar',
-              undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' }
-            };
-
-            L.drawLocal.draw.toolbar.finish = {
-              title: 'Finalizar dibujo',
-              text: 'Finalizar'
-            };
-
-            // 🔹 Textos de los tooltips durante el dibujo (cerca del cursor)
-            L.drawLocal.draw.handlers = {
-              polyline: {
-                tooltip: {
-                  start: 'Haz clic para comenzar a dibujar una línea',
-                  cont: 'Haz clic para continuar dibujando la línea',
-                  end: 'Haz doble clic para finalizar'
-                },
-                actions: {
-                  finish: { title: 'Finalizar dibujo', text: 'Finalizar' },
-                  undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' },
-                  cancel: { title: 'Cancelar dibujo', text: 'Cancelar' }
-                }
-              },
-              polygon: {
-                tooltip: {
-                  start: 'Haz clic para comenzar a dibujar un área',
-                  cont: 'Haz clic para continuar dibujando',
-                  end: 'Haz clic en el primer punto para cerrar el área'
-                },
-                actions: {
-                  finish: { title: 'Finalizar dibujo', text: 'Finalizar' },
-                  undo: { title: 'Eliminar último punto', text: 'Deshacer último punto' },
-                  cancel: { title: 'Cancelar dibujo', text: 'Cancelar' }
-                }
-              },
-              rectangle: {
-                tooltip: { start: 'Haz click y arrastra para dibujar un rectángulo' }
-              },
-              circle: {
-                tooltip: { start: 'Haz click y arrastra para dibujar un círculo' },
-                radius: 'Radio'
-              },
-              marker: {
-                tooltip: { start: 'Haz click en el mapa para colocar un marcador' }
-              },
-              circlemarker: {
-                tooltip: { start: 'Haz click en el mapa para colocar un círculo marcador' }
-              },
-              simpleshape: {
-                tooltip: { end: 'Suelta el mouse para finalizar el dibujo' }
-              }
-            };
-
-            // 🔹 Textos de la edición
-            L.drawLocal.edit.toolbar.buttons.edit = "Editar capas";
-            L.drawLocal.edit.toolbar.buttons.editDisabled = "No hay capas para editar";
-            L.drawLocal.edit.toolbar.buttons.remove = "Eliminar capas";
-            L.drawLocal.edit.toolbar.buttons.removeDisabled = "No hay capas para eliminar";
-
-            L.drawLocal.edit.toolbar.actions = {
-              save: { title: "Guardar cambios", text: "Guardar" },
-              cancel: { title: "Cancelar edición", text: "Cancelar" },
-              clearAll: { title: "Eliminar todas las capas", text: "Eliminar todo" },
-              undo: { title: "Deshacer", text: "Deshacer último punto" }
-            };
-
-            L.drawLocal.edit.handlers.edit.tooltip = {
-              text: "Arrastra los marcadores para editar",
-              subtext: 'Haz click en "Cancelar" para deshacer los cambios'
-            };
-
-            L.drawLocal.edit.handlers.remove.tooltip = {
-              text: "Haz click en un marcador para eliminarlo"
-            };
-
             setIsReady(true);
           }
         } catch (error) {
@@ -120,6 +34,58 @@ export const ToolsEditControl = ({apiUrl,puntos}) => {
       clearTimeout(timer);
     };
   }, []);
+
+  // Interceptar textos de Leaflet Draw en DOM
+  useEffect(() => {
+    if (isReady) {
+      const replaceTexts = (node = document.body) => {
+        // Reemplazar textos en nodos de texto
+        const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+        let textNode;
+        while (textNode = walker.nextNode()) {
+          if (/Delete Last Point|Delete last point|Undo last point/i.test(textNode.textContent)) {
+            textNode.textContent = textNode.textContent.replace(
+              /Delete Last Point|Delete last point|Undo last point/gi,
+              'Eliminar último punto'
+            );
+          }
+        }
+
+        // Reemplazar en atributos title
+        const elementsWithTitle = node.querySelectorAll ?
+          node.querySelectorAll('[title*="Delete"], [title*="Undo"]') :
+          [];
+        elementsWithTitle.forEach(el => {
+          if (el.title && /Delete|Undo/i.test(el.title)) {
+            el.title = el.title.replace(
+              /Delete Last Point|Delete last point|Undo last point/gi,
+              'Eliminar último punto'
+            );
+          }
+        });
+      };
+
+      // MutationObserver para nuevos elementos
+      const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          mutation.addedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              replaceTexts(node);
+            }
+          });
+        });
+      });
+
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      // Ejecutar reemplazo inicial y con delays
+      replaceTexts();
+      setTimeout(replaceTexts, 100);
+      setTimeout(replaceTexts, 500);
+
+      return () => observer.disconnect();
+    }
+  }, [isReady]);
 
   if (!isReady || !EditControl) {
     return <FeatureGroup />;
