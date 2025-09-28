@@ -17,6 +17,84 @@ export const ToolsEditControl = ({apiUrl,puntos}) => {
           const { EditControl: EC } = await import('react-leaflet-draw');
 
           if (isMounted) {
+            // Configurar textos básicos de Leaflet Draw
+            const L = window.L;
+
+            // Solo modificar textos específicos sin sobrescribir objetos completos
+            if (L.drawLocal && L.drawLocal.draw) {
+              // Botones de la barra de herramientas
+              if (L.drawLocal.draw.toolbar && L.drawLocal.draw.toolbar.buttons) {
+                L.drawLocal.draw.toolbar.buttons.polyline = "Calcular Distancia";
+                L.drawLocal.draw.toolbar.buttons.polygon = "Crear Área Personalizada";
+                L.drawLocal.draw.toolbar.buttons.circle = "Crear círculo";
+              }
+
+              // Acciones generales
+              if (L.drawLocal.draw.toolbar && L.drawLocal.draw.toolbar.actions) {
+                L.drawLocal.draw.toolbar.actions.title = 'Cancelar dibujo';
+                L.drawLocal.draw.toolbar.actions.text = 'Cancelar';
+              }
+
+              if (L.drawLocal.draw.toolbar && L.drawLocal.draw.toolbar.finish) {
+                L.drawLocal.draw.toolbar.finish.title = 'Finalizar dibujo';
+                L.drawLocal.draw.toolbar.finish.text = 'Finalizar';
+              }
+
+              // Tooltips durante el dibujo (sin sobrescribir handlers completos)
+              if (L.drawLocal.draw.handlers) {
+                if (L.drawLocal.draw.handlers.polyline && L.drawLocal.draw.handlers.polyline.tooltip) {
+                  L.drawLocal.draw.handlers.polyline.tooltip.start = 'Haz clic para comenzar a dibujar una línea';
+                  L.drawLocal.draw.handlers.polyline.tooltip.cont = 'Haz clic para continuar dibujando la línea';
+                  L.drawLocal.draw.handlers.polyline.tooltip.end = 'Haz doble clic para finalizar';
+                }
+
+                if (L.drawLocal.draw.handlers.polygon && L.drawLocal.draw.handlers.polygon.tooltip) {
+                  L.drawLocal.draw.handlers.polygon.tooltip.start = 'Haz clic para comenzar a dibujar un área';
+                  L.drawLocal.draw.handlers.polygon.tooltip.cont = 'Haz clic para continuar dibujando';
+                  L.drawLocal.draw.handlers.polygon.tooltip.end = 'Haz clic en el primer punto para cerrar el área';
+                }
+
+                if (L.drawLocal.draw.handlers.circle && L.drawLocal.draw.handlers.circle.tooltip) {
+                  L.drawLocal.draw.handlers.circle.tooltip.start = 'Haz clic y arrastra para dibujar un círculo';
+                }
+
+                if (L.drawLocal.draw.handlers.circle) {
+                  L.drawLocal.draw.handlers.circle.radius = 'Radio';
+                }
+
+                if (L.drawLocal.draw.handlers.simpleshape && L.drawLocal.draw.handlers.simpleshape.tooltip) {
+                  L.drawLocal.draw.handlers.simpleshape.tooltip.end = 'Suelta el mouse para finalizar el dibujo';
+                }
+              }
+            }
+
+            // Textos de edición
+            if (L.drawLocal && L.drawLocal.edit) {
+              if (L.drawLocal.edit.toolbar && L.drawLocal.edit.toolbar.buttons) {
+                L.drawLocal.edit.toolbar.buttons.edit = "Editar capas";
+                L.drawLocal.edit.toolbar.buttons.editDisabled = "No hay capas para editar";
+                L.drawLocal.edit.toolbar.buttons.remove = "Eliminar capas";
+                L.drawLocal.edit.toolbar.buttons.removeDisabled = "No hay capas para eliminar";
+              }
+
+              if (L.drawLocal.edit.toolbar && L.drawLocal.edit.toolbar.actions) {
+                L.drawLocal.edit.toolbar.actions.save = { title: "Guardar cambios", text: "Guardar" };
+                L.drawLocal.edit.toolbar.actions.cancel = { title: "Cancelar edición", text: "Cancelar" };
+                L.drawLocal.edit.toolbar.actions.clearAll = { title: "Eliminar todas las capas", text: "Eliminar todo" };
+              }
+
+              if (L.drawLocal.edit.handlers) {
+                if (L.drawLocal.edit.handlers.edit && L.drawLocal.edit.handlers.edit.tooltip) {
+                  L.drawLocal.edit.handlers.edit.tooltip.text = "Arrastra los marcadores para editar";
+                  L.drawLocal.edit.handlers.edit.tooltip.subtext = 'Haz clic en "Cancelar" para deshacer los cambios';
+                }
+
+                if (L.drawLocal.edit.handlers.remove && L.drawLocal.edit.handlers.remove.tooltip) {
+                  L.drawLocal.edit.handlers.remove.tooltip.text = "Haz clic en un marcador para eliminarlo";
+                }
+              }
+            }
+
             setEditControl(() => EC);
             setIsReady(true);
           }
