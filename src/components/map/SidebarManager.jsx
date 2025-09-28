@@ -1,5 +1,5 @@
 import React from 'react';
-import SidebarFiltrosRefactored from '../sidebars/SidebarFiltrosRefactored.jsx';
+import SidebarFiltros from '../sidebars/SidebarFiltros.jsx';
 import SidebarCuenca from '../sidebars/SidebarCuenca.jsx';
 import SidebarPunto from '../sidebars/SidebarPunto.jsx';
 import BotonAbrirSidebarFiltros from '../Buttons/BotonAbrirSidebarFiltros.jsx';
@@ -50,7 +50,7 @@ export const SidebarManager = ({
   return (
     <>
       {sidebarAbierto && (
-        <SidebarFiltrosRefactored
+        <SidebarFiltros
           filtros={filtros}
           setFiltros={setFiltros}
           regionesUnicas={filteredOptions.regionesUnicas}

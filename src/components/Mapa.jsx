@@ -159,7 +159,7 @@ const MapaContent = () => {
   );
 };
 
-export default function MapaRefactorizado({ apiUrl }) {
+export default function Mapa({ apiUrl }) {
   return (
     <MapProvider apiUrl={apiUrl}>
       <MapaContent />
