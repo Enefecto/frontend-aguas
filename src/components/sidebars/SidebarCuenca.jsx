@@ -201,7 +201,7 @@ export default function SidebarCuenca({
 
           {/* LineChart diario */}
           {selectedMes && (
-            <div className="w-full h-[260px] md:h-80 lg:h-96">
+            <div className="w-full h-[260px] md:h-80 lg:h-96 mt-18">
               <h4 className="text-sm font-semibold mb-1 text-gray-700">
                 Caudal diario para {selectedMes}
               </h4>
