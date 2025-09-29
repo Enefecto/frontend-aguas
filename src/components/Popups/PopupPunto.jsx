@@ -1,4 +1,5 @@
 import { formatNumberCL } from "../../utils/formatNumberCL"
+import { getPuntoTypeLabel } from "../../utils/mapUtils"
 
 
 export const PopupPunto = ({punto, handleShowSidebarCuencas, handleShowSidebarPunto}) => {
@@ -14,6 +15,7 @@ export const PopupPunto = ({punto, handleShowSidebarCuencas, handleShowSidebarPu
         </span>
       </p>
       <p><strong>Subcuenca:</strong> {punto.nombre_subcuenca}</p>
+      <p><strong>Tipo:</strong> {getPuntoTypeLabel(punto)}</p>
       <p><strong>Caudal promedio:</strong> {punto.caudal_promedio.toLocaleString()} (m³/s)</p>
       <p><strong>Nº de Mediciones:</strong> {formatNumberCL(punto.n_mediciones)}</p>
       <button

@@ -22,10 +22,17 @@ export const createDropIcon = (fill = MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTIO
 };
 
 export const getMarkerColor = (punto) => {
-  // Si es extracción superficial o extracción subterránea
-  return punto?.tipoPunto?.altura != null
-    ? MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTION
-    : MAP_CONFIG.MARKER_COLORS.WELL;
+  // Clasificación basada en datos disponibles
+  const tieneAlturaLimnimetrica = punto?.tipoPunto?.altura != null;
+  const tieneNivelFreatico = punto?.tipoPunto?.nivel_freatico != null;
+
+  if (tieneAlturaLimnimetrica) {
+    return MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTION; // Azul - Extracción superficial
+  } else if (tieneNivelFreatico) {
+    return MAP_CONFIG.MARKER_COLORS.UNDERGROUND_EXTRACTION; // Naranja - Extracción subterránea
+  } else {
+    return MAP_CONFIG.MARKER_COLORS.UNCLASSIFIED; // Gris - Sin clasificación
+  }
 };
 
 export const createClusterIcon = (cluster) => {
@@ -63,4 +70,32 @@ export const createClusterIcon = (cluster) => {
 
 export const isValidCoordinate = (punto) => {
   return Number.isFinite(punto.lat) && Number.isFinite(punto.lon);
+};
+
+export const getPuntoTypeLabel = (punto) => {
+  // Clasificación basada en datos disponibles
+  const tieneAlturaLimnimetrica = punto?.tipoPunto?.altura != null;
+  const tieneNivelFreatico = punto?.tipoPunto?.nivel_freatico != null;
+
+  if (tieneAlturaLimnimetrica) {
+    return 'Extracción superficial';
+  } else if (tieneNivelFreatico) {
+    return 'Extracción subterránea';
+  } else {
+    return 'Sin clasificación'; // Buena práctica: mostrar estado cuando no hay datos suficientes
+  }
+};
+
+export const getPuntoTypeValue = (punto) => {
+  // Retorna el valor correspondiente a las constantes de filtro
+  const tieneAlturaLimnimetrica = punto?.tipoPunto?.altura != null;
+  const tieneNivelFreatico = punto?.tipoPunto?.nivel_freatico != null;
+
+  if (tieneAlturaLimnimetrica) {
+    return 'superficial';
+  } else if (tieneNivelFreatico) {
+    return 'subterraneo';
+  } else {
+    return 'sin_clasificar';
+  }
 };

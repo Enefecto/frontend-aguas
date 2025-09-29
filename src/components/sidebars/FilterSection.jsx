@@ -132,7 +132,8 @@ export const TipoPuntoFilter = ({ filtros, handleFiltroChange }) => (
     onChange={handleFiltroChange}
     options={[
       { value: FILTER_CONFIG.PUNTO_TYPES.SUPERFICIAL, label: "Extracción superficial" },
-      { value: FILTER_CONFIG.PUNTO_TYPES.SUBTERRANEO, label: "Extracción subterránea" }
+      { value: FILTER_CONFIG.PUNTO_TYPES.SUBTERRANEO, label: "Extracción subterránea" },
+      { value: FILTER_CONFIG.PUNTO_TYPES.SIN_CLASIFICAR, label: "Sin clasificación" }
     ]}
     placeholder="-- Todos --"
   />

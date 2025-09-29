@@ -28,7 +28,8 @@ export const FILTER_CONFIG = {
   // Tipos de punto
   PUNTO_TYPES: {
     SUPERFICIAL: 'superficial',
-    SUBTERRANEO: 'subterraneo'
+    SUBTERRANEO: 'subterraneo',
+    SIN_CLASIFICAR: 'sin_clasificar'
   },
 
   // Límites

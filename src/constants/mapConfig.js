@@ -5,8 +5,9 @@ export const MAP_CONFIG = {
 
   // Colores de marcadores
   MARKER_COLORS: {
-    SURFACE_EXTRACTION: '#2E7BCC', // Azul para extracción superficial
-    WELL: '#FF5722' // Naranja para extracciones subterráneas
+    SURFACE_EXTRACTION: '#2E7BCC', // Azul para extracción superficial (altura limnimétrica)
+    UNDERGROUND_EXTRACTION: '#FF5722', // Naranja para extracciones subterráneas (nivel freático)
+    UNCLASSIFIED: '#9CA3AF' // Gris para puntos sin clasificación
   },
 
   // Configuración de iconos

@@ -31,8 +31,9 @@ export const MapContainer = React.memo(({
       <Legend
         position="bottomright"
         colores={{
-          subterraneo: MAP_CONFIG.MARKER_COLORS.WELL,
-          extraccion: MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTION
+          subterraneo: MAP_CONFIG.MARKER_COLORS.UNDERGROUND_EXTRACTION,
+          extraccion: MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTION,
+          sinClasificar: MAP_CONFIG.MARKER_COLORS.UNCLASSIFIED
         }}
       />
       <ZoomControl position="topright" />
