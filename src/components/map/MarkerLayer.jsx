@@ -15,7 +15,7 @@ export const MarkerLayer = React.memo(({
   const renderMarkers = useMemo(() => (
     puntos
       .filter(isValidCoordinate)
-      .map((punto) => {
+      .map((punto, index) => {
         const color = getMarkerColor(punto);
         const customIcon = createDropIcon(color);
 
@@ -24,7 +24,7 @@ export const MarkerLayer = React.memo(({
 
         return (
           <Marker
-            key={`${punto.utm_este}-${punto.utm_norte}`}
+            key={`${punto.utm_este}-${punto.utm_norte}-${index}`}
             position={[punto.lat, punto.lon]}
             icon={customIcon}
           >

@@ -194,7 +194,7 @@ export const LayerSelector = ({ currentLayer, onLayerChange }) => {
       )}
 
       {/* Estilos de animación */}
-      <style jsx>{`
+      <style jsx="true">{`
         @keyframes fadeInScale {
           from {
             opacity: 0;

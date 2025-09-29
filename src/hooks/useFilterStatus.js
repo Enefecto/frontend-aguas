@@ -4,6 +4,7 @@ import { UI_CONFIG } from '../constants/uiConfig.js';
 export const useFilterStatus = (puntos, filtros, filtroCaudal, ordenCaudal, isLoaded, handleCoordenadasUnicas, queryCompleted) => {
   const [consultandoPuntos, setConsultandoPuntos] = useState(UI_CONFIG.LOADING_STATES.IDLE);
   const [isOpen, setIsOpen] = useState(false);
+  const [hayFiltrosPendientes, setHayFiltrosPendientes] = useState(false);
 
   // Animación de apertura del sidebar
   useEffect(() => {
@@ -26,10 +27,18 @@ export const useFilterStatus = (puntos, filtros, filtroCaudal, ordenCaudal, isLo
     }
   }, [queryCompleted]);
 
-  // Reset status cuando cambien filtros
+  // Reset status cuando cambien filtros y marcar como pendientes
   useEffect(() => {
     setConsultandoPuntos(UI_CONFIG.LOADING_STATES.IDLE);
-  }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.limit, filtroCaudal, ordenCaudal]);
+    setHayFiltrosPendientes(true);
+  }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.tipoPunto, filtros.limit, filtroCaudal, ordenCaudal]);
+
+  // Limpiar filtros pendientes cuando se complete una consulta
+  useEffect(() => {
+    if (queryCompleted) {
+      setHayFiltrosPendientes(false);
+    }
+  }, [queryCompleted]);
 
   // Auto-hide success state
   useEffect(() => {
@@ -60,6 +69,7 @@ export const useFilterStatus = (puntos, filtros, filtroCaudal, ordenCaudal, isLo
     consultandoPuntos,
     isOpen,
     setIsOpen,
-    handleUpdateStateConsultandoPuntos
+    handleUpdateStateConsultandoPuntos,
+    hayFiltrosPendientes
   };
 };

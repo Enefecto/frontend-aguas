@@ -46,6 +46,22 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
     }
   }, [filtros.cuenca, filtros.subcuenca, isLoaded, caudalRange]);
 
+  // Actualizar límite cuando cambie limitMax
+  useEffect(() => {
+    if (isLoaded && limitMax && filtros.limit > limitMax) {
+      setFiltros(prev => ({
+        ...prev,
+        limit: limitMax
+      }));
+    }
+  }, [limitMax, isLoaded]);
+
+  // Limpiar puntos cuando cambien filtros para evitar cache
+  useEffect(() => {
+    setPuntos([]);
+    setQueryCompleted(false);
+  }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.tipoPunto]);
+
   // Función para manejar cambios en filtros
   const handleFiltroChange = (e) => {
     const { name, value } = e.target;

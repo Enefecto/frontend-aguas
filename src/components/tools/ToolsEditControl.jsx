@@ -172,7 +172,7 @@ export const ToolsEditControl = ({apiUrl,puntos}) => {
   return (
     <>
       {/* Estilos para Leaflet Draw */}
-      <style jsx global>{`
+      <style jsx="true" global="true">{`
         /* Cursor pointer para botones de Leaflet Draw */
         .leaflet-draw-toolbar a,
         .leaflet-draw-actions a,
