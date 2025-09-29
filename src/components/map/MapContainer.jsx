@@ -31,7 +31,7 @@ export const MapContainer = React.memo(({
       <Legend
         position="bottomright"
         colores={{
-          pozos: MAP_CONFIG.MARKER_COLORS.WELL,
+          subterraneo: MAP_CONFIG.MARKER_COLORS.WELL,
           extraccion: MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTION
         }}
       />

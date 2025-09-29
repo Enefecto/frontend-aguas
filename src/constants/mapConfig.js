@@ -6,7 +6,7 @@ export const MAP_CONFIG = {
   // Colores de marcadores
   MARKER_COLORS: {
     SURFACE_EXTRACTION: '#2E7BCC', // Azul para extracción superficial
-    WELL: '#FF5722' // Naranja para pozos
+    WELL: '#FF5722' // Naranja para extracciones subterráneas
   },
 
   // Configuración de iconos

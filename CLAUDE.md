@@ -96,7 +96,7 @@ La aplicación usa un enfoque modular con Context API y custom hooks:
 **Marcadores Personalizados**:
 - Iconos SVG de gotas de agua con diferentes colores para tipos de puntos
 - Azul (#2E7BCC) para puntos de extracción superficial
-- Naranja (#FF5722) para pozos/puntos subterráneos
+- Naranja (#FF5722) para extracciones subterráneas
 
 **Agrupación**:
 - Agrupación opcional de marcadores usando react-leaflet-cluster

@@ -3,7 +3,7 @@ import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 
 export function Legend({
-  colores = { pozos: '#FF5722', extraccion: '#2E7BCC' },
+  colores = { subterraneo: '#FF5722', extraccion: '#2E7BCC' },
   position = 'bottomright',
 }) {
   const map = useMap();
@@ -42,9 +42,9 @@ export function Legend({
         <div style="display:flex;align-items:center;gap:8px;margin:6px 0;">
           <svg width="18" height="18" viewBox="0 0 28 36" aria-hidden="true">
             <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
-                  fill="${colores.pozos}" stroke="white" stroke-width="1.1"/>
+                  fill="${colores.subterraneo}" stroke="white" stroke-width="1.1"/>
           </svg>
-          <span>Pozo</span>
+          <span>Extracción subterránea</span>
         </div>
 
         <div style="display:flex;align-items:center;gap:8px;margin:6px 0;">

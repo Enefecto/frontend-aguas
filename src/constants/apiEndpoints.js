@@ -28,7 +28,7 @@ export const FILTER_CONFIG = {
   // Tipos de punto
   PUNTO_TYPES: {
     SUPERFICIAL: 'superficial',
-    POZO: 'pozo'
+    SUBTERRANEO: 'subterraneo'
   },
 
   // Límites

@@ -22,7 +22,7 @@ export const createDropIcon = (fill = MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTIO
 };
 
 export const getMarkerColor = (punto) => {
-  // Si es extraccion superficial o un pozo
+  // Si es extracción superficial o extracción subterránea
   return punto?.tipoPunto?.altura != null
     ? MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTION
     : MAP_CONFIG.MARKER_COLORS.WELL;
