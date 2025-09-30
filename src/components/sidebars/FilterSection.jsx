@@ -79,7 +79,7 @@ export const LimitFilter = ({ filtros, setFiltros, limitMax }) => (
 
 export const CaudalFilter = ({ filtroCaudal, setFiltroCaudal, min, max }) => (
   <div className="mb-6">
-    <label className="block font-medium mb-10">Caudal promedio extraido (m³/s):</label>
+    <label className="block font-medium mb-10">Caudal promedio extraido (L/s):</label>
     <Slider
       min={min}
       max={max}
@@ -91,7 +91,7 @@ export const CaudalFilter = ({ filtroCaudal, setFiltroCaudal, min, max }) => (
         }
       }}
       valueLabelDisplay="on"
-      valueLabelFormat={(val) => `${val.toLocaleString('es-CL')} m³/s`}
+      valueLabelFormat={(val) => `${val.toLocaleString('es-CL')} L/s`}
     />
   </div>
 );

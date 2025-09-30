@@ -105,10 +105,10 @@ export default function SidebarPunto({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
     
             <EstadisticBox boxcolor="blue" label="Total de registros con caudal" value={analisis.total_registros_con_caudal} />
-            <EstadisticBox boxcolor="green" label="Caudal promedio (m³/s)" value={analisis.caudal_promedio} />
-            <EstadisticBox boxcolor="yellow" label="Caudal mínimo (m³/s)" value={analisis.caudal_minimo} />
-            <EstadisticBox boxcolor="red" label="Caudal máximo (m³/s)" value={analisis.caudal_maximo} />
-            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (m³/s)" value={analisis.desviacion_estandar_caudal} />
+            <EstadisticBox boxcolor="green" label="Caudal promedio (L/s)" value={analisis.caudal_promedio} />
+            <EstadisticBox boxcolor="yellow" label="Caudal mínimo (L/s)" value={analisis.caudal_minimo} />
+            <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={analisis.caudal_maximo} />
+            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (L/s)" value={analisis.desviacion_estandar_caudal} />
           </div>
         </div>
       ) : (
@@ -167,7 +167,7 @@ export default function SidebarPunto({
                       year: 'numeric'
                     }).replace('.', '')
                   }
-                  formatter={(value) => [`${formatNumberCL(value)} m³/s`, 'Caudal']}
+                  formatter={(value) => [`${formatNumberCL(value)} L/s`, 'Caudal']}
                 />
 
                 <YAxis
@@ -184,7 +184,7 @@ export default function SidebarPunto({
                   labelFormatter={(label) =>
                     new Date(label).toLocaleString('es-CL')
                   }
-                  formatter={(value) => [`${formatNumberCL(value)} m³/s`, 'Caudal']}
+                  formatter={(value) => [`${formatNumberCL(value)} L/s`, 'Caudal']}
                 />
 
                 <Line type="monotone" dataKey="caudal" stroke="#2563eb" dot={false} />

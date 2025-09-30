@@ -46,10 +46,10 @@ export const getPointsInCircle = async (apiUrl,puntos, center, radius, layer) =>
         
         <div class="flex justify-between"><span class="text-gray-600">Puntos:</span><span class="text-gray-800 font-medium">${formatNumberCL(stats.puntos_consultados) ?? '1'}</span></div>
         <div class="flex justify-between"><span class="text-gray-600">Mediciones:</span><span class="text-gray-800 font-medium">${formatNumberCL(stats.total_registros_con_caudal) ?? 0}</span></div>
-        <div class="flex justify-between"><span class="text-green-600">Promedio:</span><span class="font-semibold text-green-700">${formatNumberCL(stats.caudal_promedio) ?? 0} m³/s</span></div>
-        <div class="flex justify-between"><span class="text-blue-600">Mínimo:</span><span class="font-semibold text-blue-700">${formatNumberCL(stats.caudal_minimo) ?? 0} m³/s</span></div>
-        <div class="flex justify-between"><span class="text-red-600">Máximo:</span><span class="font-semibold text-red-700">${formatNumberCL(stats.caudal_maximo) ?? 0} m³/s</span></div>
-        <div class="flex justify-between"><span class="text-purple-600">Desviación:</span><span class="text-purple-700 font-medium">${formatNumberCL(stats.desviacion_estandar_caudal) ?? 0} m³/s</span></div>
+        <div class="flex justify-between"><span class="text-green-600">Promedio:</span><span class="font-semibold text-green-700">${formatNumberCL(stats.caudal_promedio) ?? 0} L/s</span></div>
+        <div class="flex justify-between"><span class="text-blue-600">Mínimo:</span><span class="font-semibold text-blue-700">${formatNumberCL(stats.caudal_minimo) ?? 0} L/s</span></div>
+        <div class="flex justify-between"><span class="text-red-600">Máximo:</span><span class="font-semibold text-red-700">${formatNumberCL(stats.caudal_maximo) ?? 0} L/s</span></div>
+        <div class="flex justify-between"><span class="text-purple-600">Desviación:</span><span class="text-purple-700 font-medium">${formatNumberCL(stats.desviacion_estandar_caudal) ?? 0} L/s</span></div>
       </div>
     `;
 

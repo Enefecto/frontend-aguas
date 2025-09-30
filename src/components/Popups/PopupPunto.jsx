@@ -16,7 +16,7 @@ export const PopupPunto = ({punto, handleShowSidebarCuencas, handleShowSidebarPu
       </p>
       <p><strong>Subcuenca:</strong> {punto.nombre_subcuenca}</p>
       <p><strong>Tipo:</strong> {getPuntoTypeLabel(punto)}</p>
-      <p><strong>Caudal promedio:</strong> {punto.caudal_promedio.toLocaleString()} (m³/s)</p>
+      <p><strong>Caudal promedio:</strong> {punto.caudal_promedio.toLocaleString()} (L/s)</p>
       <p><strong>Nº de Mediciones:</strong> {formatNumberCL(punto.n_mediciones)}</p>
       <button
         className='bg-cyan-800 text-white p-2 cursor-pointer hover:bg-cyan-600'

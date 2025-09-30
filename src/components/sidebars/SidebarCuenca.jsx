@@ -116,9 +116,9 @@ export default function SidebarCuenca({
           <h3 className="text-base font-semibold text-gray-700">Análisis Estadístico</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
             <EstadisticBox boxcolor="blue" label="Total de registros con caudal" value={cuencaAnalysis.total_registros_con_caudal} />
-            <EstadisticBox boxcolor="green" label="Caudal promedio (m³/s)" value={cuencaAnalysis.caudal_promedio} />
-            <EstadisticBox boxcolor="yellow" label="Caudal mínimo (m³/s)" value={cuencaAnalysis.caudal_minimo} />
-            <EstadisticBox boxcolor="red" label="Caudal máximo (m³/s)" value={cuencaAnalysis.caudal_maximo} />
+            <EstadisticBox boxcolor="green" label="Caudal promedio (L/s)" value={cuencaAnalysis.caudal_promedio} />
+            <EstadisticBox boxcolor="yellow" label="Caudal mínimo (L/s)" value={cuencaAnalysis.caudal_minimo} />
+            <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={cuencaAnalysis.caudal_maximo} />
             <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal" value={cuencaAnalysis.desviacion_estandar_caudal} />
           </div>
         </div>
@@ -181,7 +181,7 @@ export default function SidebarCuenca({
                           <p><strong>{label}</strong></p>
                           {payload.map((item, i) => (
                             <p key={i} style={{ color: item.color }}>
-                              {item.name}: {formatNumberCL(item.value)} m³/s
+                              {item.name}: {formatNumberCL(item.value)} L/s
                             </p>
                           ))}
                         </div>
@@ -213,7 +213,7 @@ export default function SidebarCuenca({
                   <XAxis dataKey="dia" angle={-45} textAnchor="end"  height={80} tickMargin={8} tick={{ fontSize: 10 }} />
                   <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
                   <Tooltip
-                    formatter={(v, name) => [`${formatNumberCL(v)} m³/s`, name]}
+                    formatter={(v, name) => [`${formatNumberCL(v)} L/s`, name]}
                   />
                   <Legend />
                   <Line type="monotone" dataKey="avg_caudal" stroke="#0ea5e9" name="Promedio" dot={false} />
@@ -251,7 +251,7 @@ export default function SidebarCuenca({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="informante" angle={-45} textAnchor="end" interval={0} height={80} tickMargin={8} tick={{ fontSize: 10 }}/>
                 <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
-                <Tooltip formatter={(v) => [`${formatNumberCL(v)} m³/s`, 'Caudal total']} />
+                <Tooltip formatter={(v) => [`${formatNumberCL(v)} L/s`, 'Caudal total']} />
                 <Bar dataKey="caudal_total_extraido" fill="#0ea5e9" />
               </BarChart>
             </ResponsiveContainer>
