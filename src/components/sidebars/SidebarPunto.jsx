@@ -17,13 +17,29 @@ export default function SidebarPunto({
 
   const { analisis = {}, punto = {} } = analisisPuntoSeleccionado ?? {};
 
-  const [isOpen, setIsOpen] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
       setIsOpen(true);
     }, 100);
   },[])
+
+  // Calcular rango de fechas para gráfico de caudal por tiempo
+  const getDateRange = (data) => {
+    if (!data || data.length === 0) return null;
+    const dates = data.map(d => new Date(d.fecha_medicion));
+    const minDate = new Date(Math.min(...dates));
+    const maxDate = new Date(Math.max(...dates));
+
+    const formatDate = (date) => date.toLocaleDateString('es-CL', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).replace('.', '');
+
+    return `${formatDate(minDate)} - ${formatDate(maxDate)}`;
+  }
 
   return (
     <div
@@ -136,6 +152,11 @@ export default function SidebarPunto({
 
           <div className="w-full h-[260px] md:h-80 lg:h-96">
             <h4 className="text-sm font-semibold mb-1 text-gray-700">Caudal por tiempo</h4>
+            {graficosPuntosData.caudal_por_tiempo && graficosPuntosData.caudal_por_tiempo.length > 0 && (
+              <p className="text-xs text-gray-500 mb-2">
+                Periodo: {getDateRange(graficosPuntosData.caudal_por_tiempo)}
+              </p>
+            )}
 
             <ResponsiveContainer width="100%" height="100%">
               <LineChart

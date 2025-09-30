@@ -86,7 +86,12 @@ export default function SidebarCuenca({
 
   }, [selectedMes]);
 
-
+  // Calcular rango de fechas para gráfico mensual
+  const getMonthlyDateRange = (data) => {
+    if (!data || data.length === 0) return null;
+    const months = data.map(d => d.mes);
+    return `${months[0]} - ${months[months.length - 1]}`;
+  };
 
   return (
     <div
@@ -154,6 +159,11 @@ export default function SidebarCuenca({
               <h4 className="text-sm font-semibold text-gray-700">Caudal mensual</h4>
               <p className="text-xs text-gray-500">Haz clic en un punto para ver detalles diarios</p>
             </div>
+            {caudalMensualLimpio.length > 0 && (
+              <p className="text-xs text-gray-500 mb-1">
+                Periodo: {getMonthlyDateRange(caudalMensualLimpio)}
+              </p>
+            )}
             {selectedMes && (
               <p className="text-xs text-cyan-600 mb-2">
                 <strong>Mes seleccionado:</strong> {selectedMes}
