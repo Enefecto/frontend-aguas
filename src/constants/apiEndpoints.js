@@ -20,7 +20,8 @@ export const FILTER_CONFIG = {
     limit: 10,
     tipoPunto: '',
     fechaInicio: '',
-    fechaFin: ''
+    fechaFin: '',
+    fechaPredefinida: ''
   },
 
   // Configuración de caudal

@@ -4,6 +4,7 @@ import TextField from '@mui/material/TextField';
 import { SelectFilter } from '../UI/FilterGroup.jsx';
 import { FILTER_CONFIG } from '../../constants/apiEndpoints.js';
 import { validarFecha, validarRangoFechas, autoformatearFecha } from '../../utils/dateValidation.js';
+import { calcularFechasPredefinidas, PERIODOS_PREDEFINIDOS } from '../../utils/fechasPredefinidas.js';
 
 export const RegionFilter = ({ filtros, handleFiltroChange, regionesUnicas }) => (
   <SelectFilter
@@ -140,11 +141,46 @@ export const TipoPuntoFilter = ({ filtros, handleFiltroChange }) => (
   />
 );
 
-export const FechaFilter = ({ filtros, handleFiltroChange, erroresFecha, setErroresFecha }) => {
+export const FechaFilter = ({ filtros, handleFiltroChange, erroresFecha, setErroresFecha, setFiltros }) => {
   const [touched, setTouched] = useState({
     fechaInicio: false,
     fechaFin: false
   });
+
+  // Manejar cambio de periodo predefinido
+  const handlePeriodoPredefinidoChange = (e) => {
+    const periodo = e.target.value;
+
+    if (periodo === '') {
+      // Si deselecciona, limpiar todo
+      setFiltros(prev => ({
+        ...prev,
+        fechaPredefinida: '',
+        fechaInicio: '',
+        fechaFin: ''
+      }));
+      setTouched({ fechaInicio: false, fechaFin: false });
+    } else {
+      // Calcular fechas basadas en el periodo
+      const { fechaInicio, fechaFin } = calcularFechasPredefinidas(periodo);
+
+      setFiltros(prev => ({
+        ...prev,
+        fechaPredefinida: periodo,
+        fechaInicio: '',
+        fechaFin: ''
+      }));
+      setTouched({ fechaInicio: false, fechaFin: false });
+    }
+  };
+
+  // Cuando el usuario cambia manualmente las fechas, limpiar el periodo predefinido
+  const handleFechaManualChange = (e) => {
+    if (filtros.fechaPredefinida) {
+      setFiltros(prev => ({ ...prev, fechaPredefinida: '' }));
+    }
+    handleInputChange(e);
+  };
 
   // Validar fechas cuando cambien
   useEffect(() => {
@@ -217,51 +253,78 @@ export const FechaFilter = ({ filtros, handleFiltroChange, erroresFecha, setErro
   };
 
   return (
-    <div className="mb-6 space-y-3">
+    <div className="mb-6 space-y-4">
       <label className="block font-medium mb-2">Periodo de mediciones:</label>
 
+      {/* Selector de periodo predefinido */}
       <div>
-        <label className="block text-xs text-gray-600 mb-1">Fecha inicio (MM-AAAA):</label>
-        <div className="relative">
-          <input
-            type="text"
-            name="fechaInicio"
-            value={filtros.fechaInicio || ''}
-            onChange={handleInputChange}
-            onBlur={() => handleBlur('fechaInicio')}
-            placeholder="01-2020"
-            className={getInputClassName('fechaInicio')}
-            maxLength="7"
-          />
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            {getIcono('fechaInicio')}
-          </div>
-        </div>
-        {erroresFecha.fechaInicio && (
-          <p className="text-xs text-red-500 mt-1">{erroresFecha.fechaInicio}</p>
-        )}
+        <SelectFilter
+          label="Periodo predefinido:"
+          name="fechaPredefinida"
+          value={filtros.fechaPredefinida || ""}
+          onChange={handlePeriodoPredefinidoChange}
+          options={PERIODOS_PREDEFINIDOS}
+          placeholder="-- Seleccionar periodo --"
+        />
       </div>
 
-      <div>
-        <label className="block text-xs text-gray-600 mb-1">Fecha fin (MM-AAAA):</label>
-        <div className="relative">
-          <input
-            type="text"
-            name="fechaFin"
-            value={filtros.fechaFin || ''}
-            onChange={handleInputChange}
-            onBlur={() => handleBlur('fechaFin')}
-            placeholder="12-2023"
-            className={getInputClassName('fechaFin')}
-            maxLength="7"
-          />
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            {getIcono('fechaFin')}
-          </div>
+      {/* Separador visual */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300"></div>
         </div>
-        {erroresFecha.fechaFin && (
-          <p className="text-xs text-red-500 mt-1">{erroresFecha.fechaFin}</p>
-        )}
+        <div className="relative flex justify-center text-xs">
+          <span className="px-2 bg-white text-gray-500">O especifica fechas manualmente</span>
+        </div>
+      </div>
+
+      {/* Inputs manuales */}
+      <div className="space-y-3">
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">Fecha inicio (MM-AAAA):</label>
+          <div className="relative">
+            <input
+              type="text"
+              name="fechaInicio"
+              value={filtros.fechaInicio || ''}
+              onChange={handleFechaManualChange}
+              onBlur={() => handleBlur('fechaInicio')}
+              placeholder="01-2020"
+              className={getInputClassName('fechaInicio')}
+              maxLength="7"
+              disabled={!!filtros.fechaPredefinida}
+            />
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              {getIcono('fechaInicio')}
+            </div>
+          </div>
+          {erroresFecha.fechaInicio && (
+            <p className="text-xs text-red-500 mt-1">{erroresFecha.fechaInicio}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">Fecha fin (MM-AAAA):</label>
+          <div className="relative">
+            <input
+              type="text"
+              name="fechaFin"
+              value={filtros.fechaFin || ''}
+              onChange={handleFechaManualChange}
+              onBlur={() => handleBlur('fechaFin')}
+              placeholder="12-2023"
+              className={getInputClassName('fechaFin')}
+              maxLength="7"
+              disabled={!!filtros.fechaPredefinida}
+            />
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              {getIcono('fechaFin')}
+            </div>
+          </div>
+          {erroresFecha.fechaFin && (
+            <p className="text-xs text-red-500 mt-1">{erroresFecha.fechaFin}</p>
+          )}
+        </div>
       </div>
 
       {erroresFecha.rangoFechas && (
@@ -270,8 +333,18 @@ export const FechaFilter = ({ filtros, handleFiltroChange, erroresFecha, setErro
         </div>
       )}
 
+      {filtros.fechaPredefinida && (
+        <div className="bg-cyan-50 border border-cyan-200 rounded-md p-2">
+          <p className="text-xs text-cyan-800">
+            <strong>Periodo seleccionado:</strong> {PERIODOS_PREDEFINIDOS.find(p => p.value === filtros.fechaPredefinida)?.label}
+          </p>
+        </div>
+      )}
+
       <p className="text-xs text-gray-500 mt-1">
-        Deja vacío para incluir todas las fechas
+        {filtros.fechaPredefinida
+          ? 'Las fechas manuales están deshabilitadas. Deselecciona el periodo predefinido para usarlas.'
+          : 'Deja vacío para incluir todas las fechas'}
       </p>
     </div>
   );

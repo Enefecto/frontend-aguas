@@ -1,5 +1,6 @@
 import { FILTER_CONFIG } from '../constants/apiEndpoints.js';
 import { getNombreRegion } from '../constants/regionesChile.js';
+import { calcularFechasPredefinidas } from './fechasPredefinidas.js';
 
 export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOriginales) => {
   const cuencaCod = datosOriginales.find(
@@ -33,9 +34,17 @@ export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOrigin
   queryParams.append("caudal_maximo", filtroCaudal[1]);
   queryParams.append("orden_caudal", ordenCaudal);
 
-  // Agregar filtros de fecha si están presentes
-  if (filtros.fechaInicio) queryParams.append("fecha_inicio", filtros.fechaInicio);
-  if (filtros.fechaFin) queryParams.append("fecha_fin", filtros.fechaFin);
+  // Agregar filtros de fecha
+  if (filtros.fechaPredefinida) {
+    // Si hay periodo predefinido, calcular y enviar las fechas
+    const { fechaInicio, fechaFin } = calcularFechasPredefinidas(filtros.fechaPredefinida);
+    if (fechaInicio) queryParams.append("fecha_inicio", fechaInicio);
+    if (fechaFin) queryParams.append("fecha_fin", fechaFin);
+  } else {
+    // Si no hay periodo predefinido, usar las fechas manuales
+    if (filtros.fechaInicio) queryParams.append("fecha_inicio", filtros.fechaInicio);
+    if (filtros.fechaFin) queryParams.append("fecha_fin", filtros.fechaFin);
+  }
 
   return queryParams;
 };

@@ -120,6 +120,7 @@ export default function SidebarFiltros({
         handleFiltroChange={handleFiltroChange}
         erroresFecha={erroresFecha}
         setErroresFecha={setErroresFecha}
+        setFiltros={setFiltros}
       />
 
       <div className="mt-2 border-t pt-3">

@@ -60,14 +60,14 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   useEffect(() => {
     setPuntos([]);
     setQueryCompleted(false);
-  }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.tipoPunto, filtros.fechaInicio, filtros.fechaFin]);
+  }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.tipoPunto, filtros.fechaInicio, filtros.fechaFin, filtros.fechaPredefinida]);
 
   // Función para manejar cambios en filtros
   const handleFiltroChange = (e) => {
     const { name, value } = e.target;
 
     if (name === 'region') {
-      setFiltros({ region: value, cuenca: '', subcuenca: '', limit: filtros.limit, tipoPunto: filtros.tipoPunto, fechaInicio: filtros.fechaInicio, fechaFin: filtros.fechaFin });
+      setFiltros({ region: value, cuenca: '', subcuenca: '', limit: filtros.limit, tipoPunto: filtros.tipoPunto, fechaInicio: filtros.fechaInicio, fechaFin: filtros.fechaFin, fechaPredefinida: filtros.fechaPredefinida });
     } else if (name === 'cuenca') {
       setFiltros(prev => ({ ...prev, cuenca: value, subcuenca: '' }));
     } else if (name === 'tipoPunto') {
