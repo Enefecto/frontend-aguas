@@ -55,9 +55,12 @@ const MapaContent = () => {
     setSidebarAbierto,
     rightSidebarAbiertoCuencas,
     setRightSidebarAbiertoCuencas,
+    rightSidebarAbiertoSubcuencas,
+    setRightSidebarAbiertoSubcuencas,
     rightSidebarAbiertoPunto,
     setRightSidebarAbiertoPunto,
     openCuencaSidebar,
+    openSubcuencaSidebar,
     openPuntoSidebar,
 
     // Datos de análisis
@@ -67,6 +70,12 @@ const MapaContent = () => {
     graficosData,
     loadCuencaAnalysis,
     loadCuencasGraphics,
+    subcuencaAnalysis,
+    subcuencaLoading,
+    graphicsSubcuencasLoading,
+    graficosSubcuencasData,
+    loadSubcuencaAnalysis,
+    loadSubcuencasGraphics,
     analisisPuntoSeleccionado,
     analisisPuntoSeleccionadoLoading,
     graphicsPuntosLoading,
@@ -84,6 +93,11 @@ const MapaContent = () => {
     openCuencaSidebar();
     loadCuencaAnalysis(nomCuenca, codCuenca);
   }, [openCuencaSidebar, loadCuencaAnalysis]);
+
+  const handleShowSidebarSubcuencas = React.useCallback((nomSubcuenca, codSubcuenca, codCuenca = null, nomCuenca = null) => {
+    openSubcuencaSidebar();
+    loadSubcuencaAnalysis(nomSubcuenca, codSubcuenca, codCuenca, nomCuenca);
+  }, [openSubcuencaSidebar, loadSubcuencaAnalysis]);
 
   const handleShowSidebarPunto = React.useCallback((punto) => {
     openPuntoSidebar();
@@ -109,6 +123,7 @@ const MapaContent = () => {
         agrupar={agrupar}
         apiUrl={apiUrl}
         handleShowSidebarCuencas={handleShowSidebarCuencas}
+        handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
         handleShowSidebarPunto={handleShowSidebarPunto}
       />
 
@@ -118,6 +133,8 @@ const MapaContent = () => {
         setSidebarAbierto={setSidebarAbierto}
         rightSidebarAbiertoCuencas={rightSidebarAbiertoCuencas}
         setRightSidebarAbiertoCuencas={setRightSidebarAbiertoCuencas}
+        rightSidebarAbiertoSubcuencas={rightSidebarAbiertoSubcuencas}
+        setRightSidebarAbiertoSubcuencas={setRightSidebarAbiertoSubcuencas}
         rightSidebarAbiertoPunto={rightSidebarAbiertoPunto}
         setRightSidebarAbiertoPunto={setRightSidebarAbiertoPunto}
 
@@ -147,6 +164,13 @@ const MapaContent = () => {
         graphicsCuencasLoading={graphicsCuencasLoading}
         graficosData={graficosData}
         loadCuencasGraphics={loadCuencasGraphics}
+
+        // Props para SidebarSubcuenca
+        subcuencaAnalysis={subcuencaAnalysis}
+        subcuencaLoading={subcuencaLoading}
+        graphicsSubcuencasLoading={graphicsSubcuencasLoading}
+        graficosSubcuencasData={graficosSubcuencasData}
+        loadSubcuencasGraphics={loadSubcuencasGraphics}
 
         // Props para SidebarPunto
         analisisPuntoSeleccionado={analisisPuntoSeleccionado}

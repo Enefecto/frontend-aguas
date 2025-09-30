@@ -60,6 +60,23 @@ class ApiService {
     return this.request(`${API_ENDPOINTS.CUENCAS_ANALISIS_INFORMANTES}?cuenca_identificador=${cuencaIdentificador}`);
   }
 
+  // Métodos para subcuencas
+  async getSubcuencaAnalisisCaudal(subcuencaIdentificador, cuencaIdentificador = null) {
+    let url = `${API_ENDPOINTS.SUBCUENCAS_ANALISIS_CAUDAL}?subcuenca_identificador=${encodeURIComponent(subcuencaIdentificador)}`;
+    if (cuencaIdentificador !== null) {
+      url += `&cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}`;
+    }
+    return this.request(url);
+  }
+
+  async getSubcuencaAnalisisInformantes(subcuencaIdentificador, cuencaIdentificador = null) {
+    let url = `${API_ENDPOINTS.SUBCUENCAS_ANALISIS_INFORMANTES}?subcuenca_identificador=${encodeURIComponent(subcuencaIdentificador)}`;
+    if (cuencaIdentificador !== null) {
+      url += `&cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}`;
+    }
+    return this.request(url);
+  }
+
   // Métodos para puntos
   async getPuntos(queryParams) {
     const params = new URLSearchParams(queryParams);

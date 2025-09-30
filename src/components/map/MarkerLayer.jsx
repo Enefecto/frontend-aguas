@@ -8,6 +8,7 @@ export const MarkerLayer = React.memo(({
   puntos,
   agrupar,
   handleShowSidebarCuencas,
+  handleShowSidebarSubcuencas,
   handleShowSidebarPunto
 }) => {
   const map = useMap();
@@ -32,6 +33,7 @@ export const MarkerLayer = React.memo(({
               <PopupPunto
                 punto={punto}
                 handleShowSidebarCuencas={handleShowSidebarCuencas}
+                handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
                 handleShowSidebarPunto={handleShowSidebarPunto}
               />
             </Popup>
@@ -39,7 +41,7 @@ export const MarkerLayer = React.memo(({
         );
       })
       .filter(Boolean) // Filtrar elementos null
-  ), [puntos, handleShowSidebarCuencas, handleShowSidebarPunto]);
+  ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto]);
 
   // Hook para refrescar clusters después de zoom automático
   useEffect(() => {

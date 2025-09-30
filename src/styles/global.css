@@ -17,7 +17,8 @@
 }
 
 
-.cuenca-analizar {
+.cuenca-analizar,
+.subcuenca-analizar {
   display: inline-block;
   cursor: pointer;
   font-weight: bold;
@@ -41,7 +42,8 @@
   text-decoration: underline;
 }
 
-.cuenca-analizar:hover {
+.cuenca-analizar:hover,
+.subcuenca-analizar:hover {
   filter: drop-shadow(0 0 6px rgba(31, 182, 255, 0.6));
   transform: scale(1.05);
   text-decoration-thickness: 2px;

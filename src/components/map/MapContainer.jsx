@@ -11,6 +11,7 @@ export const MapContainer = React.memo(({
   agrupar,
   apiUrl,
   handleShowSidebarCuencas,
+  handleShowSidebarSubcuencas,
   handleShowSidebarPunto
 }) => {
   const [currentLayer, setCurrentLayer] = useState(MAP_CONFIG.DEFAULT_TILE_LAYER);
@@ -58,6 +59,7 @@ export const MapContainer = React.memo(({
         puntos={puntos}
         agrupar={agrupar}
         handleShowSidebarCuencas={handleShowSidebarCuencas}
+        handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
         handleShowSidebarPunto={handleShowSidebarPunto}
       />
     </LeafletMapContainer>

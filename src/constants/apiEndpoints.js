@@ -5,6 +5,10 @@ export const API_ENDPOINTS = {
   CUENCAS_ANALISIS_CAUDAL: '/cuencas/analisis_caudal',
   CUENCAS_ANALISIS_INFORMANTES: '/cuencas/analisis_informantes',
 
+  // Endpoints de subcuencas
+  SUBCUENCAS_ANALISIS_CAUDAL: '/subcuencas/analisis_caudal',
+  SUBCUENCAS_ANALISIS_INFORMANTES: '/subcuencas/analisis_informantes',
+
   // Endpoints de puntos
   PUNTOS: '/puntos',
   PUNTOS_ESTADISTICAS: '/puntos/estadisticas',

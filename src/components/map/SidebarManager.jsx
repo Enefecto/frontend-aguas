@@ -1,6 +1,7 @@
 import React from 'react';
 import SidebarFiltros from '../sidebars/SidebarFiltros.jsx';
 import SidebarCuenca from '../sidebars/SidebarCuenca.jsx';
+import SidebarSubcuenca from '../sidebars/SidebarSubcuenca.jsx';
 import SidebarPunto from '../sidebars/SidebarPunto.jsx';
 import BotonAbrirSidebarFiltros from '../Buttons/BotonAbrirSidebarFiltros.jsx';
 
@@ -10,6 +11,8 @@ export const SidebarManager = ({
   setSidebarAbierto,
   rightSidebarAbiertoCuencas,
   setRightSidebarAbiertoCuencas,
+  rightSidebarAbiertoSubcuencas,
+  setRightSidebarAbiertoSubcuencas,
   rightSidebarAbiertoPunto,
   setRightSidebarAbiertoPunto,
 
@@ -39,6 +42,13 @@ export const SidebarManager = ({
   graphicsCuencasLoading,
   graficosData,
   loadCuencasGraphics,
+
+  // Props para SidebarSubcuenca
+  subcuencaAnalysis,
+  subcuencaLoading,
+  graphicsSubcuencasLoading,
+  graficosSubcuencasData,
+  loadSubcuencasGraphics,
 
   // Props para SidebarPunto
   analisisPuntoSeleccionado,
@@ -87,6 +97,17 @@ export const SidebarManager = ({
           graficosData={graficosData}
           setRightSidebarAbiertoCuencas={setRightSidebarAbiertoCuencas}
           loadCuencasGraphics={loadCuencasGraphics}
+        />
+      )}
+
+      {rightSidebarAbiertoSubcuencas && (
+        <SidebarSubcuenca
+          subcuencaAnalysis={subcuencaAnalysis}
+          subcuencaLoading={subcuencaLoading}
+          graphicsSubcuencasLoading={graphicsSubcuencasLoading}
+          graficosData={graficosSubcuencasData}
+          setRightSidebarAbiertoSubcuencas={setRightSidebarAbiertoSubcuencas}
+          loadSubcuencasGraphics={loadSubcuencasGraphics}
         />
       )}
 
