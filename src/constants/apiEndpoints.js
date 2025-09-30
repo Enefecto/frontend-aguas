@@ -18,7 +18,9 @@ export const FILTER_CONFIG = {
     cuenca: '',
     subcuenca: '',
     limit: 10,
-    tipoPunto: ''
+    tipoPunto: '',
+    fechaInicio: '',
+    fechaFin: ''
   },
 
   // Configuración de caudal

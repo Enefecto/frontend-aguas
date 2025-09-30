@@ -19,7 +19,21 @@ class ApiService {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Intentar parsear el error JSON del backend
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { detail: `HTTP error! status: ${response.status}` };
+        }
+
+        // Crear un error más informativo
+        const error = new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+        error.response = {
+          status: response.status,
+          data: errorData
+        };
+        throw error;
       }
 
       return await response.json();

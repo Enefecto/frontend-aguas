@@ -33,6 +33,10 @@ export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOrigin
   queryParams.append("caudal_maximo", filtroCaudal[1]);
   queryParams.append("orden_caudal", ordenCaudal);
 
+  // Agregar filtros de fecha si están presentes
+  if (filtros.fechaInicio) queryParams.append("fecha_inicio", filtros.fechaInicio);
+  if (filtros.fechaFin) queryParams.append("fecha_fin", filtros.fechaFin);
+
   return queryParams;
 };
 

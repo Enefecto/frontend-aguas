@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Slider from "@mui/material/Slider";
 import TextField from '@mui/material/TextField';
 import { SelectFilter } from '../UI/FilterGroup.jsx';
 import { FILTER_CONFIG } from '../../constants/apiEndpoints.js';
+import { validarFecha, validarRangoFechas, autoformatearFecha } from '../../utils/dateValidation.js';
 
 export const RegionFilter = ({ filtros, handleFiltroChange, regionesUnicas }) => (
   <SelectFilter
@@ -138,3 +139,140 @@ export const TipoPuntoFilter = ({ filtros, handleFiltroChange }) => (
     placeholder="-- Todos --"
   />
 );
+
+export const FechaFilter = ({ filtros, handleFiltroChange, erroresFecha, setErroresFecha }) => {
+  const [touched, setTouched] = useState({
+    fechaInicio: false,
+    fechaFin: false
+  });
+
+  // Validar fechas cuando cambien
+  useEffect(() => {
+    const erroresInicio = validarFecha(filtros.fechaInicio);
+    const erroresFin = validarFecha(filtros.fechaFin);
+    const erroresRango = validarRangoFechas(filtros.fechaInicio, filtros.fechaFin);
+
+    setErroresFecha({
+      fechaInicio: touched.fechaInicio ? erroresInicio.mensaje : '',
+      fechaFin: touched.fechaFin ? erroresFin.mensaje : '',
+      rangoFechas: (touched.fechaInicio || touched.fechaFin) ? erroresRango.mensaje : ''
+    });
+  }, [filtros.fechaInicio, filtros.fechaFin, touched, setErroresFecha]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    // Autoformatear mientras escribe
+    const valorFormateado = autoformatearFecha(value);
+
+    // Crear evento sintético con el valor formateado
+    const eventoFormateado = {
+      target: {
+        name,
+        value: valorFormateado
+      }
+    };
+
+    handleFiltroChange(eventoFormateado);
+  };
+
+  const handleBlur = (name) => {
+    setTouched(prev => ({ ...prev, [name]: true }));
+  };
+
+  const getInputClassName = (fieldName) => {
+    const baseClass = "w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2";
+    const hasError = erroresFecha[fieldName];
+
+    if (hasError) {
+      return `${baseClass} border-red-500 focus:ring-red-500`;
+    }
+
+    const isValid = filtros[fieldName] && !hasError && touched[fieldName];
+    if (isValid) {
+      return `${baseClass} border-green-500 focus:ring-green-500`;
+    }
+
+    return `${baseClass} border-gray-300 focus:ring-cyan-500`;
+  };
+
+  const getIcono = (fieldName) => {
+    if (!touched[fieldName] || !filtros[fieldName]) return null;
+
+    const hasError = erroresFecha[fieldName];
+
+    if (hasError) {
+      return (
+        <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+        </svg>
+      );
+    }
+
+    return (
+      <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+      </svg>
+    );
+  };
+
+  return (
+    <div className="mb-6 space-y-3">
+      <label className="block font-medium mb-2">Periodo de mediciones:</label>
+
+      <div>
+        <label className="block text-xs text-gray-600 mb-1">Fecha inicio (MM-AAAA):</label>
+        <div className="relative">
+          <input
+            type="text"
+            name="fechaInicio"
+            value={filtros.fechaInicio || ''}
+            onChange={handleInputChange}
+            onBlur={() => handleBlur('fechaInicio')}
+            placeholder="01-2020"
+            className={getInputClassName('fechaInicio')}
+            maxLength="7"
+          />
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            {getIcono('fechaInicio')}
+          </div>
+        </div>
+        {erroresFecha.fechaInicio && (
+          <p className="text-xs text-red-500 mt-1">{erroresFecha.fechaInicio}</p>
+        )}
+      </div>
+
+      <div>
+        <label className="block text-xs text-gray-600 mb-1">Fecha fin (MM-AAAA):</label>
+        <div className="relative">
+          <input
+            type="text"
+            name="fechaFin"
+            value={filtros.fechaFin || ''}
+            onChange={handleInputChange}
+            onBlur={() => handleBlur('fechaFin')}
+            placeholder="12-2023"
+            className={getInputClassName('fechaFin')}
+            maxLength="7"
+          />
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            {getIcono('fechaFin')}
+          </div>
+        </div>
+        {erroresFecha.fechaFin && (
+          <p className="text-xs text-red-500 mt-1">{erroresFecha.fechaFin}</p>
+        )}
+      </div>
+
+      {erroresFecha.rangoFechas && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-2">
+          <p className="text-xs text-red-700">{erroresFecha.rangoFechas}</p>
+        </div>
+      )}
+
+      <p className="text-xs text-gray-500 mt-1">
+        Deja vacío para incluir todas las fechas
+      </p>
+    </div>
+  );
+};

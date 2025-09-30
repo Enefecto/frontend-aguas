@@ -60,20 +60,22 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   useEffect(() => {
     setPuntos([]);
     setQueryCompleted(false);
-  }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.tipoPunto]);
+  }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.tipoPunto, filtros.fechaInicio, filtros.fechaFin]);
 
   // Función para manejar cambios en filtros
   const handleFiltroChange = (e) => {
     const { name, value } = e.target;
 
     if (name === 'region') {
-      setFiltros({ region: value, cuenca: '', subcuenca: '', limit: filtros.limit, tipoPunto: filtros.tipoPunto });
+      setFiltros({ region: value, cuenca: '', subcuenca: '', limit: filtros.limit, tipoPunto: filtros.tipoPunto, fechaInicio: filtros.fechaInicio, fechaFin: filtros.fechaFin });
     } else if (name === 'cuenca') {
       setFiltros(prev => ({ ...prev, cuenca: value, subcuenca: '' }));
     } else if (name === 'tipoPunto') {
       setFiltros(prev => ({ ...prev, tipoPunto: value }));
     } else if (name === 'limit') {
       setFiltros(prev => ({ ...prev, limit: parseInt(value, 10) || 0 }));
+    } else if (name === 'fechaInicio' || name === 'fechaFin') {
+      setFiltros(prev => ({ ...prev, [name]: value }));
     } else {
       setFiltros(prev => ({ ...prev, [name]: value }));
     }
@@ -98,6 +100,17 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
       }
     } catch (err) {
       console.error("Error al obtener coordenadas:", err);
+
+      // Mostrar mensaje de error más amigable
+      if (err.response?.status === 400) {
+        const errorDetail = err.response?.data?.detail || "Error de validación en los filtros";
+        console.error("Error de validación:", errorDetail);
+        alert(`Error en los filtros: ${errorDetail}`);
+      } else {
+        console.error("Error inesperado:", err.message);
+        alert("Ocurrió un error al consultar los puntos. Por favor, intenta nuevamente.");
+      }
+
       setPuntos([]);
       setLimiteSolicitado();
       setQueryCompleted(true); // ✅ Marcar como completado incluso en caso de error
