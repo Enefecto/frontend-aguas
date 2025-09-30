@@ -37,19 +37,35 @@ export const getPointsInCircle = async (apiUrl,puntos, center, radius, layer) =>
 
     const stats = data[0]; // análisis agregado
 
+    // Formatear fechas
+    const formatFecha = (fechaISO) => {
+      if (!fechaISO) return '';
+      const fecha = new Date(fechaISO);
+      return fecha.toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }).replace('.', '');
+    };
+
+    const periodoTexto = stats.primera_fecha_medicion && stats.ultima_fecha_medicion
+      ? `<div class="text-xs text-gray-500 mb-1 border-t border-gray-200 pt-1">Periodo: ${formatFecha(stats.primera_fecha_medicion)} - ${formatFecha(stats.ultima_fecha_medicion)}</div>`
+      : '';
+
     // HTML visual atractivo usando Tailwind CSS
     const popupHtml = `
       <div style="animation: fadeIn 0.3s ease-out" class="text-[13px] font-sans p-0 m-0 space-y-1 min-w-[220px]">
         <div class="font-bold text-sm text-cyan-800 border-b border-cyan-500 pb-1">
           Análisis estadístico del área
         </div>
-        
+
         <div class="flex justify-between"><span class="text-gray-600">Puntos:</span><span class="text-gray-800 font-medium">${formatNumberCL(stats.puntos_consultados) ?? '1'}</span></div>
         <div class="flex justify-between"><span class="text-gray-600">Mediciones:</span><span class="text-gray-800 font-medium">${formatNumberCL(stats.total_registros_con_caudal) ?? 0}</span></div>
         <div class="flex justify-between"><span class="text-green-600">Promedio:</span><span class="font-semibold text-green-700">${formatNumberCL(stats.caudal_promedio) ?? 0} L/s</span></div>
         <div class="flex justify-between"><span class="text-blue-600">Mínimo:</span><span class="font-semibold text-blue-700">${formatNumberCL(stats.caudal_minimo) ?? 0} L/s</span></div>
         <div class="flex justify-between"><span class="text-red-600">Máximo:</span><span class="font-semibold text-red-700">${formatNumberCL(stats.caudal_maximo) ?? 0} L/s</span></div>
         <div class="flex justify-between"><span class="text-purple-600">Desviación:</span><span class="text-purple-700 font-medium">${formatNumberCL(stats.desviacion_estandar_caudal) ?? 0} L/s</span></div>
+        ${periodoTexto}
       </div>
     `;
 

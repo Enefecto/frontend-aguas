@@ -11,7 +11,9 @@ export const useAnalysisData = (apiService) => {
     caudal_promedio: 0,
     caudal_minimo: 0,
     caudal_maximo: 0,
-    desviacion_estandar_caudal: 0
+    desviacion_estandar_caudal: 0,
+    primera_fecha_medicion: null,
+    ultima_fecha_medicion: null
   });
 
   const [cuencaLoading, setCuencaLoading] = useState(false);
@@ -45,7 +47,9 @@ export const useAnalysisData = (apiService) => {
         caudal_promedio: data.caudal_promedio,
         caudal_minimo: data.caudal_minimo,
         caudal_maximo: data.caudal_maximo,
-        desviacion_estandar_caudal: data.desviacion_estandar_caudal
+        desviacion_estandar_caudal: data.desviacion_estandar_caudal,
+        primera_fecha_medicion: data.primera_fecha_medicion,
+        ultima_fecha_medicion: data.ultima_fecha_medicion
       }));
       setCuencaLoading(false);
     } catch (err) {

@@ -115,6 +115,23 @@ export default function SidebarCuenca({
         Cuenca: <span className="text-cyan-800 font-bold">{cuencaAnalysis.nombreCuenca}</span>
       </h3>
 
+      {/* Periodo de análisis */}
+      {!cuencaLoading && cuencaAnalysis.primera_fecha_medicion && cuencaAnalysis.ultima_fecha_medicion && (
+        <p className="text-sm text-gray-600">
+          <strong>Periodo de análisis:</strong>{' '}
+          {new Date(cuencaAnalysis.primera_fecha_medicion).toLocaleDateString('es-CL', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          }).replace('.', '')}{' - '}
+          {new Date(cuencaAnalysis.ultima_fecha_medicion).toLocaleDateString('es-CL', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          }).replace('.', '')}
+        </p>
+      )}
+
       {/* Estadísticos */}
       {!cuencaLoading ? (
         <div className="space-y-4 pt-2">

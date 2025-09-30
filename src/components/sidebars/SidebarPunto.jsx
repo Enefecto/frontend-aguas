@@ -64,6 +64,22 @@ export default function SidebarPunto({
         </span>
       </h3>
 
+      {/* Periodo de análisis */}
+      {!analisisPuntoSeleccionadoLoading && analisis.primera_fecha_medicion && analisis.ultima_fecha_medicion && (
+        <p className="text-sm text-gray-600">
+          <strong>Periodo de análisis:</strong>{' '}
+          {new Date(analisis.primera_fecha_medicion).toLocaleDateString('es-CL', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          }).replace('.', '')}{' - '}
+          {new Date(analisis.ultima_fecha_medicion).toLocaleDateString('es-CL', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          }).replace('.', '')}
+        </p>
+      )}
 
       {punto.tipoPunto?.altura !== null && punto.tipoPunto?.altura !== undefined && (
         <div className="mt-3">
