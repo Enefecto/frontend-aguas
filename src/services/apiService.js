@@ -83,15 +83,32 @@ class ApiService {
     return this.request(`${API_ENDPOINTS.PUNTOS}?${params.toString()}`);
   }
 
-  async getPuntosEstadisticas(coordinates) {
+  async getPuntoInfo(utmNorte, utmEste) {
+    return this.request(`${API_ENDPOINTS.PUNTOS_POPUP}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
+  }
+
+  async getPuntosEstadisticas(utmNorte, utmEste) {
     return this.request(API_ENDPOINTS.PUNTOS_ESTADISTICAS, {
       method: 'POST',
-      body: JSON.stringify(coordinates)
+      body: JSON.stringify([
+        {
+          utm_norte: utmNorte,
+          utm_este: utmEste
+        }
+      ])
     });
   }
 
   async getPuntosSeriesTiempo(utmNorte, utmEste) {
     return this.request(`${API_ENDPOINTS.PUNTOS_SERIES_TIEMPO_CAUDAL}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
+  }
+
+  async getPuntosSeriesTiempoNivelFreatico(utmNorte, utmEste) {
+    return this.request(`${API_ENDPOINTS.PUNTOS_SERIES_TIEMPO_NIVEL_FREATICO}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
+  }
+
+  async getPuntosSeriesTiempoAlturaLimnimetrica(utmNorte, utmEste) {
+    return this.request(`${API_ENDPOINTS.PUNTOS_SERIES_TIEMPO_ALTURA_LIMNIMETRICA}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
   }
 }
 

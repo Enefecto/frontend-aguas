@@ -1,0 +1,88 @@
+{
+  "cuencas": [
+    {
+      "cod_region": 4,
+      "nom_cuenca": "Rio Choapa",
+      "cod_cuenca": 47,
+      "nom_subcuenca": null,
+      "cod_subcuenca": null
+    },
+    {
+      "cod_region": 5,
+      "nom_cuenca": "Rio Aconcagua",
+      "cod_cuenca": 54,
+      "nom_subcuenca": null,
+      "cod_subcuenca": null
+    },
+    {
+      "cod_region": 4,
+      "nom_cuenca": "Rio Choapa",
+      "cod_cuenca": 47,
+      "nom_subcuenca": "Rio Choapa Alto (hasta abajo junta Rio Cuncumen)",
+      "cod_subcuenca": 470
+    },
+    {
+      "cod_region": 3,
+      "nom_cuenca": "Rio Copiapo",
+      "cod_cuenca": 34,
+      "nom_subcuenca": "Rio Manflas",
+      "cod_subcuenca": 342
+    },
+    {
+      "cod_region": 4,
+      "nom_cuenca": "Rio Choapa",
+      "cod_cuenca": 47,
+      "nom_subcuenca": "Rio Choapa Medio (entre Rios Cuncumen e Illapel)",
+      "cod_subcuenca": 471
+    },
+    {
+      "cod_region": 3,
+      "nom_cuenca": "Rio Copiapo",
+      "cod_cuenca": 34,
+      "nom_subcuenca": "R.  Copiapo Medio",
+      "cod_subcuenca": 343
+    },
+    {
+      "cod_region": 5,
+      "nom_cuenca": "Rio Aconcagua",
+      "cod_cuenca": 54,
+      "nom_subcuenca": "Aconcagua Medio",
+      "cod_subcuenca": 541
+    },
+    {
+      "cod_region": 3,
+      "nom_cuenca": "Rio Copiapo",
+      "cod_cuenca": 34,
+      "nom_subcuenca": null,
+      "cod_subcuenca": null
+    },
+    {
+      "cod_region": 3,
+      "nom_cuenca": "Rio Copiapo",
+      "cod_cuenca": 34,
+      "nom_subcuenca": "R.  Copiapo Bajo",
+      "cod_subcuenca": 345
+    },
+    {
+      "cod_region": 5,
+      "nom_cuenca": "Rio Aconcagua",
+      "cod_cuenca": 54,
+      "nom_subcuenca": "Aconcagua Alto",
+      "cod_subcuenca": 540
+    },
+    {
+      "cod_region": 4,
+      "nom_cuenca": "Rio Choapa",
+      "cod_cuenca": 47,
+      "nom_subcuenca": "Rio Choapa Bajo (entre Rio Illapel y Desembocadura)",
+      "cod_subcuenca": 473
+    },
+    {
+      "cod_region": 5,
+      "nom_cuenca": "Rio Aconcagua",
+      "cod_cuenca": 54,
+      "nom_subcuenca": "Aconcagua Bajo",
+      "cod_subcuenca": 542
+    }
+  ]
+}

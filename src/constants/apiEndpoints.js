@@ -1,18 +1,21 @@
 export const API_ENDPOINTS = {
   // Endpoints de cuencas
-  CUENCAS: '/cuencas',
-  CUENCAS_STATS: '/cuencas/stats',
-  CUENCAS_ANALISIS_CAUDAL: '/cuencas/analisis_caudal',
-  CUENCAS_ANALISIS_INFORMANTES: '/cuencas/analisis_informantes',
+  CUENCAS: '/api/cuencas',
+  CUENCAS_STATS: '/api/cuencas/stats',
+  CUENCAS_ANALISIS_CAUDAL: '/api/cuencas/analisis_caudal',
+  CUENCAS_ANALISIS_INFORMANTES: '/api/cuencas/analisis_informantes',
 
   // Endpoints de subcuencas
-  SUBCUENCAS_ANALISIS_CAUDAL: '/subcuencas/analisis_caudal',
-  SUBCUENCAS_ANALISIS_INFORMANTES: '/subcuencas/analisis_informantes',
+  SUBCUENCAS_ANALISIS_CAUDAL: '/api/subcuencas/analisis_caudal',
+  SUBCUENCAS_ANALISIS_INFORMANTES: '/api/subcuencas/analisis_informantes',
 
   // Endpoints de puntos
-  PUNTOS: '/puntos',
-  PUNTOS_ESTADISTICAS: '/puntos/estadisticas',
-  PUNTOS_SERIES_TIEMPO_CAUDAL: '/puntos/series_de_tiempo/caudal'
+  PUNTOS: '/api/puntos',
+  PUNTOS_POPUP: '/api/puntos/info',
+  PUNTOS_ESTADISTICAS: '/api/puntos/estadisticas',
+  PUNTOS_SERIES_TIEMPO_CAUDAL: '/api/puntos/series_de_tiempo/caudal',
+  PUNTOS_SERIES_TIEMPO_NIVEL_FREATICO: '/api/puntos/series_de_tiempo/nivel_freatico',
+  PUNTOS_SERIES_TIEMPO_ALTURA_LIMNIMETRICA: '/api/puntos/series_de_tiempo/altura_linimetrica'
 };
 
 export const FILTER_CONFIG = {

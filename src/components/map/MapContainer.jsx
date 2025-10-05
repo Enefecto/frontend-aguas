@@ -10,6 +10,7 @@ export const MapContainer = React.memo(({
   puntos,
   agrupar,
   apiUrl,
+  apiService,
   handleShowSidebarCuencas,
   handleShowSidebarSubcuencas,
   handleShowSidebarPunto
@@ -61,6 +62,7 @@ export const MapContainer = React.memo(({
         handleShowSidebarCuencas={handleShowSidebarCuencas}
         handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
         handleShowSidebarPunto={handleShowSidebarPunto}
+        apiService={apiService}
       />
     </LeafletMapContainer>
   );

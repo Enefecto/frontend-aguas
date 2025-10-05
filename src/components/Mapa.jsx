@@ -84,7 +84,8 @@ const MapaContent = () => {
     loadPuntosGraphics,
 
     // API
-    apiUrl
+    apiUrl,
+    apiService
   } = useMapContext();
 
   const [agrupar, setAgrupar] = useState(false);
@@ -122,6 +123,7 @@ const MapaContent = () => {
         puntos={puntos}
         agrupar={agrupar}
         apiUrl={apiUrl}
+        apiService={apiService}
         handleShowSidebarCuencas={handleShowSidebarCuencas}
         handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
         handleShowSidebarPunto={handleShowSidebarPunto}
@@ -178,6 +180,7 @@ const MapaContent = () => {
         graphicsPuntosLoading={graphicsPuntosLoading}
         graficosPuntosData={graficosPuntosData}
         loadPuntosGraphics={loadPuntosGraphics}
+        apiService={apiService}
       />
     </div>
   );

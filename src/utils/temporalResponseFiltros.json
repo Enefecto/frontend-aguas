@@ -1,0 +1,115 @@
+{
+  "estadisticas": {
+    "caudal_global": {
+      "avgMin": 0,
+      "avgMax": 3251106.1921633747,
+      "total_puntos_unicos": 1082
+    },
+    "caudal_por_cuenca": [
+      {
+        "nom_cuenca": "Rio Choapa",
+        "avgMin": 0,
+        "avgMax": 255984.57066666667,
+        "total_puntos": 152
+      },
+      {
+        "nom_cuenca": "Rio Aconcagua",
+        "avgMin": 0,
+        "avgMax": 553908.1821726823,
+        "total_puntos": 591
+      },
+      {
+        "nom_cuenca": "Rio Copiapo",
+        "avgMin": 0,
+        "avgMax": 3251106.1921633747,
+        "total_puntos": 339
+      }
+    ],
+    "caudal_por_subcuenca": [
+      {
+        "nom_cuenca": "Rio Aconcagua",
+        "nom_subcuenca": "Aconcagua Alto",
+        "avgMin": 0,
+        "avgMax": 553908.1821726823,
+        "total_puntos": 24
+      },
+      {
+        "nom_cuenca": "Rio Aconcagua",
+        "nom_subcuenca": "Aconcagua Medio",
+        "avgMin": 54.633576017130615,
+        "avgMax": 1282.40583669355,
+        "total_puntos": 19
+      },
+      {
+        "nom_cuenca": "Rio Aconcagua",
+        "nom_subcuenca": null,
+        "avgMin": 0,
+        "avgMax": 20683.545454545456,
+        "total_puntos": 527
+      },
+      {
+        "nom_cuenca": "Rio Copiapo",
+        "nom_subcuenca": "R.  Copiapo Medio",
+        "avgMin": 0.794148550724637,
+        "avgMax": 214.96666666666667,
+        "total_puntos": 2
+      },
+      {
+        "nom_cuenca": "Rio Choapa",
+        "nom_subcuenca": "Rio Choapa Alto (hasta abajo junta Rio Cuncumen)",
+        "avgMin": 0,
+        "avgMax": 348.57297901616766,
+        "total_puntos": 25
+      },
+      {
+        "nom_cuenca": "Rio Copiapo",
+        "nom_subcuenca": "R.  Copiapo Bajo",
+        "avgMin": 365.97108854781595,
+        "avgMax": 365.97108854781595,
+        "total_puntos": 1
+      },
+      {
+        "nom_cuenca": "Rio Copiapo",
+        "nom_subcuenca": null,
+        "avgMin": 0,
+        "avgMax": 3251106.1921633724,
+        "total_puntos": 335
+      },
+      {
+        "nom_cuenca": "Rio Choapa",
+        "nom_subcuenca": null,
+        "avgMin": 0,
+        "avgMax": 255984.5706666667,
+        "total_puntos": 92
+      },
+      {
+        "nom_cuenca": "Rio Choapa",
+        "nom_subcuenca": "Rio Choapa Bajo (entre Rio Illapel y Desembocadura)",
+        "avgMin": 8.830188679245284,
+        "avgMax": 31.86122448979592,
+        "total_puntos": 5
+      },
+      {
+        "nom_cuenca": "Rio Aconcagua",
+        "nom_subcuenca": "Aconcagua Bajo",
+        "avgMin": 47.65396226415094,
+        "avgMax": 1270.3121705174094,
+        "total_puntos": 21
+      },
+      {
+        "nom_cuenca": "Rio Choapa",
+        "nom_subcuenca": "Rio Choapa Medio (entre Rios Cuncumen e Illapel)",
+        "avgMin": 6.884517716535436,
+        "avgMax": 602.8499428934012,
+        "total_puntos": 30
+      },
+      {
+        "nom_cuenca": "Rio Copiapo",
+        "nom_subcuenca": "Rio Manflas",
+        "avgMin": 93.49576451349132,
+        "avgMax": 93.49576451349132,
+        "total_puntos": 1
+      }
+    ]
+  }
+}

@@ -55,7 +55,8 @@ export const SidebarManager = ({
   analisisPuntoSeleccionadoLoading,
   graphicsPuntosLoading,
   graficosPuntosData,
-  loadPuntosGraphics
+  loadPuntosGraphics,
+  apiService
 }) => {
   return (
     <>
@@ -119,6 +120,7 @@ export const SidebarManager = ({
           graficosPuntosData={graficosPuntosData}
           loadPuntosGraphics={loadPuntosGraphics}
           setRightSidebarAbiertoPunto={setRightSidebarAbiertoPunto}
+          apiService={apiService}
         />
       )}
     </>

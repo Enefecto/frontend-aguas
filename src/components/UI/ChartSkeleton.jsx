@@ -107,79 +107,95 @@ export const GraphicsLoadingSkeleton = () => {
   );
 };
 
-export const PuntoGraphicsLoadingSkeleton = () => {
+const TimeSeriesChartSkeleton = ({ title, color = "#2563eb" }) => {
+  return (
+    <div className="w-full h-[260px] md:h-80 lg:h-96 animate-pulse">
+      <div className="flex justify-between items-center mb-1">
+        <div className="h-4 bg-gray-300 rounded w-40"></div>
+      </div>
+
+      <div className="w-full h-full bg-gray-100 rounded-lg border relative overflow-hidden">
+        {/* Simulación de ejes */}
+        <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
+        <div className="absolute bottom-0 left-16 w-px h-full bg-gray-300"></div>
+
+        {/* Simulación de líneas de grid */}
+        <div className="absolute inset-0 flex flex-col justify-between py-4 pl-16">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="w-full h-px bg-gray-200 opacity-50"></div>
+          ))}
+        </div>
+
+        {/* Simulación de línea de tiempo */}
+        <div className="absolute inset-4 pl-12">
+          <svg className="w-full h-full">
+            <path
+              d="M0,60 Q30,45 60,50 T120,40 Q150,35 180,38 T240,30 Q270,25 300,28 T360,20 Q390,15 420,18"
+              stroke={color}
+              strokeWidth="2"
+              fill="none"
+              className="opacity-30"
+            />
+            {/* Puntos de datos */}
+            {[0, 60, 120, 180, 240, 300, 360, 420].map((x, i) => (
+              <circle
+                key={i}
+                cx={x}
+                cy={[60, 50, 40, 38, 30, 28, 20, 18][i]}
+                r="2"
+                fill={color}
+                className="opacity-30"
+              />
+            ))}
+          </svg>
+        </div>
+
+        {/* Simulación de etiquetas de eje X (fechas) */}
+        <div className="absolute bottom-2 left-16 right-4 flex justify-between text-xs text-gray-400">
+          <div className="h-3 bg-gray-300 rounded w-12 opacity-50"></div>
+          <div className="h-3 bg-gray-300 rounded w-12 opacity-50"></div>
+          <div className="h-3 bg-gray-300 rounded w-12 opacity-50"></div>
+          <div className="h-3 bg-gray-300 rounded w-12 opacity-50"></div>
+        </div>
+
+        {/* Simulación de etiquetas de eje Y (valores) */}
+        <div className="absolute left-2 top-4 bottom-8 flex flex-col justify-between text-xs text-gray-400">
+          <div className="h-3 bg-gray-300 rounded w-8 opacity-50"></div>
+          <div className="h-3 bg-gray-300 rounded w-8 opacity-50"></div>
+          <div className="h-3 bg-gray-300 rounded w-8 opacity-50"></div>
+          <div className="h-3 bg-gray-300 rounded w-8 opacity-50"></div>
+          <div className="h-3 bg-gray-300 rounded w-8 opacity-50"></div>
+        </div>
+
+        {/* Indicador de carga */}
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70">
+          <div className="flex items-center space-x-2 text-gray-500">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
+            <span className="text-sm font-medium">Cargando {title}...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const PuntoGraphicsLoadingSkeleton = ({ hasNivelFreatico = false, hasAlturaLimnimetrica = false }) => {
   return (
     <div className="space-y-10 mt-6 border-t pt-6">
       <h3 className="text-lg font-semibold">Gráficos</h3>
 
-      {/* Gráfico de series temporales de caudal */}
-      <div className="w-full h-[260px] md:h-80 lg:h-96 animate-pulse">
-        <div className="flex justify-between items-center mb-1">
-          <div className="h-4 bg-gray-300 rounded w-40"></div>
-        </div>
+      {/* Gráfico de caudal (siempre presente) */}
+      <TimeSeriesChartSkeleton title="Caudal por tiempo" color="#2563eb" />
 
-        <div className="w-full h-full bg-gray-100 rounded-lg border relative overflow-hidden">
-          {/* Simulación de ejes */}
-          <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
-          <div className="absolute bottom-0 left-16 w-px h-full bg-gray-300"></div>
+      {/* Gráfico de nivel freático (condicional) */}
+      {hasNivelFreatico && (
+        <TimeSeriesChartSkeleton title="Nivel Freático por tiempo" color="#FF5722" />
+      )}
 
-          {/* Simulación de líneas de grid */}
-          <div className="absolute inset-0 flex flex-col justify-between py-4 pl-16">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="w-full h-px bg-gray-200 opacity-50"></div>
-            ))}
-          </div>
-
-          {/* Simulación de línea de tiempo */}
-          <div className="absolute inset-4 pl-12">
-            <svg className="w-full h-full">
-              <path
-                d="M0,60 Q30,45 60,50 T120,40 Q150,35 180,38 T240,30 Q270,25 300,28 T360,20 Q390,15 420,18"
-                stroke="#2563eb"
-                strokeWidth="2"
-                fill="none"
-                className="opacity-30"
-              />
-              {/* Puntos de datos */}
-              {[0, 60, 120, 180, 240, 300, 360, 420].map((x, i) => (
-                <circle
-                  key={i}
-                  cx={x}
-                  cy={[60, 50, 40, 38, 30, 28, 20, 18][i]}
-                  r="2"
-                  fill="#2563eb"
-                  className="opacity-30"
-                />
-              ))}
-            </svg>
-          </div>
-
-          {/* Simulación de etiquetas de eje X (fechas) */}
-          <div className="absolute bottom-2 left-16 right-4 flex justify-between text-xs text-gray-400">
-            <div className="h-3 bg-gray-300 rounded w-12 opacity-50"></div>
-            <div className="h-3 bg-gray-300 rounded w-12 opacity-50"></div>
-            <div className="h-3 bg-gray-300 rounded w-12 opacity-50"></div>
-            <div className="h-3 bg-gray-300 rounded w-12 opacity-50"></div>
-          </div>
-
-          {/* Simulación de etiquetas de eje Y (valores) */}
-          <div className="absolute left-2 top-4 bottom-8 flex flex-col justify-between text-xs text-gray-400">
-            <div className="h-3 bg-gray-300 rounded w-8 opacity-50"></div>
-            <div className="h-3 bg-gray-300 rounded w-8 opacity-50"></div>
-            <div className="h-3 bg-gray-300 rounded w-8 opacity-50"></div>
-            <div className="h-3 bg-gray-300 rounded w-8 opacity-50"></div>
-            <div className="h-3 bg-gray-300 rounded w-8 opacity-50"></div>
-          </div>
-
-          {/* Indicador de carga */}
-          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70">
-            <div className="flex items-center space-x-2 text-gray-500">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
-              <span className="text-sm font-medium">Cargando series de tiempo...</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Gráfico de altura limnimétrica (condicional) */}
+      {hasAlturaLimnimetrica && (
+        <TimeSeriesChartSkeleton title="Altura Limnimétrica por tiempo" color="#0891b2" />
+      )}
     </div>
   );
 };

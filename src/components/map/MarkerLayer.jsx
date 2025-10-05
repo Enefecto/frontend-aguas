@@ -9,7 +9,8 @@ export const MarkerLayer = React.memo(({
   agrupar,
   handleShowSidebarCuencas,
   handleShowSidebarSubcuencas,
-  handleShowSidebarPunto
+  handleShowSidebarPunto,
+  apiService
 }) => {
   const map = useMap();
   const clusterGroupRef = useRef(null);
@@ -35,13 +36,14 @@ export const MarkerLayer = React.memo(({
                 handleShowSidebarCuencas={handleShowSidebarCuencas}
                 handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
                 handleShowSidebarPunto={handleShowSidebarPunto}
+                apiService={apiService}
               />
             </Popup>
           </Marker>
         );
       })
       .filter(Boolean) // Filtrar elementos null
-  ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto]);
+  ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService]);
 
   // Hook para refrescar clusters después de zoom automático
   useEffect(() => {

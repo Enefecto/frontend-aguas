@@ -110,12 +110,7 @@ export const useAnalysisData = (apiService) => {
     setGraphicsPuntosLoading(UI_CONFIG.LOADING_STATES.IDLE);
 
     try {
-      const data = await apiService.getPuntosEstadisticas([
-        {
-          utm_norte: punto.utm_norte,
-          utm_este: punto.utm_este
-        }
-      ]);
+      const data = await apiService.getPuntosEstadisticas(punto.utm_norte, punto.utm_este);
 
       setAnalisisPuntoSeleccionado({
         analisis: data[0],

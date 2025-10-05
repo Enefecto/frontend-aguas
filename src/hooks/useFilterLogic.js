@@ -6,6 +6,7 @@ import {
   calculateCaudalRange,
   calculateLimitMax
 } from '../utils/filterUtils.js';
+import { convertPuntoUTMtoLatLon } from '../utils/utmConverter.js';
 
 export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded, apiService) => {
   const [filtros, setFiltros] = useState(FILTER_CONFIG.DEFAULT_FILTERS);
@@ -89,14 +90,17 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
       const data = await apiService.getPuntos(queryParams);
 
       if (Array.isArray(data)) {
-        setPuntos(data);
+        // Convertir coordenadas UTM a lat/lon
+        const puntosConvertidos = data.map(punto => convertPuntoUTMtoLatLon(punto));
+
+        setPuntos(puntosConvertidos);
         setLimiteSolicitado(filtros.limit);
-        setQueryCompleted(true); // ✅ Marcar como completado independientemente de si hay resultados
+        setQueryCompleted(true);
       } else {
         console.error("Respuesta inesperada:", data);
         setPuntos([]);
         setLimiteSolicitado();
-        setQueryCompleted(true); // ✅ También marcar como completado en caso de error de formato
+        setQueryCompleted(true);
       }
     } catch (err) {
       console.error("Error al obtener coordenadas:", err);

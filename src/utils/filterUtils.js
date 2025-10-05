@@ -3,48 +3,52 @@ import { getNombreRegion } from '../constants/regionesChile.js';
 import { calcularFechasPredefinidas } from './fechasPredefinidas.js';
 
 export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOriginales) => {
-  const cuencaCod = datosOriginales.find(
-    d => d.nom_cuenca === filtros.cuenca
-  )?.cod_cuenca;
+  // TODO: Descomentar cuando la API soporte estos filtros
+  // const cuencaCod = datosOriginales.find(
+  //   d => d.nom_cuenca === filtros.cuenca
+  // )?.cod_cuenca;
 
-  let subcuencaCod;
+  // let subcuencaCod;
 
-  if (filtros.subcuenca === 'No registrada') {
-    subcuencaCod = null;
-  } else {
-    subcuencaCod = datosOriginales.find(
-      d => d.nom_subcuenca === filtros.subcuenca
-    )?.cod_subcuenca;
-  }
+  // if (filtros.subcuenca === 'No registrada') {
+  //   subcuencaCod = null;
+  // } else {
+  //   subcuencaCod = datosOriginales.find(
+  //     d => d.nom_subcuenca === filtros.subcuenca
+  //   )?.cod_subcuenca;
+  // }
 
   const queryParams = new URLSearchParams();
 
+  // Por ahora solo región es soportada
   if (filtros.region) queryParams.append("region", filtros.region);
-  if (filtros.tipoPunto) queryParams.append("tipo_punto", filtros.tipoPunto);
-  if (cuencaCod !== undefined) queryParams.append("cod_cuenca", cuencaCod);
 
-  if (filtros.subcuenca === 'No registrada') {
-    queryParams.append("filtro_null_subcuenca", "1");
-  } else if (subcuencaCod !== undefined) {
-    queryParams.append("cod_subcuenca", subcuencaCod);
-  }
+  // TODO: Descomentar cuando la API soporte estos filtros
+  // if (filtros.tipoPunto) queryParams.append("tipo_punto", filtros.tipoPunto);
+  // if (cuencaCod !== undefined) queryParams.append("cod_cuenca", cuencaCod);
 
-  queryParams.append("limit", filtros.limit || 10);
-  queryParams.append("caudal_minimo", filtroCaudal[0]);
-  queryParams.append("caudal_maximo", filtroCaudal[1]);
-  queryParams.append("orden_caudal", ordenCaudal);
+  // if (filtros.subcuenca === 'No registrada') {
+  //   queryParams.append("filtro_null_subcuenca", "1");
+  // } else if (subcuencaCod !== undefined) {
+  //   queryParams.append("cod_subcuenca", subcuencaCod);
+  // }
 
-  // Agregar filtros de fecha
-  if (filtros.fechaPredefinida) {
-    // Si hay periodo predefinido, calcular y enviar las fechas
-    const { fechaInicio, fechaFin } = calcularFechasPredefinidas(filtros.fechaPredefinida);
-    if (fechaInicio) queryParams.append("fecha_inicio", fechaInicio);
-    if (fechaFin) queryParams.append("fecha_fin", fechaFin);
-  } else {
-    // Si no hay periodo predefinido, usar las fechas manuales
-    if (filtros.fechaInicio) queryParams.append("fecha_inicio", filtros.fechaInicio);
-    if (filtros.fechaFin) queryParams.append("fecha_fin", filtros.fechaFin);
-  }
+  // queryParams.append("limit", filtros.limit || 10);
+  // queryParams.append("caudal_minimo", filtroCaudal[0]);
+  // queryParams.append("caudal_maximo", filtroCaudal[1]);
+  // queryParams.append("orden_caudal", ordenCaudal);
+
+  // // Agregar filtros de fecha
+  // if (filtros.fechaPredefinida) {
+  //   // Si hay periodo predefinido, calcular y enviar las fechas
+  //   const { fechaInicio, fechaFin } = calcularFechasPredefinidas(filtros.fechaPredefinida);
+  //   if (fechaInicio) queryParams.append("fecha_inicio", fechaInicio);
+  //   if (fechaFin) queryParams.append("fecha_fin", fechaFin);
+  // } else {
+  //   // Si no hay periodo predefinido, usar las fechas manuales
+  //   if (filtros.fechaInicio) queryParams.append("fecha_inicio", filtros.fechaInicio);
+  //   if (filtros.fechaFin) queryParams.append("fecha_fin", filtros.fechaFin);
+  // }
 
   return queryParams;
 };

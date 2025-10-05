@@ -22,14 +22,11 @@ export const createDropIcon = (fill = MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTIO
 };
 
 export const getMarkerColor = (punto) => {
-  // Clasificación basada en datos disponibles
-  const tieneAlturaLimnimetrica = punto?.tipoPunto?.altura != null;
-  const tieneNivelFreatico = punto?.tipoPunto?.nivel_freatico != null;
-
-  if (tieneAlturaLimnimetrica) {
-    return MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTION; // Azul - Extracción superficial
-  } else if (tieneNivelFreatico) {
+  // Clasificación basada en es_pozo_subterraneo
+  if (punto?.es_pozo_subterraneo === true) {
     return MAP_CONFIG.MARKER_COLORS.UNDERGROUND_EXTRACTION; // Naranja - Extracción subterránea
+  } else if (punto?.es_pozo_subterraneo === false) {
+    return MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTION; // Azul - Extracción superficial
   } else {
     return MAP_CONFIG.MARKER_COLORS.UNCLASSIFIED; // Gris - Sin clasificación
   }
@@ -69,32 +66,31 @@ export const createClusterIcon = (cluster) => {
 };
 
 export const isValidCoordinate = (punto) => {
-  return Number.isFinite(punto.lat) && Number.isFinite(punto.lon);
+  // Verificar primero si ya tiene lat/lon (convertido)
+  if (Number.isFinite(punto.lat) && Number.isFinite(punto.lon)) {
+    return true;
+  }
+  // Si no, verificar que tenga coordenadas UTM válidas
+  return Number.isFinite(punto.utm_norte) && Number.isFinite(punto.utm_este);
 };
 
 export const getPuntoTypeLabel = (punto) => {
-  // Clasificación basada en datos disponibles
-  const tieneAlturaLimnimetrica = punto?.tipoPunto?.altura != null;
-  const tieneNivelFreatico = punto?.tipoPunto?.nivel_freatico != null;
-
-  if (tieneAlturaLimnimetrica) {
-    return 'Extracción superficial';
-  } else if (tieneNivelFreatico) {
+  // Clasificación basada en es_pozo_subterraneo
+  if (punto?.es_pozo_subterraneo === true) {
     return 'Extracción subterránea';
+  } else if (punto?.es_pozo_subterraneo === false) {
+    return 'Extracción superficial';
   } else {
-    return 'Sin clasificación'; // Buena práctica: mostrar estado cuando no hay datos suficientes
+    return 'Sin clasificación';
   }
 };
 
 export const getPuntoTypeValue = (punto) => {
-  // Retorna el valor correspondiente a las constantes de filtro
-  const tieneAlturaLimnimetrica = punto?.tipoPunto?.altura != null;
-  const tieneNivelFreatico = punto?.tipoPunto?.nivel_freatico != null;
-
-  if (tieneAlturaLimnimetrica) {
-    return 'superficial';
-  } else if (tieneNivelFreatico) {
+  // Retorna el valor correspondiente a las constantes de filtro basado en es_pozo_subterraneo
+  if (punto?.es_pozo_subterraneo === true) {
     return 'subterraneo';
+  } else if (punto?.es_pozo_subterraneo === false) {
+    return 'superficial';
   } else {
     return 'sin_clasificar';
   }
