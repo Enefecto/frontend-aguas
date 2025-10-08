@@ -52,6 +52,10 @@ class ApiService {
     return this.request(API_ENDPOINTS.CUENCAS_STATS);
   }
 
+  async getFiltrosReactivos() {
+    return this.request(API_ENDPOINTS.FILTROS_REACTIVOS);
+  }
+
   async getCuencaAnalisisCaudal(cuencaIdentificador) {
     return this.request(`${API_ENDPOINTS.CUENCAS_ANALISIS_CAUDAL}?cuenca_identificador=${cuencaIdentificador}`);
   }

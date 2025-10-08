@@ -2,6 +2,7 @@ export const API_ENDPOINTS = {
   // Endpoints de cuencas
   CUENCAS: '/api/cuencas',
   CUENCAS_STATS: '/api/cuencas/stats',
+  FILTROS_REACTIVOS: '/api/filtrosreactivos',
   CUENCAS_ANALISIS_CAUDAL: '/api/cuencas/analisis_caudal',
   CUENCAS_ANALISIS_INFORMANTES: '/api/cuencas/analisis_informantes',
 
