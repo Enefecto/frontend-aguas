@@ -18,7 +18,11 @@ export const getPointsInPolygon = async (apiUrl, puntos, latlngs, layer) => {
   const polygon = turf.polygon([coords]);
 
   // Filtrar puntos dentro del polígono
+  // Los puntos ya deben tener lat/lon calculados desde UTM en el frontend
   const puntosFiltrados = puntos.filter((p) => {
+    // Verificar que el punto tenga coordenadas lat/lon (calculadas desde UTM)
+    if (!p.lat || !p.lon) return false;
+
     const point = turf.point([p.lon, p.lat]);
     return turf.booleanPointInPolygon(point, polygon);
   });
@@ -34,7 +38,7 @@ export const getPointsInPolygon = async (apiUrl, puntos, latlngs, layer) => {
   }));
 
   try {
-    const res = await fetch(`${apiUrl}/puntos/estadisticas`, {
+    const res = await fetch(`${apiUrl}/api/puntos/estadisticas`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
