@@ -5,10 +5,16 @@ export const API_ENDPOINTS = {
   FILTROS_REACTIVOS: '/api/filtrosreactivos',
   CUENCAS_ANALISIS_CAUDAL: '/api/cuencas/analisis_caudal',
   CUENCAS_ANALISIS_INFORMANTES: '/api/cuencas/analisis_informantes',
+  CUENCAS_SERIES_TIEMPO_CAUDAL: '/api/cuencas/cuenca/series_de_tiempo/caudal',
+  CUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA: '/api/cuencas/cuenca/series_de_tiempo/altura_linimetrica',
+  CUENCAS_SERIES_TIEMPO_NIVEL_FREATICO: '/api/cuencas/cuenca/series_de_tiempo/nivel_freatico',
 
   // Endpoints de subcuencas
   SUBCUENCAS_ANALISIS_CAUDAL: '/api/subcuencas/analisis_caudal',
   SUBCUENCAS_ANALISIS_INFORMANTES: '/api/subcuencas/analisis_informantes',
+  SUBCUENCAS_SERIES_TIEMPO_CAUDAL: '/api/cuencas/subcuenca/series_de_tiempo/caudal',
+  SUBCUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA: '/api/cuencas/subcuenca/series_de_tiempo/altura_linimetrica',
+  SUBCUENCAS_SERIES_TIEMPO_NIVEL_FREATICO: '/api/cuencas/subcuenca/series_de_tiempo/nivel_freatico',
 
   // Endpoints de puntos
   PUNTOS: '/api/puntos',

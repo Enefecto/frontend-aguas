@@ -48,8 +48,13 @@ class ApiService {
     return this.request(API_ENDPOINTS.CUENCAS);
   }
 
-  async getCuencasStats() {
-    return this.request(API_ENDPOINTS.CUENCAS_STATS);
+  async getCuencasStats(params = {}) {
+    const queryParams = new URLSearchParams();
+    if (params.cod_cuenca) queryParams.append('cod_cuenca', params.cod_cuenca);
+    if (params.cod_subcuenca) queryParams.append('cod_subcuenca', params.cod_subcuenca);
+
+    const queryString = queryParams.toString();
+    return this.request(`${API_ENDPOINTS.CUENCAS_STATS}${queryString ? '?' + queryString : ''}`);
   }
 
   async getFiltrosReactivos() {
@@ -62,6 +67,18 @@ class ApiService {
 
   async getCuencaAnalisisInformantes(cuencaIdentificador) {
     return this.request(`${API_ENDPOINTS.CUENCAS_ANALISIS_INFORMANTES}?cuenca_identificador=${cuencaIdentificador}`);
+  }
+
+  async getCuencaSeriesTiempoCaudal(cuencaIdentificador) {
+    return this.request(`${API_ENDPOINTS.CUENCAS_SERIES_TIEMPO_CAUDAL}?cuenca_identificador=${cuencaIdentificador}`);
+  }
+
+  async getCuencaSeriesTiempoAlturaLinimetrica(cuencaIdentificador) {
+    return this.request(`${API_ENDPOINTS.CUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA}?cuenca_identificador=${cuencaIdentificador}`);
+  }
+
+  async getCuencaSeriesTiempoNivelFreatico(cuencaIdentificador) {
+    return this.request(`${API_ENDPOINTS.CUENCAS_SERIES_TIEMPO_NIVEL_FREATICO}?cuenca_identificador=${cuencaIdentificador}`);
   }
 
   // Métodos para subcuencas
@@ -79,6 +96,21 @@ class ApiService {
       url += `&cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}`;
     }
     return this.request(url);
+  }
+
+  async getSubcuencaSeriesTiempoCaudal(subcuencaIdentificador) {
+    // Nota: El endpoint espera 'cuenca_identificador' pero en realidad es el identificador de la subcuenca
+    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_CAUDAL}?cuenca_identificador=${encodeURIComponent(subcuencaIdentificador)}`);
+  }
+
+  async getSubcuencaSeriesTiempoAlturaLinimetrica(subcuencaIdentificador) {
+    // Nota: El endpoint espera 'cuenca_identificador' pero en realidad es el identificador de la subcuenca
+    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA}?cuenca_identificador=${encodeURIComponent(subcuencaIdentificador)}`);
+  }
+
+  async getSubcuencaSeriesTiempoNivelFreatico(subcuencaIdentificador) {
+    // Nota: El endpoint espera 'cuenca_identificador' pero en realidad es el identificador de la subcuenca
+    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_NIVEL_FREATICO}?cuenca_identificador=${encodeURIComponent(subcuencaIdentificador)}`);
   }
 
   // Métodos para puntos

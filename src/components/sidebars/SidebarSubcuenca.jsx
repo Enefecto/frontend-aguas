@@ -1,10 +1,9 @@
-import { TrophySpin, Slab } from 'react-loading-indicators';
-import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { TrophySpin } from 'react-loading-indicators';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
 import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
+import TimeSeriesChartPair from '../charts/TimeSeriesChartPair';
 import { useEffect, useState } from "react";
-import { formatNumberCL } from '../../utils/formatNumberCL';
 
 export default function SidebarSubcuenca({
   subcuencaAnalysis,
@@ -15,83 +14,13 @@ export default function SidebarSubcuenca({
   loadSubcuencasGraphics
 }) {
 
-  const [selectedMes, setSelectedMes] = useState(null);
-  const [caudalDiarioFiltrado, setCaudalDiarioFiltrado] = useState(null);
-
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
       setIsOpen(true);
     }, 100);
-  },[])
-
-  // --- Función para limpiar outliers ---
-  function winsorizeData(data, keys = ["min_caudal", "avg_caudal", "max_caudal"]) {
-    const cleaned = [...data];
-    const hardLimit = 200;
-
-    keys.forEach((key) => {
-      const values = cleaned
-        .map(d => d[key])
-        .filter(v => v > 0 && Number.isFinite(v))
-        .sort((a, b) => a - b);
-
-      if (values.length === 0) return;
-
-      const q1 = values[Math.floor(values.length * 0.25)];
-      const q3 = values[Math.floor(values.length * 0.75)];
-      const iqr = q3 - q1;
-      const upperLimit = q3 + 1.5 * iqr;
-
-      cleaned.forEach(d => {
-        if (d[key] > upperLimit) d[key] = q3;
-        if (d[key] > hardLimit) d[key] = hardLimit;
-      });
-    });
-
-    return cleaned;
-  }
-
-  // --- Aplicar limpieza ---
-  const caudalMensualLimpio = winsorizeData(graficosData.grafico_caudal_mensual_min_prom_max || []);
-  const caudalDiario = graficosData.grafico_caudal_diario_min_prom_max || [];
-
-  // --- Al cargar, setear primer mes disponible ---
-  useEffect(() => {
-    if (!selectedMes && caudalMensualLimpio.length > 0) {
-      setSelectedMes(caudalMensualLimpio[0].mes);
-    }
-  }, [caudalMensualLimpio, selectedMes]);
-
-  useEffect(() => {
-    if (!selectedMes) return;
-
-    const [selectedAñoStr, selectedMesStr] = selectedMes.split("-");
-    const selectedAño = Number(selectedAñoStr);
-    const selectedM = Number(selectedMesStr);
-
-    const caudalDiarioFiltradoParaSetear = winsorizeData(
-      caudalDiario
-        .filter(d => {
-          const [añoStr, mesStr] = d.fecha.split("-");
-          const año = Number(añoStr);
-          const mes = Number(mesStr);
-          return año === selectedAño && mes === selectedM;
-        })
-        .map(d => ({ ...d, dia: Number(d.fecha.split("-")[2]) })) // dia como número
-    );
-
-    setCaudalDiarioFiltrado(caudalDiarioFiltradoParaSetear);
-
-  }, [selectedMes]);
-
-  // Calcular rango de fechas para gráfico mensual
-  const getMonthlyDateRange = (data) => {
-    if (!data || data.length === 0) return null;
-    const months = data.map(d => d.mes);
-    return `${months[0]} - ${months[months.length - 1]}`;
-  };
+  },[]);
 
   return (
     <div
@@ -157,7 +86,9 @@ export default function SidebarSubcuenca({
       )}
 
       {/* Botón cargar gráficos */}
-      {graphicsSubcuencasLoading === 0 && (
+      {graphicsSubcuencasLoading.caudal === 0 &&
+       graphicsSubcuencasLoading.altura_linimetrica === 0 &&
+       graphicsSubcuencasLoading.nivel_freatico === 0 && (
         <button
           onClick={loadSubcuencasGraphics}
           className="block mt-6 bg-cyan-700 text-white font-semibold px-4 py-2 rounded cursor-pointer hover:bg-cyan-600 transition"
@@ -166,145 +97,84 @@ export default function SidebarSubcuenca({
         </button>
       )}
 
-      {/* Loader con estructura */}
-      {graphicsSubcuencasLoading === 1 && (
-        <GraphicsLoadingSkeleton />
-      )}
-
-      {/* Gráficos */}
-      {graphicsSubcuencasLoading === 2 && (
+      {/* Mostrar loader o gráficos según el estado de cada uno */}
+      {(graphicsSubcuencasLoading.caudal !== 0 ||
+        graphicsSubcuencasLoading.altura_linimetrica !== 0 ||
+        graphicsSubcuencasLoading.nivel_freatico !== 0) && (
         <div className="space-y-10 mt-6 border-t pt-6">
-          <h3 className="text-lg font-semibold">Gráficos</h3>
+          <h3 className="text-lg font-semibold">Gráficos de Series de Tiempo</h3>
 
-          {/* LineChart mensual */}
-          <div className="w-full h-[260px] md:h-80 lg:h-96">
-            <div className="flex justify-between items-center mb-1">
-              <h4 className="text-sm font-semibold text-gray-700">Caudal mensual</h4>
-              <p className="text-xs text-gray-500">Haz clic en un punto para ver detalles diarios</p>
-            </div>
-            {caudalMensualLimpio.length > 0 && (
-              <p className="text-xs text-gray-500 mb-1">
-                Periodo: {getMonthlyDateRange(caudalMensualLimpio)}
-              </p>
-            )}
-            {selectedMes && (
-              <p className="text-xs text-cyan-600 mb-2">
-                <strong>Mes seleccionado:</strong> {selectedMes}
-              </p>
-            )}
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={caudalMensualLimpio}
-                margin={{ top: 8, right: 10, left: 5, bottom: 20 }}
-                onClick={(data) => {
-                  if (data && data.activeLabel) {
-                    setSelectedMes(data.activeLabel);
-                  }
-                }}
-                style={{ cursor: 'pointer' }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="mes" angle={-45} textAnchor="end" interval={5} height={80} tickMargin={8} tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
-                <Tooltip
-                  content={({ active, payload, label }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className="bg-white p-2 border rounded shadow text-sm">
-                          <p><strong>{label}</strong></p>
-                          {payload.map((item, i) => (
-                            <p key={i} style={{ color: item.color }}>
-                              {item.name}: {formatNumberCL(item.value)} L/s
-                            </p>
-                          ))}
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Legend />
-                <Line type="monotone" dataKey="avg_caudal" stroke="#0ea5e9" name="Promedio" dot={false} />
-                <Line type="monotone" dataKey="min_caudal" stroke="#f97316" name="Mínimo" dot={false} />
-                <Line type="monotone" dataKey="max_caudal" stroke="#2563eb" name="Máximo" dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* LineChart diario */}
-          {selectedMes && (
-            <div className="w-full h-[260px] md:h-80 lg:h-96 mt-18">
-              <h4 className="text-sm font-semibold mb-1 text-gray-700">
-                Caudal diario para {selectedMes}
-              </h4>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={caudalDiarioFiltrado}
-                  margin={{ top: 8, right: 10, left: 5, bottom: 20 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="dia" angle={-45} textAnchor="end"  height={80} tickMargin={8} tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
-                  <Tooltip
-                    formatter={(v, name) => [`${formatNumberCL(v)} L/s`, name]}
-                  />
-                  <Legend />
-                  <Line type="monotone" dataKey="avg_caudal" stroke="#0ea5e9" name="Promedio" dot={false} />
-                  <Line type="monotone" dataKey="min_caudal" stroke="#f97316" name="Mínimo" dot={false} />
-                  <Line type="monotone" dataKey="max_caudal" stroke="#2563eb" name="Máximo" dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
+          {/* Gráficos de Caudal */}
+          {graphicsSubcuencasLoading.caudal === 1 && (
+            <div className="space-y-10">
+              <div className="w-full h-[260px] md:h-80 lg:h-96 animate-pulse">
+                <div className="h-4 bg-gray-300 rounded w-32 mb-1"></div>
+                <div className="w-full h-full bg-gray-100 rounded-lg border flex items-center justify-center">
+                  <div className="flex items-center space-x-2 text-gray-500">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
+                    <span className="text-sm font-medium">Cargando Caudal...</span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
+          {graphicsSubcuencasLoading.caudal === 2 && (
+            <TimeSeriesChartPair
+              dataMensual={graficosData.caudal?.mensual || []}
+              dataDiario={graficosData.caudal?.diario || []}
+              titulo="Caudal"
+              unidad="L/s"
+              valueKey="caudal"
+            />
+          )}
 
-          {/* Otros gráficos existentes */}
-          <div className="w-full h-[260px] md:h-80 lg:h-96">
-            <h4 className="text-sm font-semibold mb-1 text-gray-700">Registros por Informante</h4>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={graficosData.grafico_cantidad_registros_por_informante.slice(0, 20)}
-                margin={{ top: 8, right: 10, left: 2, bottom: 20 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="informante" angle={-45} textAnchor="end" interval={0} height={80} tickMargin={8} tick={{ fontSize: 10 }}/>
-                <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
-                <Tooltip formatter={(v) => [formatNumberCL(v), 'Registros']} />
-                <Bar dataKey="cantidad_registros" fill="#2563eb" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {/* Gráficos de Altura Limnimétrica */}
+          {graphicsSubcuencasLoading.altura_linimetrica === 1 && (
+            <div className="space-y-10">
+              <div className="w-full h-[260px] md:h-80 lg:h-96 animate-pulse">
+                <div className="h-4 bg-gray-300 rounded w-48 mb-1"></div>
+                <div className="w-full h-full bg-gray-100 rounded-lg border flex items-center justify-center">
+                  <div className="flex items-center space-x-2 text-gray-500">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
+                    <span className="text-sm font-medium">Cargando Altura Limnimétrica...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {graphicsSubcuencasLoading.altura_linimetrica === 2 && (
+            <TimeSeriesChartPair
+              dataMensual={graficosData.altura_linimetrica?.mensual || []}
+              dataDiario={graficosData.altura_linimetrica?.diario || []}
+              titulo="Altura Limnimétrica"
+              unidad="m"
+              valueKey="altura_linimetrica"
+            />
+          )}
 
-          <div className="w-full h-[260px] md:h-80 lg:h-96">
-            <h4 className="text-sm font-semibold mb-1 text-gray-700">Caudal Total Extraído</h4>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={graficosData.grafico_caudal_total_por_informante.slice(0, 20)}
-                margin={{ top: 8, right: 10, left: 5, bottom: 20 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="informante" angle={-45} textAnchor="end" interval={0} height={80} tickMargin={8} tick={{ fontSize: 10 }}/>
-                <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
-                <Tooltip formatter={(v) => [`${formatNumberCL(v)} L/s`, 'Caudal total']} />
-                <Bar dataKey="caudal_total_extraido" fill="#0ea5e9" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="w-full h-[260px] md:h-80 lg:h-96">
-            <h4 className="text-sm font-semibold mb-1 text-gray-700">Obras Únicas por Informante</h4>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={graficosData.grafico_cantidad_obras_unicas_por_informante.slice(0, 20)}
-                margin={{ top: 8, right: 10, left: -20, bottom: 20 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="informante" angle={-45} textAnchor="end" interval={0} height={80} tickMargin={8} tick={{ fontSize: 10 }}/>
-                <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
-                <Tooltip formatter={(v) => [formatNumberCL(v), 'Obras únicas']} />
-                <Bar dataKey="cantidad_obras_unicas" fill="#10b981" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {/* Gráficos de Nivel Freático */}
+          {graphicsSubcuencasLoading.nivel_freatico === 1 && (
+            <div className="space-y-10">
+              <div className="w-full h-[260px] md:h-80 lg:h-96 animate-pulse">
+                <div className="h-4 bg-gray-300 rounded w-40 mb-1"></div>
+                <div className="w-full h-full bg-gray-100 rounded-lg border flex items-center justify-center">
+                  <div className="flex items-center space-x-2 text-gray-500">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
+                    <span className="text-sm font-medium">Cargando Nivel Freático...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {graphicsSubcuencasLoading.nivel_freatico === 2 && (
+            <TimeSeriesChartPair
+              dataMensual={graficosData.nivel_freatico?.mensual || []}
+              dataDiario={graficosData.nivel_freatico?.diario || []}
+              titulo="Nivel Freático"
+              unidad="m"
+              valueKey="nivel_freatico"
+            />
+          )}
         </div>
       )}
     </div>

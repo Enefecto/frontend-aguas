@@ -132,42 +132,6 @@ export default function SidebarPunto({
       {alturaLimnimetrica && alturaLimnimetrica.promedio !== null && alturaLimnimetrica.promedio !== undefined && (
         <div className="mt-3">
           <div className="flex items-center gap-2">
-            <div className="inline-flex items-center gap-3 rounded-lg bg-cyan-50/80 px-3 py-2 border border-cyan-100 shadow-sm flex-1">
-              {/* ícono gota */}
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-cyan-100">
-                <svg width="18" height="18" viewBox="0 0 28 36" aria-hidden="true">
-                  <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
-                        fill="#0891b2" stroke="white" strokeWidth="1.5" />
-                </svg>
-              </span>
-
-              {/* texto */}
-              <div className="leading-tight">
-                <div className="text-[11px] uppercase tracking-wide text-cyan-700 font-semibold">
-                  Altura limnimétrica promedio
-                </div>
-                <div className="text-xl font-extrabold text-cyan-900 tabular-nums">
-                  {new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(alturaLimnimetrica.promedio)}
-                  <span className="ml-1 text-sm font-semibold text-cyan-700">m</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Botón Ver más */}
-            <button
-              onClick={() => setModalAbierto('altura')}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold px-3 py-2 rounded transition-colors whitespace-nowrap"
-              title="Ver detalles completos"
-            >
-              Ver más
-            </button>
-          </div>
-        </div>
-      )}
-
-      {nivelFreatico && nivelFreatico.promedio !== null && nivelFreatico.promedio !== undefined && (
-        <div className="mt-3">
-          <div className="flex items-center gap-2">
             <div className="inline-flex items-center gap-3 rounded-lg bg-orange-50/80 px-3 py-2 border border-orange-100 shadow-sm flex-1">
               {/* ícono gota */}
               <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100">
@@ -180,10 +144,10 @@ export default function SidebarPunto({
               {/* texto */}
               <div className="leading-tight">
                 <div className="text-[11px] uppercase tracking-wide text-orange-700 font-semibold">
-                  Nivel Freático promedio
+                  Altura limnimétrica promedio
                 </div>
                 <div className="text-xl font-extrabold text-orange-900 tabular-nums">
-                  {new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(nivelFreatico.promedio)}
+                  {new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(alturaLimnimetrica.promedio)}
                   <span className="ml-1 text-sm font-semibold text-orange-700">m</span>
                 </div>
               </div>
@@ -191,8 +155,44 @@ export default function SidebarPunto({
 
             {/* Botón Ver más */}
             <button
-              onClick={() => setModalAbierto('nivel')}
+              onClick={() => setModalAbierto('altura')}
               className="bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold px-3 py-2 rounded transition-colors whitespace-nowrap"
+              title="Ver detalles completos"
+            >
+              Ver más
+            </button>
+          </div>
+        </div>
+      )}
+
+      {nivelFreatico && nivelFreatico.promedio !== null && nivelFreatico.promedio !== undefined && (
+        <div className="mt-3">
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center gap-3 rounded-lg bg-cyan-50/80 px-3 py-2 border border-cyan-100 shadow-sm flex-1">
+              {/* ícono gota */}
+              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-cyan-100">
+                <svg width="18" height="18" viewBox="0 0 28 36" aria-hidden="true">
+                  <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
+                        fill="#0891b2" stroke="white" strokeWidth="1.5" />
+                </svg>
+              </span>
+
+              {/* texto */}
+              <div className="leading-tight">
+                <div className="text-[11px] uppercase tracking-wide text-cyan-700 font-semibold">
+                  Nivel Freático promedio
+                </div>
+                <div className="text-xl font-extrabold text-cyan-900 tabular-nums">
+                  {new Intl.NumberFormat('es-CL', { maximumFractionDigits: 2 }).format(nivelFreatico.promedio)}
+                  <span className="ml-1 text-sm font-semibold text-cyan-700">m</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Botón Ver más */}
+            <button
+              onClick={() => setModalAbierto('nivel')}
+              className="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold px-3 py-2 rounded transition-colors whitespace-nowrap"
               title="Ver detalles completos"
             >
               Ver más
@@ -308,7 +308,7 @@ export default function SidebarPunto({
               <h4 className="text-sm font-semibold mb-1 text-gray-700">Nivel Freático por tiempo</h4>
               {loadingNivelFreatico ? (
                 <div className="flex items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
                 </div>
               ) : datosNivelFreatico?.nivel_por_tiempo && datosNivelFreatico.nivel_por_tiempo.length > 0 ? (
                 <>
@@ -350,7 +350,7 @@ export default function SidebarPunto({
                         }
                         formatter={(value) => [`${formatNumberCL(value)} m`, 'Nivel Freático']}
                       />
-                      <Line type="monotone" dataKey="nivel_freatico" stroke="#FF5722" dot={false} />
+                      <Line type="monotone" dataKey="nivel_freatico" stroke="#0891b2" dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </>
@@ -366,7 +366,7 @@ export default function SidebarPunto({
               <h4 className="text-sm font-semibold mb-1 text-gray-700">Altura Limnimétrica por tiempo</h4>
               {loadingAlturaLimnimetrica ? (
                 <div className="flex items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
                 </div>
               ) : datosAlturaLimnimetrica?.altura_por_tiempo && datosAlturaLimnimetrica.altura_por_tiempo.length > 0 ? (
                 <>
@@ -408,7 +408,7 @@ export default function SidebarPunto({
                         }
                         formatter={(value) => [`${formatNumberCL(value)} m`, 'Altura Limnimétrica']}
                       />
-                      <Line type="monotone" dataKey="altura_linimetrica" stroke="#0891b2" dot={false} />
+                      <Line type="monotone" dataKey="altura_linimetrica" stroke="#FF5722" dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </>

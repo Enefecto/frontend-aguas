@@ -77,32 +77,23 @@ export const ChartSkeleton = ({ title, type = "line" }) => {
 export const GraphicsLoadingSkeleton = () => {
   return (
     <div className="space-y-10 mt-6 border-t pt-6">
-      <h3 className="text-lg font-semibold">Gráficos</h3>
+      <h3 className="text-lg font-semibold">Gráficos de Series de Tiempo</h3>
+      <p className="text-sm text-gray-600">Cargando gráficos...</p>
 
-      {/* LineChart mensual skeleton */}
-      <ChartSkeleton title="Caudal mensual" type="line" />
-
-      {/* LineChart diario skeleton */}
-      <div className="w-full h-[260px] md:h-80 lg:h-96 mt-18 animate-pulse">
-        <div className="h-4 bg-gray-300 rounded w-48 mb-1"></div>
-        <div className="w-full h-full bg-gray-100 rounded-lg border relative overflow-hidden">
-          <div className="absolute bottom-0 left-0 w-full h-px bg-gray-300"></div>
-          <div className="absolute bottom-0 left-0 w-px h-full bg-gray-300"></div>
-          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70">
-            <div className="flex items-center space-x-2 text-gray-400">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-              </svg>
-              <span className="text-sm">Selecciona un mes en el gráfico superior</span>
-            </div>
-          </div>
-        </div>
+      {/* Skeleton para Caudal */}
+      <div className="space-y-10">
+        <TimeSeriesChartSkeleton title="Caudal mensual" color="#0ea5e9" />
       </div>
 
-      {/* BarChart skeletons */}
-      <ChartSkeleton title="Registros por Informante" type="bar" />
-      <ChartSkeleton title="Caudal Total Extraído" type="bar" />
-      <ChartSkeleton title="Obras Únicas por Informante" type="bar" />
+      {/* Skeleton para Altura Limnimétrica */}
+      <div className="space-y-10">
+        <TimeSeriesChartSkeleton title="Altura Limnimétrica mensual" color="#0891b2" />
+      </div>
+
+      {/* Skeleton para Nivel Freático */}
+      <div className="space-y-10">
+        <TimeSeriesChartSkeleton title="Nivel Freático mensual" color="#FF5722" />
+      </div>
     </div>
   );
 };
@@ -189,12 +180,12 @@ export const PuntoGraphicsLoadingSkeleton = ({ hasNivelFreatico = false, hasAltu
 
       {/* Gráfico de nivel freático (condicional) */}
       {hasNivelFreatico && (
-        <TimeSeriesChartSkeleton title="Nivel Freático por tiempo" color="#FF5722" />
+        <TimeSeriesChartSkeleton title="Nivel Freático por tiempo" color="#0891b2" />
       )}
 
       {/* Gráfico de altura limnimétrica (condicional) */}
       {hasAlturaLimnimetrica && (
-        <TimeSeriesChartSkeleton title="Altura Limnimétrica por tiempo" color="#0891b2" />
+        <TimeSeriesChartSkeleton title="Altura Limnimétrica por tiempo" color="#FF5722" />
       )}
     </div>
   );

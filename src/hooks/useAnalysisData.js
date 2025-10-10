@@ -1,6 +1,86 @@
 import { useState } from 'react';
 import { UI_CONFIG } from '../constants/uiConfig.js';
 
+/**
+ * Función auxiliar genérica para procesar datos de series de tiempo
+ * @param {Array} seriesData - Array de objetos con fecha_medicion y un valor
+ * @param {string} valueKey - Nombre de la clave del valor (ej: 'caudal', 'altura_linimetrica', 'nivel_freatico')
+ * @returns {Object} - Objeto con arrays mensual y diario procesados
+ */
+const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
+  // Agrupar por mes (año-mes) para el gráfico mensual
+  const mensualMap = {};
+  const diarioMap = {};
+
+  seriesData.forEach(item => {
+    const fecha = new Date(item.fecha_medicion);
+    const año = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const mesClave = `${año}-${mes}`;
+    const diaClave = `${año}-${mes}-${dia}`;
+
+    const valor = Number(item[valueKey]) || 0;
+
+    // Agrupar por mes
+    if (!mensualMap[mesClave]) {
+      mensualMap[mesClave] = {
+        mes: mesClave,
+        valores: []
+      };
+    }
+    mensualMap[mesClave].valores.push(valor);
+
+    // Agrupar por día
+    if (!diarioMap[diaClave]) {
+      diarioMap[diaClave] = {
+        fecha: diaClave,
+        valores: []
+      };
+    }
+    diarioMap[diaClave].valores.push(valor);
+  });
+
+  // Calcular estadísticas para datos mensuales
+  const mensualArray = Object.values(mensualMap).map(item => {
+    const valores = item.valores.filter(v => v > 0);
+    const min_valor = valores.length > 0 ? Math.min(...valores) : 0;
+    const max_valor = valores.length > 0 ? Math.max(...valores) : 0;
+    const avg_valor = valores.length > 0
+      ? valores.reduce((sum, v) => sum + v, 0) / valores.length
+      : 0;
+
+    return {
+      mes: item.mes,
+      [`min_${valueKey}`]: Number(min_valor.toFixed(2)),
+      [`avg_${valueKey}`]: Number(avg_valor.toFixed(2)),
+      [`max_${valueKey}`]: Number(max_valor.toFixed(2))
+    };
+  }).sort((a, b) => a.mes.localeCompare(b.mes));
+
+  // Calcular estadísticas para datos diarios
+  const diarioArray = Object.values(diarioMap).map(item => {
+    const valores = item.valores.filter(v => v > 0);
+    const min_valor = valores.length > 0 ? Math.min(...valores) : 0;
+    const max_valor = valores.length > 0 ? Math.max(...valores) : 0;
+    const avg_valor = valores.length > 0
+      ? valores.reduce((sum, v) => sum + v, 0) / valores.length
+      : 0;
+
+    return {
+      fecha: item.fecha,
+      [`min_${valueKey}`]: Number(min_valor.toFixed(2)),
+      [`avg_${valueKey}`]: Number(avg_valor.toFixed(2)),
+      [`max_${valueKey}`]: Number(max_valor.toFixed(2))
+    };
+  }).sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+  return {
+    mensual: mensualArray,
+    diario: diarioArray
+  };
+};
+
 export const useAnalysisData = (apiService) => {
   // Estados para análisis de cuencas
   const [cuencaAnalysis, setCuencaAnalysis] = useState({
@@ -17,13 +97,15 @@ export const useAnalysisData = (apiService) => {
   });
 
   const [cuencaLoading, setCuencaLoading] = useState(false);
-  const [graphicsCuencasLoading, setGraphicsCuencasLoading] = useState(UI_CONFIG.LOADING_STATES.IDLE);
+  const [graphicsCuencasLoading, setGraphicsCuencasLoading] = useState({
+    caudal: UI_CONFIG.LOADING_STATES.IDLE,
+    altura_linimetrica: UI_CONFIG.LOADING_STATES.IDLE,
+    nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
+  });
   const [graficosData, setGraficosData] = useState({
-    grafico_cantidad_registros_por_informante: [],
-    grafico_caudal_total_por_informante: [],
-    grafico_cantidad_obras_unicas_por_informante: [],
-    grafico_caudal_mensual_min_prom_max: [],
-    grafico_caudal_diario_min_prom_max: []
+    caudal: { mensual: [], diario: [] },
+    altura_linimetrica: { mensual: [], diario: [] },
+    nivel_freatico: { mensual: [], diario: [] }
   });
 
   // Estados para análisis de subcuencas
@@ -43,13 +125,15 @@ export const useAnalysisData = (apiService) => {
   });
 
   const [subcuencaLoading, setSubcuencaLoading] = useState(false);
-  const [graphicsSubcuencasLoading, setGraphicsSubcuencasLoading] = useState(UI_CONFIG.LOADING_STATES.IDLE);
+  const [graphicsSubcuencasLoading, setGraphicsSubcuencasLoading] = useState({
+    caudal: UI_CONFIG.LOADING_STATES.IDLE,
+    altura_linimetrica: UI_CONFIG.LOADING_STATES.IDLE,
+    nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
+  });
   const [graficosSubcuencasData, setGraficosSubcuencasData] = useState({
-    grafico_cantidad_registros_por_informante: [],
-    grafico_caudal_total_por_informante: [],
-    grafico_cantidad_obras_unicas_por_informante: [],
-    grafico_caudal_mensual_min_prom_max: [],
-    grafico_caudal_diario_min_prom_max: []
+    caudal: { mensual: [], diario: [] },
+    altura_linimetrica: { mensual: [], diario: [] },
+    nivel_freatico: { mensual: [], diario: [] }
   });
 
   // Estados para análisis de puntos
@@ -62,20 +146,30 @@ export const useAnalysisData = (apiService) => {
   const loadCuencaAnalysis = async (nomCuenca, codCuenca) => {
     setCuencaAnalysis({ nombreCuenca: nomCuenca, codigoCuenca: codCuenca });
     setCuencaLoading(true);
-    setGraphicsCuencasLoading(UI_CONFIG.LOADING_STATES.IDLE);
+    setGraphicsCuencasLoading({
+      caudal: UI_CONFIG.LOADING_STATES.IDLE,
+      altura_linimetrica: UI_CONFIG.LOADING_STATES.IDLE,
+      nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
+    });
 
     try {
-      const data = await apiService.getCuencaAnalisisCaudal(codCuenca);
+      const response = await apiService.getCuencasStats({ cod_cuenca: codCuenca });
+      const data = response.estadisticas?.[0];
+
+      if (!data) {
+        throw new Error('No se encontraron estadísticas para la cuenca');
+      }
+
       setCuencaAnalysis(prev => ({
         ...prev,
-        cuenca_identificador: data.cuenca_identificador,
-        total_registros_con_caudal: data.total_registros_con_caudal,
+        cuenca_identificador: codCuenca,
+        total_registros_con_caudal: data.total_mediciones,
         caudal_promedio: data.caudal_promedio,
         caudal_minimo: data.caudal_minimo,
         caudal_maximo: data.caudal_maximo,
-        desviacion_estandar_caudal: data.desviacion_estandar_caudal,
-        primera_fecha_medicion: data.primera_fecha_medicion,
-        ultima_fecha_medicion: data.ultima_fecha_medicion
+        desviacion_estandar_caudal: data.desviacion_estandar || 0, // Preparado para cuando el endpoint lo devuelva
+        primera_fecha_medicion: null, // Este endpoint no devuelve fechas
+        ultima_fecha_medicion: null
       }));
       setCuencaLoading(false);
     } catch (err) {
@@ -86,22 +180,48 @@ export const useAnalysisData = (apiService) => {
 
   // Función para cargar gráficos de cuenca
   const loadCuencasGraphics = async () => {
-    setGraphicsCuencasLoading(UI_CONFIG.LOADING_STATES.LOADING);
+    // Establecer todos como cargando
+    setGraphicsCuencasLoading({
+      caudal: UI_CONFIG.LOADING_STATES.LOADING,
+      altura_linimetrica: UI_CONFIG.LOADING_STATES.LOADING,
+      nivel_freatico: UI_CONFIG.LOADING_STATES.LOADING
+    });
 
-    try {
-      const data = await apiService.getCuencaAnalisisInformantes(cuencaAnalysis.codigoCuenca);
-      setGraficosData({
-        grafico_cantidad_registros_por_informante: data.grafico_cantidad_registros_por_informante || [],
-        grafico_caudal_total_por_informante: data.grafico_caudal_total_por_informante || [],
-        grafico_cantidad_obras_unicas_por_informante: data.grafico_cantidad_obras_unicas_por_informante || [],
-        grafico_caudal_mensual_min_prom_max: data.grafico_caudal_mensual_min_prom_max || [],
-        grafico_caudal_diario_min_prom_max: data.grafico_caudal_diario_min_prom_max || []
+    // Cargar caudal
+    apiService.getCuencaSeriesTiempoCaudal(cuencaAnalysis.codigoCuenca)
+      .then(data => {
+        const caudalProcessed = processSeriesTiempoData(data.caudal_por_tiempo || [], 'caudal');
+        setGraficosData(prev => ({ ...prev, caudal: caudalProcessed }));
+        setGraphicsCuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.SUCCESS }));
+      })
+      .catch(err => {
+        console.error("Error al obtener gráficos de caudal:", err);
+        setGraphicsCuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
       });
-      setGraphicsCuencasLoading(UI_CONFIG.LOADING_STATES.SUCCESS);
-    } catch (err) {
-      console.error("Error al obtener gráficos:", err);
-      setGraphicsCuencasLoading(UI_CONFIG.LOADING_STATES.ERROR);
-    }
+
+    // Cargar altura limnimétrica
+    apiService.getCuencaSeriesTiempoAlturaLinimetrica(cuencaAnalysis.codigoCuenca)
+      .then(data => {
+        const alturaProcessed = processSeriesTiempoData(data.altura_por_tiempo || [], 'altura_linimetrica');
+        setGraficosData(prev => ({ ...prev, altura_linimetrica: alturaProcessed }));
+        setGraphicsCuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.SUCCESS }));
+      })
+      .catch(err => {
+        console.error("Error al obtener gráficos de altura limnimétrica:", err);
+        setGraphicsCuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.ERROR }));
+      });
+
+    // Cargar nivel freático
+    apiService.getCuencaSeriesTiempoNivelFreatico(cuencaAnalysis.codigoCuenca)
+      .then(data => {
+        const nivelProcessed = processSeriesTiempoData(data.nivel_freatico_por_tiempo || [], 'nivel_freatico');
+        setGraficosData(prev => ({ ...prev, nivel_freatico: nivelProcessed }));
+        setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.SUCCESS }));
+      })
+      .catch(err => {
+        console.error("Error al obtener gráficos de nivel freático:", err);
+        setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
+      });
   };
 
   // Función para cargar análisis de punto
@@ -146,22 +266,30 @@ export const useAnalysisData = (apiService) => {
       nombreCuenca: nomCuenca
     });
     setSubcuencaLoading(true);
-    setGraphicsSubcuencasLoading(UI_CONFIG.LOADING_STATES.IDLE);
+    setGraphicsSubcuencasLoading({
+      caudal: UI_CONFIG.LOADING_STATES.IDLE,
+      altura_linimetrica: UI_CONFIG.LOADING_STATES.IDLE,
+      nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
+    });
 
     try {
-      // Si es "sin_registro", pasar el código de cuenca
-      const cuencaParam = codSubcuenca === 'sin_registro' ? codCuenca : null;
-      const data = await apiService.getSubcuencaAnalisisCaudal(codSubcuenca, cuencaParam);
+      const response = await apiService.getCuencasStats({ cod_subcuenca: codSubcuenca });
+      const data = response.estadisticas?.[0];
+
+      if (!data) {
+        throw new Error('No se encontraron estadísticas para la subcuenca');
+      }
+
       setSubcuencaAnalysis(prev => ({
         ...prev,
-        subcuenca_identificador: data.subcuenca_identificador,
-        total_registros_con_caudal: data.total_registros_con_caudal,
+        subcuenca_identificador: codSubcuenca,
+        total_registros_con_caudal: data.total_mediciones,
         caudal_promedio: data.caudal_promedio,
         caudal_minimo: data.caudal_minimo,
         caudal_maximo: data.caudal_maximo,
-        desviacion_estandar_caudal: data.desviacion_estandar_caudal,
-        primera_fecha_medicion: data.primera_fecha_medicion,
-        ultima_fecha_medicion: data.ultima_fecha_medicion
+        desviacion_estandar_caudal: data.desviacion_estandar || 0, // Preparado para cuando el endpoint lo devuelva
+        primera_fecha_medicion: null, // Este endpoint no devuelve fechas
+        ultima_fecha_medicion: null
       }));
       setSubcuencaLoading(false);
     } catch (err) {
@@ -172,29 +300,48 @@ export const useAnalysisData = (apiService) => {
 
   // Función para cargar gráficos de subcuenca
   const loadSubcuencasGraphics = async () => {
-    setGraphicsSubcuencasLoading(UI_CONFIG.LOADING_STATES.LOADING);
+    // Establecer todos como cargando
+    setGraphicsSubcuencasLoading({
+      caudal: UI_CONFIG.LOADING_STATES.LOADING,
+      altura_linimetrica: UI_CONFIG.LOADING_STATES.LOADING,
+      nivel_freatico: UI_CONFIG.LOADING_STATES.LOADING
+    });
 
-    try {
-      // Si es "sin_registro", pasar el código de cuenca
-      const cuencaParam = subcuencaAnalysis.codigoSubcuenca === 'sin_registro'
-        ? subcuencaAnalysis.codigoCuenca
-        : null;
-      const data = await apiService.getSubcuencaAnalisisInformantes(
-        subcuencaAnalysis.codigoSubcuenca,
-        cuencaParam
-      );
-      setGraficosSubcuencasData({
-        grafico_cantidad_registros_por_informante: data.grafico_cantidad_registros_por_informante || [],
-        grafico_caudal_total_por_informante: data.grafico_caudal_total_por_informante || [],
-        grafico_cantidad_obras_unicas_por_informante: data.grafico_cantidad_obras_unicas_por_informante || [],
-        grafico_caudal_mensual_min_prom_max: data.grafico_caudal_mensual_min_prom_max || [],
-        grafico_caudal_diario_min_prom_max: data.grafico_caudal_diario_min_prom_max || []
+    // Cargar caudal
+    apiService.getSubcuencaSeriesTiempoCaudal(subcuencaAnalysis.codigoSubcuenca)
+      .then(data => {
+        const caudalProcessed = processSeriesTiempoData(data.caudal_por_tiempo || [], 'caudal');
+        setGraficosSubcuencasData(prev => ({ ...prev, caudal: caudalProcessed }));
+        setGraphicsSubcuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.SUCCESS }));
+      })
+      .catch(err => {
+        console.error("Error al obtener gráficos de caudal:", err);
+        setGraphicsSubcuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
       });
-      setGraphicsSubcuencasLoading(UI_CONFIG.LOADING_STATES.SUCCESS);
-    } catch (err) {
-      console.error("Error al obtener gráficos de subcuenca:", err);
-      setGraphicsSubcuencasLoading(UI_CONFIG.LOADING_STATES.ERROR);
-    }
+
+    // Cargar altura limnimétrica
+    apiService.getSubcuencaSeriesTiempoAlturaLinimetrica(subcuencaAnalysis.codigoSubcuenca)
+      .then(data => {
+        const alturaProcessed = processSeriesTiempoData(data.altura_por_tiempo || [], 'altura_linimetrica');
+        setGraficosSubcuencasData(prev => ({ ...prev, altura_linimetrica: alturaProcessed }));
+        setGraphicsSubcuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.SUCCESS }));
+      })
+      .catch(err => {
+        console.error("Error al obtener gráficos de altura limnimétrica:", err);
+        setGraphicsSubcuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.ERROR }));
+      });
+
+    // Cargar nivel freático
+    apiService.getSubcuencaSeriesTiempoNivelFreatico(subcuencaAnalysis.codigoSubcuenca)
+      .then(data => {
+        const nivelProcessed = processSeriesTiempoData(data.nivel_freatico_por_tiempo || [], 'nivel_freatico');
+        setGraficosSubcuencasData(prev => ({ ...prev, nivel_freatico: nivelProcessed }));
+        setGraphicsSubcuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.SUCCESS }));
+      })
+      .catch(err => {
+        console.error("Error al obtener gráficos de nivel freático:", err);
+        setGraphicsSubcuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
+      });
   };
 
   return {
