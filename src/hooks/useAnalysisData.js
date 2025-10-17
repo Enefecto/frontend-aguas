@@ -249,6 +249,14 @@ export const useAnalysisData = (apiService) => {
 
     try {
       const data = await apiService.getPuntosSeriesTiempo(utmNorte, utmEste);
+
+      // Ordenar los datos por fecha ascendente (de más antigua a más reciente)
+      if (data?.caudal_por_tiempo) {
+        data.caudal_por_tiempo = data.caudal_por_tiempo.sort((a, b) => {
+          return new Date(a.fecha_medicion) - new Date(b.fecha_medicion);
+        });
+      }
+
       setGraficosPuntosData(data);
       setGraphicsPuntosLoading(UI_CONFIG.LOADING_STATES.SUCCESS);
     } catch (err) {

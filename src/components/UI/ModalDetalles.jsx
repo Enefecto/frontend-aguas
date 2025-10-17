@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 export const ModalDetalles = ({ isOpen, onClose, titulo, datos }) => {
   const [isAnimating, setIsAnimating] = useState(false);
@@ -6,7 +7,17 @@ export const ModalDetalles = ({ isOpen, onClose, titulo, datos }) => {
   useEffect(() => {
     if (isOpen) {
       setIsAnimating(true);
+      // Bloquear scroll del body cuando el modal está abierto
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Restaurar scroll del body cuando el modal se cierra
+      document.body.style.overflow = 'unset';
     }
+
+    // Cleanup al desmontar
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, [isOpen]);
 
   const handleClose = () => {
@@ -27,30 +38,40 @@ export const ModalDetalles = ({ isOpen, onClose, titulo, datos }) => {
     }).replace('.', '');
   };
 
-  return (
-    <div
-      className={`fixed inset-0 z-[2000] flex items-center justify-center transition-opacity duration-300 ${
-        isAnimating ? 'opacity-100' : 'opacity-0'
-      }`}
-      onClick={handleClose}
-    >
-      {/* Backdrop semi-transparente */}
-      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }} />
-
-      {/* Modal */}
+  const modalContent = (
+    <>
+      {/* Backdrop fijo - Portal al top level */}
       <div
-        className={`relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 transform transition-all duration-300 ${
-          isAnimating ? 'scale-100' : 'scale-95'
-        }`}
-        onClick={(e) => e.stopPropagation()}
+        className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center p-4"
+        style={{
+          zIndex: 9999,
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+          backdropFilter: 'blur(4px)',
+          opacity: isAnimating ? 1 : 0,
+          transition: 'opacity 300ms ease-in-out'
+        }}
+        onClick={handleClose}
       >
+        {/* Modal - Siempre centrado con scroll interno */}
+        <div
+          className="relative bg-white rounded-xl shadow-2xl w-full p-6"
+          style={{
+            maxWidth: '28rem',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            transform: isAnimating ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(1rem)',
+            transition: 'transform 300ms ease-in-out'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Botón cerrar */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-all duration-200 cursor-pointer"
+          aria-label="Cerrar"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
@@ -116,11 +137,15 @@ export const ModalDetalles = ({ isOpen, onClose, titulo, datos }) => {
         {/* Botón cerrar inferior */}
         <button
           onClick={handleClose}
-          className="mt-6 w-full bg-cyan-700 hover:bg-cyan-600 text-white font-semibold py-2 px-4 rounded transition-colors cursor-pointer"
+          className="mt-6 w-full bg-cyan-700 hover:bg-cyan-600 active:bg-cyan-800 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
         >
           Cerrar
         </button>
+        </div>
       </div>
-    </div>
+    </>
   );
+
+  // Usar Portal para renderizar el modal fuera del árbol DOM del sidebar
+  return createPortal(modalContent, document.body);
 };

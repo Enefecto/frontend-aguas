@@ -43,6 +43,12 @@ export default function SidebarPunto({
       setLoadingNivelFreatico(true);
       apiService.getPuntosSeriesTiempoNivelFreatico(punto.utm_norte, punto.utm_este)
         .then(data => {
+          // Ordenar los datos por fecha ascendente
+          if (data?.nivel_por_tiempo) {
+            data.nivel_por_tiempo = data.nivel_por_tiempo.sort((a, b) => {
+              return new Date(a.fecha_medicion) - new Date(b.fecha_medicion);
+            });
+          }
           setDatosNivelFreatico(data);
         })
         .catch(error => {
@@ -61,6 +67,12 @@ export default function SidebarPunto({
       setLoadingAlturaLimnimetrica(true);
       apiService.getPuntosSeriesTiempoAlturaLimnimetrica(punto.utm_norte, punto.utm_este)
         .then(data => {
+          // Ordenar los datos por fecha ascendente
+          if (data?.altura_por_tiempo) {
+            data.altura_por_tiempo = data.altura_por_tiempo.sort((a, b) => {
+              return new Date(a.fecha_medicion) - new Date(b.fecha_medicion);
+            });
+          }
           setDatosAlturaLimnimetrica(data);
         })
         .catch(error => {
@@ -156,10 +168,13 @@ export default function SidebarPunto({
             {/* Botón Ver más */}
             <button
               onClick={() => setModalAbierto('altura')}
-              className="bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold px-3 py-2 rounded transition-colors whitespace-nowrap"
+              className="group bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-all duration-200 whitespace-nowrap shadow-md hover:shadow-lg hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-1.5"
               title="Ver detalles completos"
             >
               Ver más
+              <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
         </div>
@@ -192,10 +207,13 @@ export default function SidebarPunto({
             {/* Botón Ver más */}
             <button
               onClick={() => setModalAbierto('nivel')}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold px-3 py-2 rounded transition-colors whitespace-nowrap"
+              className="group bg-cyan-600 hover:bg-cyan-700 active:bg-cyan-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-all duration-200 whitespace-nowrap shadow-md hover:shadow-lg hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-1.5"
               title="Ver detalles completos"
             >
               Ver más
+              <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
         </div>
