@@ -23,15 +23,85 @@ export default function TimeSeriesChartPair({
 }) {
   const [selectedMes, setSelectedMes] = useState(null);
   const [dataDiarioFiltrado, setDataDiarioFiltrado] = useState(null);
+  const [periodoSeleccionado, setPeriodoSeleccionado] = useState(2); // Default: 2 años
+  const [dataMensualFiltrado, setDataMensualFiltrado] = useState([]);
+  const [dataDiarioFiltradoPorPeriodo, setDataDiarioFiltradoPorPeriodo] = useState([]);
 
-  // Al cargar, setear primer mes disponible
-  useEffect(() => {
-    if (!selectedMes && dataMensual.length > 0) {
-      setSelectedMes(dataMensual[0].mes);
+  // Calcular opciones de período disponibles basadas en los datos
+  const calcularOpcionesPeriodo = () => {
+    if (dataMensual.length === 0) return [];
+
+    const fechas = dataMensual.map(d => new Date(d.mes + "-01"));
+    const fechaMin = new Date(Math.min(...fechas));
+    const fechaMax = new Date(Math.max(...fechas));
+
+    // Calcular diferencia en años (con decimales)
+    const diffMs = fechaMax - fechaMin;
+    const diffYears = diffMs / (1000 * 60 * 60 * 24 * 365.25);
+
+    const opciones = [];
+
+    // Agregar opciones de 1 a 5 años según disponibilidad
+    for (let i = 1; i <= 5; i++) {
+      if (diffYears >= i * 0.5) { // Mostrar opción si hay al menos la mitad del período
+        opciones.push({ valor: i, etiqueta: `${i} año${i > 1 ? 's' : ''}` });
+      }
     }
-  }, [dataMensual, selectedMes]);
 
-  // Filtrar datos diarios cuando se selecciona un mes
+    // Siempre agregar opción "Todos"
+    opciones.push({ valor: 'todos', etiqueta: 'Todos' });
+
+    return opciones;
+  };
+
+  const opcionesPeriodo = calcularOpcionesPeriodo();
+
+  // Filtrar datos mensuales y diarios según el período seleccionado
+  useEffect(() => {
+    if (dataMensual.length === 0) return;
+
+    if (periodoSeleccionado === 'todos') {
+      // Mostrar todos los datos
+      setDataMensualFiltrado(dataMensual);
+      setDataDiarioFiltradoPorPeriodo(dataDiario);
+    } else {
+      // Filtrar por años desde la fecha más reciente hacia atrás
+      const fechas = dataMensual.map(d => new Date(d.mes + "-01"));
+      const fechaMax = new Date(Math.max(...fechas));
+
+      // Calcular fecha límite (años hacia atrás desde la fecha más reciente)
+      const fechaLimite = new Date(fechaMax);
+      fechaLimite.setFullYear(fechaMax.getFullYear() - periodoSeleccionado);
+
+      // Filtrar datos mensuales
+      const mensualFiltrado = dataMensual.filter(d => {
+        const fecha = new Date(d.mes + "-01");
+        return fecha >= fechaLimite;
+      });
+
+      // Filtrar datos diarios
+      const diarioFiltrado = dataDiario.filter(d => {
+        const fecha = new Date(d.fecha);
+        return fecha >= fechaLimite;
+      });
+
+      setDataMensualFiltrado(mensualFiltrado);
+      setDataDiarioFiltradoPorPeriodo(diarioFiltrado);
+    }
+  }, [dataMensual, dataDiario, periodoSeleccionado]);
+
+  // Al cargar, setear primer mes disponible del rango filtrado
+  useEffect(() => {
+    if (dataMensualFiltrado.length > 0) {
+      // Si el mes seleccionado no está en el rango filtrado, seleccionar el primero
+      const mesExisteEnFiltrado = dataMensualFiltrado.some(d => d.mes === selectedMes);
+      if (!mesExisteEnFiltrado) {
+        setSelectedMes(dataMensualFiltrado[0].mes);
+      }
+    }
+  }, [dataMensualFiltrado, selectedMes]);
+
+  // Filtrar datos diarios cuando se selecciona un mes (usar datos ya filtrados por período)
   useEffect(() => {
     if (!selectedMes) return;
 
@@ -39,7 +109,7 @@ export default function TimeSeriesChartPair({
     const selectedAño = Number(selectedAñoStr);
     const selectedM = Number(selectedMesStr);
 
-    const filtrados = dataDiario
+    const filtrados = dataDiarioFiltradoPorPeriodo
       .filter(d => {
         const [añoStr, mesStr] = d.fecha.split("-");
         const año = Number(añoStr);
@@ -53,7 +123,7 @@ export default function TimeSeriesChartPair({
       }));
 
     setDataDiarioFiltrado(filtrados);
-  }, [selectedMes, dataDiario]);
+  }, [selectedMes, dataDiarioFiltradoPorPeriodo]);
 
   // Calcular rango de fechas
   const getMonthlyDateRange = (data) => {
@@ -64,17 +134,38 @@ export default function TimeSeriesChartPair({
 
   return (
     <div className="space-y-10">
+      {/* Selector de período */}
+      {opcionesPeriodo.length > 1 && (
+        <div className="flex items-center gap-3 mb-4">
+          <label className="text-sm font-semibold text-gray-700">Período:</label>
+          <select
+            value={periodoSeleccionado}
+            onChange={(e) => {
+              const valor = e.target.value === 'todos' ? 'todos' : Number(e.target.value);
+              setPeriodoSeleccionado(valor);
+            }}
+            className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all cursor-pointer shadow-sm"
+          >
+            {opcionesPeriodo.map(opcion => (
+              <option key={opcion.valor} value={opcion.valor}>
+                {opcion.etiqueta}
+              </option>
+            ))}
+          </select>
+          {dataMensualFiltrado.length > 0 && (
+            <span className="text-xs text-gray-500">
+              Mostrando: {getMonthlyDateRange(dataMensualFiltrado)}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Gráfico Mensual */}
       <div className="w-full h-[260px] md:h-80 lg:h-96">
         <div className="flex justify-between items-center mb-1">
           <h4 className="text-sm font-semibold text-gray-700">{titulo} mensual</h4>
           <p className="text-xs text-gray-500">Haz clic en un punto para ver detalles diarios</p>
         </div>
-        {dataMensual.length > 0 && (
-          <p className="text-xs text-gray-500 mb-1">
-            Periodo: {getMonthlyDateRange(dataMensual)}
-          </p>
-        )}
         {selectedMes && (
           <p className="text-xs text-cyan-600 mb-2">
             <strong>Mes seleccionado:</strong> {selectedMes}
@@ -82,7 +173,7 @@ export default function TimeSeriesChartPair({
         )}
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={dataMensual}
+            data={dataMensualFiltrado}
             margin={{ top: 8, right: 10, left: 5, bottom: 20 }}
             onClick={(data) => {
               if (data && data.activeLabel) {
