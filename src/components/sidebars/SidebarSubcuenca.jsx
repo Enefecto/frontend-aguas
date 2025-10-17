@@ -76,7 +76,7 @@ export default function SidebarSubcuenca({
             <EstadisticBox boxcolor="green" label="Caudal promedio (L/s)" value={subcuencaAnalysis.caudal_promedio} />
             <EstadisticBox boxcolor="yellow" label="Caudal mínimo (L/s)" value={subcuencaAnalysis.caudal_minimo} />
             <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={subcuencaAnalysis.caudal_maximo} />
-            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal" value={subcuencaAnalysis.desviacion_estandar_caudal} />
+            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (L/s)" value={subcuencaAnalysis.desviacion_estandar_caudal} />
           </div>
         </div>
       ) : (

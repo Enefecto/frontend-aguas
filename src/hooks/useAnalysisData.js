@@ -167,7 +167,7 @@ export const useAnalysisData = (apiService) => {
         caudal_promedio: data.caudal_promedio,
         caudal_minimo: data.caudal_minimo,
         caudal_maximo: data.caudal_maximo,
-        desviacion_estandar_caudal: data.desviacion_estandar || 0, // Preparado para cuando el endpoint lo devuelva
+        desviacion_estandar_caudal: data.caudal_desviacion_estandar || 0,
         primera_fecha_medicion: null, // Este endpoint no devuelve fechas
         ultima_fecha_medicion: null
       }));
@@ -267,6 +267,12 @@ export const useAnalysisData = (apiService) => {
 
   // Función para cargar análisis de subcuenca
   const loadSubcuencaAnalysis = async (nomSubcuenca, codSubcuenca, codCuenca = null, nomCuenca = null) => {
+    // Si es sin_registro, enviar cod_cuenca en lugar de cod_subcuenca
+    const esSinRegistro = codSubcuenca === 'sin_registro';
+    const parametros = esSinRegistro
+      ? { cod_cuenca: codCuenca, cod_subcuenca: null }
+      : { cod_subcuenca: codSubcuenca };
+
     setSubcuencaAnalysis({
       nombreSubcuenca: nomSubcuenca,
       codigoSubcuenca: codSubcuenca,
@@ -281,7 +287,7 @@ export const useAnalysisData = (apiService) => {
     });
 
     try {
-      const response = await apiService.getCuencasStats({ cod_subcuenca: codSubcuenca });
+      const response = await apiService.getCuencasStats(parametros);
       const data = response.estadisticas?.[0];
 
       if (!data) {
@@ -295,7 +301,7 @@ export const useAnalysisData = (apiService) => {
         caudal_promedio: data.caudal_promedio,
         caudal_minimo: data.caudal_minimo,
         caudal_maximo: data.caudal_maximo,
-        desviacion_estandar_caudal: data.desviacion_estandar || 0, // Preparado para cuando el endpoint lo devuelva
+        desviacion_estandar_caudal: data.caudal_desviacion_estandar || 0,
         primera_fecha_medicion: null, // Este endpoint no devuelve fechas
         ultima_fecha_medicion: null
       }));

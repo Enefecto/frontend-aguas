@@ -51,7 +51,12 @@ class ApiService {
   async getCuencasStats(params = {}) {
     const queryParams = new URLSearchParams();
     if (params.cod_cuenca) queryParams.append('cod_cuenca', params.cod_cuenca);
-    if (params.cod_subcuenca) queryParams.append('cod_subcuenca', params.cod_subcuenca);
+
+    // Si cod_subcuenca está presente en params (incluso si es null), agregarlo
+    if ('cod_subcuenca' in params) {
+      // Si es null (JavaScript null), convertirlo al string "null"
+      queryParams.append('cod_subcuenca', params.cod_subcuenca === null ? 'null' : params.cod_subcuenca);
+    }
 
     const queryString = queryParams.toString();
     return this.request(`${API_ENDPOINTS.CUENCAS_STATS}${queryString ? '?' + queryString : ''}`);

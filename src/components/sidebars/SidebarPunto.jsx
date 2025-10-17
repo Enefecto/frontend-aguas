@@ -228,7 +228,7 @@ export default function SidebarPunto({
             <EstadisticBox boxcolor="green" label="Caudal promedio (L/s)" value={caudal.promedio} />
             <EstadisticBox boxcolor="yellow" label="Caudal mínimo (L/s)" value={caudal.minimo} />
             <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={caudal.maximo} />
-            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (L/s)" value={caudal.desviacion_estandar} />
+            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (L/s)" value={caudal.caudal_desviacion_estandar} />
           </div>
         </div>
       ) : (

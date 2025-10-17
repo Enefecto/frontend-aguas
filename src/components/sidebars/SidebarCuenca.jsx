@@ -70,7 +70,7 @@ export default function SidebarCuenca({
             <EstadisticBox boxcolor="green" label="Caudal promedio (L/s)" value={cuencaAnalysis.caudal_promedio} />
             <EstadisticBox boxcolor="yellow" label="Caudal mínimo (L/s)" value={cuencaAnalysis.caudal_minimo} />
             <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={cuencaAnalysis.caudal_maximo} />
-            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal" value={cuencaAnalysis.desviacion_estandar_caudal} />
+            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (L/s)" value={cuencaAnalysis.desviacion_estandar_caudal} />
           </div>
         </div>
       ) : (
