@@ -113,13 +113,28 @@ export default function SidebarCuenca({
             </div>
           )}
           {graphicsCuencasLoading.caudal === 2 && (
-            <TimeSeriesChartPair
-              dataMensual={graficosData.caudal?.mensual || []}
-              dataDiario={graficosData.caudal?.diario || []}
-              titulo="Caudal"
-              unidad="L/s"
-              valueKey="caudal"
-            />
+            graficosData.caudal?.mensual?.length > 0 ? (
+              <TimeSeriesChartPair
+                dataMensual={graficosData.caudal.mensual}
+                dataDiario={graficosData.caudal.diario}
+                titulo="Caudal"
+                unidad="L/s"
+                valueKey="caudal"
+              />
+            ) : (
+              <div className="w-full p-6 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600 text-center">
+                  No hay datos de caudal disponibles para esta cuenca en el período especificado.
+                </p>
+              </div>
+            )
+          )}
+          {graphicsCuencasLoading.caudal === 3 && (
+            <div className="w-full p-6 bg-red-50 rounded-lg border border-red-200">
+              <p className="text-sm text-red-600 text-center">
+                No se encontraron datos de caudal para esta cuenca.
+              </p>
+            </div>
           )}
 
           {/* Gráficos de Altura Limnimétrica */}
@@ -137,13 +152,28 @@ export default function SidebarCuenca({
             </div>
           )}
           {graphicsCuencasLoading.altura_linimetrica === 2 && (
-            <TimeSeriesChartPair
-              dataMensual={graficosData.altura_linimetrica?.mensual || []}
-              dataDiario={graficosData.altura_linimetrica?.diario || []}
-              titulo="Altura Limnimétrica"
-              unidad="m"
-              valueKey="altura_linimetrica"
-            />
+            graficosData.altura_linimetrica?.mensual?.length > 0 ? (
+              <TimeSeriesChartPair
+                dataMensual={graficosData.altura_linimetrica.mensual}
+                dataDiario={graficosData.altura_linimetrica.diario}
+                titulo="Altura Limnimétrica"
+                unidad="m"
+                valueKey="altura_linimetrica"
+              />
+            ) : (
+              <div className="w-full p-6 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600 text-center">
+                  No hay datos de altura limnimétrica disponibles para esta cuenca en el período especificado.
+                </p>
+              </div>
+            )
+          )}
+          {graphicsCuencasLoading.altura_linimetrica === 3 && (
+            <div className="w-full p-6 bg-red-50 rounded-lg border border-red-200">
+              <p className="text-sm text-red-600 text-center">
+                No se encontraron datos de altura limnimétrica para esta cuenca.
+              </p>
+            </div>
           )}
 
           {/* Gráficos de Nivel Freático */}
@@ -161,13 +191,28 @@ export default function SidebarCuenca({
             </div>
           )}
           {graphicsCuencasLoading.nivel_freatico === 2 && (
-            <TimeSeriesChartPair
-              dataMensual={graficosData.nivel_freatico?.mensual || []}
-              dataDiario={graficosData.nivel_freatico?.diario || []}
-              titulo="Nivel Freático"
-              unidad="m"
-              valueKey="nivel_freatico"
-            />
+            graficosData.nivel_freatico?.mensual?.length > 0 ? (
+              <TimeSeriesChartPair
+                dataMensual={graficosData.nivel_freatico.mensual}
+                dataDiario={graficosData.nivel_freatico.diario}
+                titulo="Nivel Freático"
+                unidad="m"
+                valueKey="nivel_freatico"
+              />
+            ) : (
+              <div className="w-full p-6 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600 text-center">
+                  No hay datos de nivel freático disponibles para esta cuenca en el período especificado.
+                </p>
+              </div>
+            )
+          )}
+          {graphicsCuencasLoading.nivel_freatico === 3 && (
+            <div className="w-full p-6 bg-red-50 rounded-lg border border-red-200">
+              <p className="text-sm text-red-600 text-center">
+                No se encontraron datos de nivel freático para esta cuenca.
+              </p>
+            </div>
           )}
         </div>
       )}

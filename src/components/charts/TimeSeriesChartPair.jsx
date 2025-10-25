@@ -225,12 +225,22 @@ export default function TimeSeriesChartPair({
               <XAxis dataKey="dia" angle={-45} textAnchor="end" height={80} tickMargin={8} tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
               <Tooltip
-                formatter={(v, name) => [`${formatNumberCL(v)} ${unidad}`, name]}
+                content={({ active, payload, label }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="bg-white p-2 border rounded shadow text-sm">
+                        <p><strong>Día {label}</strong></p>
+                        <p style={{ color: payload[0].color }}>
+                          Promedio: {formatNumberCL(payload[0].value)} {unidad}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
               />
               <Legend />
               <Line type="monotone" dataKey={`avg_${valueKey}`} stroke="#0ea5e9" name="Promedio" dot={false} />
-              <Line type="monotone" dataKey={`min_${valueKey}`} stroke="#f97316" name="Mínimo" dot={false} />
-              <Line type="monotone" dataKey={`max_${valueKey}`} stroke="#2563eb" name="Máximo" dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

@@ -190,36 +190,57 @@ export const useAnalysisData = (apiService) => {
     // Cargar caudal
     apiService.getCuencaSeriesTiempoCaudal(cuencaAnalysis.codigoCuenca)
       .then(data => {
-        const caudalProcessed = processSeriesTiempoData(data.caudal_por_tiempo || [], 'caudal');
+        // Manejar respuesta vacía o sin datos
+        if (!data || !data.caudal_por_tiempo || data.caudal_por_tiempo.length === 0) {
+          setGraficosData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
+          setGraphicsCuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
+          return;
+        }
+        const caudalProcessed = processSeriesTiempoData(data.caudal_por_tiempo, 'caudal');
         setGraficosData(prev => ({ ...prev, caudal: caudalProcessed }));
         setGraphicsCuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
         console.error("Error al obtener gráficos de caudal:", err);
+        setGraficosData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
         setGraphicsCuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
       });
 
     // Cargar altura limnimétrica
     apiService.getCuencaSeriesTiempoAlturaLinimetrica(cuencaAnalysis.codigoCuenca)
       .then(data => {
-        const alturaProcessed = processSeriesTiempoData(data.altura_por_tiempo || [], 'altura_linimetrica');
+        // Manejar respuesta vacía o sin datos
+        if (!data || !data.altura_por_tiempo || data.altura_por_tiempo.length === 0) {
+          setGraficosData(prev => ({ ...prev, altura_linimetrica: { mensual: [], diario: [] } }));
+          setGraphicsCuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.ERROR }));
+          return;
+        }
+        const alturaProcessed = processSeriesTiempoData(data.altura_por_tiempo, 'altura_linimetrica');
         setGraficosData(prev => ({ ...prev, altura_linimetrica: alturaProcessed }));
         setGraphicsCuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
         console.error("Error al obtener gráficos de altura limnimétrica:", err);
+        setGraficosData(prev => ({ ...prev, altura_linimetrica: { mensual: [], diario: [] } }));
         setGraphicsCuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.ERROR }));
       });
 
     // Cargar nivel freático
     apiService.getCuencaSeriesTiempoNivelFreatico(cuencaAnalysis.codigoCuenca)
       .then(data => {
-        const nivelProcessed = processSeriesTiempoData(data.nivel_freatico_por_tiempo || [], 'nivel_freatico');
+        // Manejar respuesta vacía o sin datos
+        if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length === 0) {
+          setGraficosData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
+          setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
+          return;
+        }
+        const nivelProcessed = processSeriesTiempoData(data.nivel_por_tiempo, 'nivel_freatico');
         setGraficosData(prev => ({ ...prev, nivel_freatico: nivelProcessed }));
         setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
         console.error("Error al obtener gráficos de nivel freático:", err);
+        setGraficosData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
         setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
       });
   };
@@ -324,36 +345,57 @@ export const useAnalysisData = (apiService) => {
     // Cargar caudal
     apiService.getSubcuencaSeriesTiempoCaudal(subcuencaAnalysis.codigoSubcuenca)
       .then(data => {
-        const caudalProcessed = processSeriesTiempoData(data.caudal_por_tiempo || [], 'caudal');
+        // Manejar respuesta vacía o sin datos
+        if (!data || !data.caudal_por_tiempo || data.caudal_por_tiempo.length === 0) {
+          setGraficosSubcuencasData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
+          setGraphicsSubcuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
+          return;
+        }
+        const caudalProcessed = processSeriesTiempoData(data.caudal_por_tiempo, 'caudal');
         setGraficosSubcuencasData(prev => ({ ...prev, caudal: caudalProcessed }));
         setGraphicsSubcuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
         console.error("Error al obtener gráficos de caudal:", err);
+        setGraficosSubcuencasData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
         setGraphicsSubcuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
       });
 
     // Cargar altura limnimétrica
     apiService.getSubcuencaSeriesTiempoAlturaLinimetrica(subcuencaAnalysis.codigoSubcuenca)
       .then(data => {
-        const alturaProcessed = processSeriesTiempoData(data.altura_por_tiempo || [], 'altura_linimetrica');
+        // Manejar respuesta vacía o sin datos
+        if (!data || !data.altura_por_tiempo || data.altura_por_tiempo.length === 0) {
+          setGraficosSubcuencasData(prev => ({ ...prev, altura_linimetrica: { mensual: [], diario: [] } }));
+          setGraphicsSubcuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.ERROR }));
+          return;
+        }
+        const alturaProcessed = processSeriesTiempoData(data.altura_por_tiempo, 'altura_linimetrica');
         setGraficosSubcuencasData(prev => ({ ...prev, altura_linimetrica: alturaProcessed }));
         setGraphicsSubcuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
         console.error("Error al obtener gráficos de altura limnimétrica:", err);
+        setGraficosSubcuencasData(prev => ({ ...prev, altura_linimetrica: { mensual: [], diario: [] } }));
         setGraphicsSubcuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.ERROR }));
       });
 
     // Cargar nivel freático
     apiService.getSubcuencaSeriesTiempoNivelFreatico(subcuencaAnalysis.codigoSubcuenca)
       .then(data => {
-        const nivelProcessed = processSeriesTiempoData(data.nivel_freatico_por_tiempo || [], 'nivel_freatico');
+        // Manejar respuesta vacía o sin datos
+        if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length === 0) {
+          setGraficosSubcuencasData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
+          setGraphicsSubcuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
+          return;
+        }
+        const nivelProcessed = processSeriesTiempoData(data.nivel_por_tiempo, 'nivel_freatico');
         setGraficosSubcuencasData(prev => ({ ...prev, nivel_freatico: nivelProcessed }));
         setGraphicsSubcuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
         console.error("Error al obtener gráficos de nivel freático:", err);
+        setGraficosSubcuencasData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
         setGraphicsSubcuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
       });
   };
