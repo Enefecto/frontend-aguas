@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar.jsx';
 import { CustomSwitch } from '../UI/CustomSwitch.jsx';
 import { StatusButton } from '../UI/StatusButton.jsx';
@@ -10,8 +10,7 @@ import {
   LimitFilter,
   CaudalFilter,
   OrdenCaudalFilter,
-  TipoPuntoFilter,
-  FechaFilter
+  TipoPuntoFilter
 } from './FilterSection.jsx';
 import { UI_CONFIG } from '../../constants/uiConfig.js';
 
@@ -38,12 +37,6 @@ export default function SidebarFiltros({
   handleFiltroChange,
   queryCompleted
 }) {
-  const [erroresFecha, setErroresFecha] = useState({
-    fechaInicio: '',
-    fechaFin: '',
-    rangoFechas: ''
-  });
-
   const {
     consultandoPuntos,
     isOpen,
@@ -56,9 +49,6 @@ export default function SidebarFiltros({
     handleCoordenadasUnicas();
     handleUpdateStateConsultandoPuntos();
   };
-
-  // Verificar si hay errores de validación
-  const hayErroresFecha = erroresFecha.fechaInicio || erroresFecha.fechaFin || erroresFecha.rangoFechas;
 
   return (
     <div
@@ -115,14 +105,6 @@ export default function SidebarFiltros({
         handleFiltroChange={handleFiltroChange}
       />
 
-      <FechaFilter
-        filtros={filtros}
-        handleFiltroChange={handleFiltroChange}
-        erroresFecha={erroresFecha}
-        setErroresFecha={setErroresFecha}
-        setFiltros={setFiltros}
-      />
-
       <div className="mt-2 border-t pt-3">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-slate-700">Agrupar puntos</span>
@@ -141,25 +123,12 @@ export default function SidebarFiltros({
         <div className="flex justify-center">
           <StatusButton
             onClick={handleConsultarClick}
-            disabled={!isLoaded || hayErroresFecha}
+            disabled={!isLoaded}
             status={consultandoPuntos}
           >
             Consultar puntos
           </StatusButton>
         </div>
-
-        {hayErroresFecha && (
-          <div className="bg-red-50 text-red-800 px-3 py-2 rounded-md text-sm border border-red-200 shadow-sm">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <span>
-                Corrige los errores en las fechas para continuar
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* Mensaje dinámico basado en el estado */}
         {hayFiltrosPendientes && !queryCompleted ? (

@@ -32,22 +32,12 @@ export const FILTER_CONFIG = {
     cuenca: '',
     subcuenca: '',
     limit: 10,
-    tipoPunto: '',
-    fechaInicio: '',
-    fechaFin: '',
-    fechaPredefinida: ''
+    pozo: ''
   },
 
   // Configuración de caudal
   DEFAULT_CAUDAL_RANGE: [0, 1000],
   DEFAULT_ORDEN_CAUDAL: 'max',
-
-  // Tipos de punto
-  PUNTO_TYPES: {
-    SUPERFICIAL: 'superficial',
-    SUBTERRANEO: 'subterraneo',
-    SIN_CLASIFICAR: 'sin_clasificar'
-  },
 
   // Límites
   DEFAULT_LIMIT_MAX: 100

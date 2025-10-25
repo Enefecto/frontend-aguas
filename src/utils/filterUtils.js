@@ -34,21 +34,10 @@ export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOrigin
   queryParams.append("caudal_maximo", filtroCaudal[1]);
   queryParams.append("limit", filtros.limit || 120);
 
-  // TODO: Descomentar cuando la API soporte estos filtros adicionales
-  // if (filtros.tipoPunto) queryParams.append("tipo_punto", filtros.tipoPunto);
-  // queryParams.append("orden_caudal", ordenCaudal);
-
-  // // Agregar filtros de fecha
-  // if (filtros.fechaPredefinida) {
-  //   // Si hay periodo predefinido, calcular y enviar las fechas
-  //   const { fechaInicio, fechaFin } = calcularFechasPredefinidas(filtros.fechaPredefinida);
-  //   if (fechaInicio) queryParams.append("fecha_inicio", fechaInicio);
-  //   if (fechaFin) queryParams.append("fecha_fin", fechaFin);
-  // } else {
-  //   // Si no hay periodo predefinido, usar las fechas manuales
-  //   if (filtros.fechaInicio) queryParams.append("fecha_inicio", filtros.fechaInicio);
-  //   if (filtros.fechaFin) queryParams.append("fecha_fin", filtros.fechaFin);
-  // }
+  // Filtro de tipo de punto (pozo)
+  if (filtros.pozo !== undefined && filtros.pozo !== "") {
+    queryParams.append("pozo", filtros.pozo);
+  }
 
   return queryParams;
 };
