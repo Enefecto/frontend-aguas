@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, memo, useCallback } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { formatNumberCL } from '../../utils/formatNumberCL';
+import { downsampleData } from '../../utils/dataOptimization';
 
 /**
  * Componente reutilizable para mostrar un par de gráficos de series de tiempo:
@@ -14,7 +15,7 @@ import { formatNumberCL } from '../../utils/formatNumberCL';
  * @param {string} props.unidad - Unidad de medida (ej: "L/s", "m")
  * @param {string} props.valueKey - Clave para acceder al valor (ej: "caudal", "altura_linimetrica")
  */
-export default function TimeSeriesChartPair({
+const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
   dataMensual = [],
   dataDiario = [],
   titulo = "Serie de Tiempo",
@@ -27,8 +28,8 @@ export default function TimeSeriesChartPair({
   const [dataMensualFiltrado, setDataMensualFiltrado] = useState([]);
   const [dataDiarioFiltradoPorPeriodo, setDataDiarioFiltradoPorPeriodo] = useState([]);
 
-  // Calcular opciones de período disponibles basadas en los datos
-  const calcularOpcionesPeriodo = () => {
+  // Calcular opciones de período disponibles basadas en los datos (memoizado)
+  const opcionesPeriodo = useMemo(() => {
     if (dataMensual.length === 0) return [];
 
     const fechas = dataMensual.map(d => new Date(d.mes + "-01"));
@@ -52,21 +53,33 @@ export default function TimeSeriesChartPair({
     opciones.push({ valor: 'todos', etiqueta: 'Todos' });
 
     return opciones;
-  };
+  }, [dataMensual]);
 
-  const opcionesPeriodo = calcularOpcionesPeriodo();
+  // Optimizar datos mensuales con downsampling usando useMemo
+  const dataMensualOptimizado = useMemo(() => {
+    if (!dataMensual || dataMensual.length === 0) return [];
+    // Solo aplicar downsampling si hay más de 500 puntos
+    return dataMensual.length > 500 ? downsampleData(dataMensual, 500) : dataMensual;
+  }, [dataMensual]);
+
+  // Optimizar datos diarios con downsampling usando useMemo
+  const dataDiarioOptimizado = useMemo(() => {
+    if (!dataDiario || dataDiario.length === 0) return [];
+    // Solo aplicar downsampling si hay más de 300 puntos
+    return dataDiario.length > 300 ? downsampleData(dataDiario, 300) : dataDiario;
+  }, [dataDiario]);
 
   // Filtrar datos mensuales y diarios según el período seleccionado
   useEffect(() => {
-    if (dataMensual.length === 0) return;
+    if (dataMensualOptimizado.length === 0) return;
 
     if (periodoSeleccionado === 'todos') {
       // Mostrar todos los datos
-      setDataMensualFiltrado(dataMensual);
-      setDataDiarioFiltradoPorPeriodo(dataDiario);
+      setDataMensualFiltrado(dataMensualOptimizado);
+      setDataDiarioFiltradoPorPeriodo(dataDiarioOptimizado);
     } else {
       // Filtrar por años desde la fecha más reciente hacia atrás
-      const fechas = dataMensual.map(d => new Date(d.mes + "-01"));
+      const fechas = dataMensualOptimizado.map(d => new Date(d.mes + "-01"));
       const fechaMax = new Date(Math.max(...fechas));
 
       // Calcular fecha límite (años hacia atrás desde la fecha más reciente)
@@ -74,13 +87,13 @@ export default function TimeSeriesChartPair({
       fechaLimite.setFullYear(fechaMax.getFullYear() - periodoSeleccionado);
 
       // Filtrar datos mensuales
-      const mensualFiltrado = dataMensual.filter(d => {
+      const mensualFiltrado = dataMensualOptimizado.filter(d => {
         const fecha = new Date(d.mes + "-01");
         return fecha >= fechaLimite;
       });
 
       // Filtrar datos diarios
-      const diarioFiltrado = dataDiario.filter(d => {
+      const diarioFiltrado = dataDiarioOptimizado.filter(d => {
         const fecha = new Date(d.fecha);
         return fecha >= fechaLimite;
       });
@@ -88,7 +101,7 @@ export default function TimeSeriesChartPair({
       setDataMensualFiltrado(mensualFiltrado);
       setDataDiarioFiltradoPorPeriodo(diarioFiltrado);
     }
-  }, [dataMensual, dataDiario, periodoSeleccionado]);
+  }, [dataMensualOptimizado, dataDiarioOptimizado, periodoSeleccionado]);
 
   // Al cargar, setear primer mes disponible del rango filtrado
   useEffect(() => {
@@ -125,12 +138,51 @@ export default function TimeSeriesChartPair({
     setDataDiarioFiltrado(filtrados);
   }, [selectedMes, dataDiarioFiltradoPorPeriodo]);
 
-  // Calcular rango de fechas
-  const getMonthlyDateRange = (data) => {
-    if (!data || data.length === 0) return null;
-    const months = data.map(d => d.mes);
+  // Calcular rango de fechas (memoizado)
+  const rangoFechas = useMemo(() => {
+    if (!dataMensualFiltrado || dataMensualFiltrado.length === 0) return null;
+    const months = dataMensualFiltrado.map(d => d.mes);
     return `${months[0]} - ${months[months.length - 1]}`;
-  };
+  }, [dataMensualFiltrado]);
+
+  // Handler del click en gráfico mensual (memoizado)
+  const handleMonthClick = useCallback((data) => {
+    if (data && data.activeLabel) {
+      setSelectedMes(data.activeLabel);
+    }
+  }, []);
+
+  // Tooltip mensual personalizado (memoizado)
+  const CustomTooltipMensual = useCallback(({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 border rounded shadow text-sm">
+          <p><strong>{label}</strong></p>
+          {payload.map((item, i) => (
+            <p key={i} style={{ color: item.color }}>
+              {item.name}: {formatNumberCL(item.value)} {unidad}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  }, [unidad]);
+
+  // Tooltip diario personalizado (memoizado)
+  const CustomTooltipDiario = useCallback(({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 border rounded shadow text-sm">
+          <p><strong>Día {label}</strong></p>
+          <p style={{ color: payload[0].color }}>
+            Promedio: {formatNumberCL(payload[0].value)} {unidad}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  }, [unidad]);
 
   return (
     <div className="space-y-10">
@@ -152,9 +204,9 @@ export default function TimeSeriesChartPair({
               </option>
             ))}
           </select>
-          {dataMensualFiltrado.length > 0 && (
+          {rangoFechas && (
             <span className="text-xs text-gray-500">
-              Mostrando: {getMonthlyDateRange(dataMensualFiltrado)}
+              Mostrando: {rangoFechas}
             </span>
           )}
         </div>
@@ -175,33 +227,13 @@ export default function TimeSeriesChartPair({
           <LineChart
             data={dataMensualFiltrado}
             margin={{ top: 8, right: 10, left: 5, bottom: 20 }}
-            onClick={(data) => {
-              if (data && data.activeLabel) {
-                setSelectedMes(data.activeLabel);
-              }
-            }}
+            onClick={handleMonthClick}
             style={{ cursor: 'pointer' }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="mes" angle={-45} textAnchor="end" interval={5} height={80} tickMargin={8} tick={{ fontSize: 10 }} />
             <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
-            <Tooltip
-              content={({ active, payload, label }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className="bg-white p-2 border rounded shadow text-sm">
-                      <p><strong>{label}</strong></p>
-                      {payload.map((item, i) => (
-                        <p key={i} style={{ color: item.color }}>
-                          {item.name}: {formatNumberCL(item.value)} {unidad}
-                        </p>
-                      ))}
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
+            <Tooltip content={CustomTooltipMensual} />
             <Legend />
             <Line type="monotone" dataKey={`avg_${valueKey}`} stroke="#0ea5e9" name="Promedio" dot={false} />
             <Line type="monotone" dataKey={`min_${valueKey}`} stroke="#f97316" name="Mínimo" dot={false} />
@@ -224,21 +256,7 @@ export default function TimeSeriesChartPair({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="dia" angle={-45} textAnchor="end" height={80} tickMargin={8} tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
-              <Tooltip
-                content={({ active, payload, label }) => {
-                  if (active && payload && payload.length) {
-                    return (
-                      <div className="bg-white p-2 border rounded shadow text-sm">
-                        <p><strong>Día {label}</strong></p>
-                        <p style={{ color: payload[0].color }}>
-                          Promedio: {formatNumberCL(payload[0].value)} {unidad}
-                        </p>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
+              <Tooltip content={CustomTooltipDiario} />
               <Legend />
               <Line type="monotone" dataKey={`avg_${valueKey}`} stroke="#0ea5e9" name="Promedio" dot={false} />
             </LineChart>
@@ -247,4 +265,6 @@ export default function TimeSeriesChartPair({
       )}
     </div>
   );
-}
+});
+
+export default TimeSeriesChartPair;

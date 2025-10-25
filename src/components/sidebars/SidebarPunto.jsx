@@ -5,7 +5,8 @@ import { EstadisticBox } from '../UI/EstadisticBox';
 import { PuntoGraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import { formatNumberCL } from '../../utils/formatNumberCL';
 import { ModalDetalles } from '../UI/ModalDetalles';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { downsampleData } from '../../utils/dataOptimization';
 
 export default function SidebarPunto({
   analisisPuntoSeleccionado,
@@ -85,8 +86,35 @@ export default function SidebarPunto({
     }
   }, [alturaLimnimetrica, punto.utm_norte, punto.utm_este, apiService, graphicsPuntosLoading]);
 
-  // Calcular rango de fechas para gráfico de caudal por tiempo
-  const getDateRange = (data) => {
+  // Optimizar datos de caudal con downsampling (memoizado)
+  const caudal_por_tiempo_optimizado = useMemo(() => {
+    if (!graficosPuntosData?.caudal_por_tiempo || graficosPuntosData.caudal_por_tiempo.length === 0) return [];
+    // Solo aplicar downsampling si hay más de 400 puntos
+    return graficosPuntosData.caudal_por_tiempo.length > 400
+      ? downsampleData(graficosPuntosData.caudal_por_tiempo, 400)
+      : graficosPuntosData.caudal_por_tiempo;
+  }, [graficosPuntosData?.caudal_por_tiempo]);
+
+  // Optimizar datos de nivel freático con downsampling (memoizado)
+  const nivel_freatico_optimizado = useMemo(() => {
+    if (!datosNivelFreatico?.nivel_por_tiempo || datosNivelFreatico.nivel_por_tiempo.length === 0) return [];
+    // Solo aplicar downsampling si hay más de 400 puntos
+    return datosNivelFreatico.nivel_por_tiempo.length > 400
+      ? downsampleData(datosNivelFreatico.nivel_por_tiempo, 400)
+      : datosNivelFreatico.nivel_por_tiempo;
+  }, [datosNivelFreatico?.nivel_por_tiempo]);
+
+  // Optimizar datos de altura limnimétrica con downsampling (memoizado)
+  const altura_limnimetrica_optimizada = useMemo(() => {
+    if (!datosAlturaLimnimetrica?.altura_por_tiempo || datosAlturaLimnimetrica.altura_por_tiempo.length === 0) return [];
+    // Solo aplicar downsampling si hay más de 400 puntos
+    return datosAlturaLimnimetrica.altura_por_tiempo.length > 400
+      ? downsampleData(datosAlturaLimnimetrica.altura_por_tiempo, 400)
+      : datosAlturaLimnimetrica.altura_por_tiempo;
+  }, [datosAlturaLimnimetrica?.altura_por_tiempo]);
+
+  // Calcular rango de fechas para gráfico (memoizado)
+  const getDateRange = useCallback((data) => {
     if (!data || data.length === 0) return null;
     const dates = data.map(d => new Date(d.fecha_medicion));
     const minDate = new Date(Math.min(...dates));
@@ -99,7 +127,7 @@ export default function SidebarPunto({
     }).replace('.', '');
 
     return `${formatDate(minDate)} - ${formatDate(maxDate)}`;
-  }
+  }, []);
 
   return (
     <div
@@ -264,15 +292,15 @@ export default function SidebarPunto({
 
           <div className="w-full h-[260px] md:h-80 lg:h-96">
             <h4 className="text-sm font-semibold mb-1 text-gray-700">Caudal por tiempo</h4>
-            {graficosPuntosData.caudal_por_tiempo && graficosPuntosData.caudal_por_tiempo.length > 0 && (
+            {caudal_por_tiempo_optimizado && caudal_por_tiempo_optimizado.length > 0 && (
               <p className="text-xs text-gray-500 mb-2">
-                Periodo: {getDateRange(graficosPuntosData.caudal_por_tiempo)}
+                Periodo: {getDateRange(caudal_por_tiempo_optimizado)}
               </p>
             )}
 
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={graficosPuntosData.caudal_por_tiempo}
+                data={caudal_por_tiempo_optimizado}
                 // más espacio a la izquierda para que no se corte el eje Y
                 margin={{ top: 8, right: 10, left: 5, bottom: 24 }}
               >
@@ -333,14 +361,14 @@ export default function SidebarPunto({
                 <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
                 </div>
-              ) : datosNivelFreatico?.nivel_por_tiempo && datosNivelFreatico.nivel_por_tiempo.length > 0 ? (
+              ) : nivel_freatico_optimizado && nivel_freatico_optimizado.length > 0 ? (
                 <>
                   <p className="text-xs text-gray-500 mb-2">
-                    Periodo: {getDateRange(datosNivelFreatico.nivel_por_tiempo)}
+                    Periodo: {getDateRange(nivel_freatico_optimizado)}
                   </p>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
-                      data={datosNivelFreatico.nivel_por_tiempo}
+                      data={nivel_freatico_optimizado}
                       margin={{ top: 8, right: 10, left: 5, bottom: 24 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
@@ -391,14 +419,14 @@ export default function SidebarPunto({
                 <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
                 </div>
-              ) : datosAlturaLimnimetrica?.altura_por_tiempo && datosAlturaLimnimetrica.altura_por_tiempo.length > 0 ? (
+              ) : altura_limnimetrica_optimizada && altura_limnimetrica_optimizada.length > 0 ? (
                 <>
                   <p className="text-xs text-gray-500 mb-2">
-                    Periodo: {getDateRange(datosAlturaLimnimetrica.altura_por_tiempo)}
+                    Periodo: {getDateRange(altura_limnimetrica_optimizada)}
                   </p>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
-                      data={datosAlturaLimnimetrica.altura_por_tiempo}
+                      data={altura_limnimetrica_optimizada}
                       margin={{ top: 8, right: 10, left: 5, bottom: 24 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
