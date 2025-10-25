@@ -201,7 +201,12 @@ export const useAnalysisData = (apiService) => {
         setGraphicsCuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
-        console.error("Error al obtener gráficos de caudal:", err);
+        // Solo mostrar error si NO es un "no se encontraron datos"
+        const isNoDataError = err.message?.includes('No se encontraron datos') ||
+                              err.response?.data?.detail?.includes('No se encontraron datos');
+        if (!isNoDataError) {
+          console.error("Error al obtener gráficos de caudal:", err);
+        }
         setGraficosData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
         setGraphicsCuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
       });
@@ -220,7 +225,12 @@ export const useAnalysisData = (apiService) => {
         setGraphicsCuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
-        console.error("Error al obtener gráficos de altura limnimétrica:", err);
+        // Solo mostrar error si NO es un "no se encontraron datos"
+        const isNoDataError = err.message?.includes('No se encontraron datos') ||
+                              err.response?.data?.detail?.includes('No se encontraron datos');
+        if (!isNoDataError) {
+          console.error("Error al obtener gráficos de altura limnimétrica:", err);
+        }
         setGraficosData(prev => ({ ...prev, altura_linimetrica: { mensual: [], diario: [] } }));
         setGraphicsCuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.ERROR }));
       });
@@ -239,7 +249,12 @@ export const useAnalysisData = (apiService) => {
         setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
-        console.error("Error al obtener gráficos de nivel freático:", err);
+        // Solo mostrar error si NO es un "no se encontraron datos"
+        const isNoDataError = err.message?.includes('No se encontraron datos') ||
+                              err.response?.data?.detail?.includes('No se encontraron datos');
+        if (!isNoDataError) {
+          console.error("Error al obtener gráficos de nivel freático:", err);
+        }
         setGraficosData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
         setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
       });
@@ -356,7 +371,12 @@ export const useAnalysisData = (apiService) => {
         setGraphicsSubcuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
-        console.error("Error al obtener gráficos de caudal:", err);
+        // Solo mostrar error si NO es un "no se encontraron datos"
+        const isNoDataError = err.message?.includes('No se encontraron datos') ||
+                              err.response?.data?.detail?.includes('No se encontraron datos');
+        if (!isNoDataError) {
+          console.error("Error al obtener gráficos de caudal:", err);
+        }
         setGraficosSubcuencasData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
         setGraphicsSubcuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
       });
@@ -375,7 +395,12 @@ export const useAnalysisData = (apiService) => {
         setGraphicsSubcuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
-        console.error("Error al obtener gráficos de altura limnimétrica:", err);
+        // Solo mostrar error si NO es un "no se encontraron datos"
+        const isNoDataError = err.message?.includes('No se encontraron datos') ||
+                              err.response?.data?.detail?.includes('No se encontraron datos');
+        if (!isNoDataError) {
+          console.error("Error al obtener gráficos de altura limnimétrica:", err);
+        }
         setGraficosSubcuencasData(prev => ({ ...prev, altura_linimetrica: { mensual: [], diario: [] } }));
         setGraphicsSubcuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.ERROR }));
       });
@@ -394,7 +419,12 @@ export const useAnalysisData = (apiService) => {
         setGraphicsSubcuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.SUCCESS }));
       })
       .catch(err => {
-        console.error("Error al obtener gráficos de nivel freático:", err);
+        // Solo mostrar error si NO es un "no se encontraron datos"
+        const isNoDataError = err.message?.includes('No se encontraron datos') ||
+                              err.response?.data?.detail?.includes('No se encontraron datos');
+        if (!isNoDataError) {
+          console.error("Error al obtener gráficos de nivel freático:", err);
+        }
         setGraficosSubcuencasData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
         setGraphicsSubcuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
       });
