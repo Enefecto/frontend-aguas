@@ -91,9 +91,14 @@ export default function SidebarSubcuenca({
        graphicsSubcuencasLoading.nivel_freatico === 0 && (
         <button
           onClick={loadSubcuencasGraphics}
-          className="block mt-6 bg-cyan-700 text-white font-semibold px-4 py-2 rounded cursor-pointer hover:bg-cyan-600 transition"
+          disabled={!subcuencaAnalysis.codigoSubcuenca || !subcuencaAnalysis.codigoCuenca || subcuencaLoading}
+          className={`block mt-6 font-semibold px-4 py-2 rounded transition ${
+            !subcuencaAnalysis.codigoSubcuenca || !subcuencaAnalysis.codigoCuenca || subcuencaLoading
+              ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+              : 'bg-cyan-700 text-white cursor-pointer hover:bg-cyan-600'
+          }`}
         >
-          Cargar Gráficos
+          {subcuencaLoading ? 'Cargando datos...' : 'Cargar Gráficos'}
         </button>
       )}
 

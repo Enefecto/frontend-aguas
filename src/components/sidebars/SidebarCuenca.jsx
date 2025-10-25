@@ -85,9 +85,14 @@ export default function SidebarCuenca({
        graphicsCuencasLoading.nivel_freatico === 0 && (
         <button
           onClick={loadCuencasGraphics}
-          className="block mt-6 bg-cyan-700 text-white font-semibold px-4 py-2 rounded cursor-pointer hover:bg-cyan-600 transition"
+          disabled={!cuencaAnalysis.codigoCuenca || cuencaLoading}
+          className={`block mt-6 font-semibold px-4 py-2 rounded transition ${
+            !cuencaAnalysis.codigoCuenca || cuencaLoading
+              ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+              : 'bg-cyan-700 text-white cursor-pointer hover:bg-cyan-600'
+          }`}
         >
-          Cargar Gráficos
+          {cuencaLoading ? 'Cargando datos...' : 'Cargar Gráficos'}
         </button>
       )}
 

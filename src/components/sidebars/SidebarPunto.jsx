@@ -240,9 +240,14 @@ export default function SidebarPunto({
       {graphicsPuntosLoading === 0 && (
         <button
           onClick={() => loadPuntosGraphics(punto.utm_norte, punto.utm_este)}
-          className="block mt-6 bg-cyan-700 text-white font-semibold px-4 py-2 rounded cursor-pointer hover:bg-cyan-600 transition"
+          disabled={!punto.utm_norte || !punto.utm_este || analisisPuntoSeleccionadoLoading}
+          className={`block mt-6 font-semibold px-4 py-2 rounded transition ${
+            !punto.utm_norte || !punto.utm_este || analisisPuntoSeleccionadoLoading
+              ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+              : 'bg-cyan-700 text-white cursor-pointer hover:bg-cyan-600'
+          }`}
         >
-          Cargar Gráficos
+          {analisisPuntoSeleccionadoLoading ? 'Cargando datos...' : 'Cargar Gráficos'}
         </button>
       )}
 
