@@ -30,7 +30,8 @@ export const EstadisticBox = ({ boxcolor = 'blue', label, value }) => {
 
   // Función para formatear el número
   const formatNumber = (num) => {
-    if (num == null) return '-';
+    // Solo mostrar '-' si es null o undefined, no si es 0
+    if (num === null || num === undefined) return '-';
     return num.toLocaleString('es-CL', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2

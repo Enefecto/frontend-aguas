@@ -190,8 +190,8 @@ export const useAnalysisData = (apiService) => {
     // Cargar caudal
     apiService.getCuencaSeriesTiempoCaudal(cuencaAnalysis.codigoCuenca)
       .then(data => {
-        // Manejar respuesta vacía o sin datos
-        if (!data || !data.caudal_por_tiempo || data.caudal_por_tiempo.length === 0) {
+        // Manejar respuesta vacía, sin datos o con solo 1 registro
+        if (!data || !data.caudal_por_tiempo || data.caudal_por_tiempo.length < 2) {
           setGraficosData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
           setGraphicsCuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
           return;
@@ -209,8 +209,8 @@ export const useAnalysisData = (apiService) => {
     // Cargar altura limnimétrica
     apiService.getCuencaSeriesTiempoAlturaLinimetrica(cuencaAnalysis.codigoCuenca)
       .then(data => {
-        // Manejar respuesta vacía o sin datos
-        if (!data || !data.altura_por_tiempo || data.altura_por_tiempo.length === 0) {
+        // Manejar respuesta vacía, sin datos o con solo 1 registro
+        if (!data || !data.altura_por_tiempo || data.altura_por_tiempo.length < 2) {
           setGraficosData(prev => ({ ...prev, altura_linimetrica: { mensual: [], diario: [] } }));
           setGraphicsCuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.ERROR }));
           return;
@@ -228,8 +228,8 @@ export const useAnalysisData = (apiService) => {
     // Cargar nivel freático
     apiService.getCuencaSeriesTiempoNivelFreatico(cuencaAnalysis.codigoCuenca)
       .then(data => {
-        // Manejar respuesta vacía o sin datos
-        if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length === 0) {
+        // Manejar respuesta vacía, sin datos o con solo 1 registro
+        if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length < 2) {
           setGraficosData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
           setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
           return;
@@ -343,10 +343,10 @@ export const useAnalysisData = (apiService) => {
     });
 
     // Cargar caudal
-    apiService.getSubcuencaSeriesTiempoCaudal(subcuencaAnalysis.codigoSubcuenca)
+    apiService.getSubcuencaSeriesTiempoCaudal(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca)
       .then(data => {
-        // Manejar respuesta vacía o sin datos
-        if (!data || !data.caudal_por_tiempo || data.caudal_por_tiempo.length === 0) {
+        // Manejar respuesta vacía, sin datos o con solo 1 registro
+        if (!data || !data.caudal_por_tiempo || data.caudal_por_tiempo.length < 2) {
           setGraficosSubcuencasData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
           setGraphicsSubcuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
           return;
@@ -362,10 +362,10 @@ export const useAnalysisData = (apiService) => {
       });
 
     // Cargar altura limnimétrica
-    apiService.getSubcuencaSeriesTiempoAlturaLinimetrica(subcuencaAnalysis.codigoSubcuenca)
+    apiService.getSubcuencaSeriesTiempoAlturaLinimetrica(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca)
       .then(data => {
-        // Manejar respuesta vacía o sin datos
-        if (!data || !data.altura_por_tiempo || data.altura_por_tiempo.length === 0) {
+        // Manejar respuesta vacía, sin datos o con solo 1 registro
+        if (!data || !data.altura_por_tiempo || data.altura_por_tiempo.length < 2) {
           setGraficosSubcuencasData(prev => ({ ...prev, altura_linimetrica: { mensual: [], diario: [] } }));
           setGraphicsSubcuencasLoading(prev => ({ ...prev, altura_linimetrica: UI_CONFIG.LOADING_STATES.ERROR }));
           return;
@@ -381,10 +381,10 @@ export const useAnalysisData = (apiService) => {
       });
 
     // Cargar nivel freático
-    apiService.getSubcuencaSeriesTiempoNivelFreatico(subcuencaAnalysis.codigoSubcuenca)
+    apiService.getSubcuencaSeriesTiempoNivelFreatico(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca)
       .then(data => {
-        // Manejar respuesta vacía o sin datos
-        if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length === 0) {
+        // Manejar respuesta vacía, sin datos o con solo 1 registro
+        if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length < 2) {
           setGraficosSubcuencasData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
           setGraphicsSubcuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
           return;

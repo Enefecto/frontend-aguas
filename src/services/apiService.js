@@ -103,19 +103,22 @@ class ApiService {
     return this.request(url);
   }
 
-  async getSubcuencaSeriesTiempoCaudal(subcuencaIdentificador) {
-    // Nota: El endpoint espera 'cuenca_identificador' pero en realidad es el identificador de la subcuenca
-    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_CAUDAL}?cuenca_identificador=${encodeURIComponent(subcuencaIdentificador)}`);
+  async getSubcuencaSeriesTiempoCaudal(cuencaIdentificador, subcuencaIdentificador) {
+    // Si subcuencaIdentificador es 'sin_registro', pasar 'null' como string
+    const subcuencaParam = subcuencaIdentificador === 'sin_registro' ? 'null' : subcuencaIdentificador;
+    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_CAUDAL}?cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}&subcuenca_identificador=${encodeURIComponent(subcuencaParam)}`);
   }
 
-  async getSubcuencaSeriesTiempoAlturaLinimetrica(subcuencaIdentificador) {
-    // Nota: El endpoint espera 'cuenca_identificador' pero en realidad es el identificador de la subcuenca
-    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA}?cuenca_identificador=${encodeURIComponent(subcuencaIdentificador)}`);
+  async getSubcuencaSeriesTiempoAlturaLinimetrica(cuencaIdentificador, subcuencaIdentificador) {
+    // Si subcuencaIdentificador es 'sin_registro', pasar 'null' como string
+    const subcuencaParam = subcuencaIdentificador === 'sin_registro' ? 'null' : subcuencaIdentificador;
+    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA}?cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}&subcuenca_identificador=${encodeURIComponent(subcuencaParam)}`);
   }
 
-  async getSubcuencaSeriesTiempoNivelFreatico(subcuencaIdentificador) {
-    // Nota: El endpoint espera 'cuenca_identificador' pero en realidad es el identificador de la subcuenca
-    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_NIVEL_FREATICO}?cuenca_identificador=${encodeURIComponent(subcuencaIdentificador)}`);
+  async getSubcuencaSeriesTiempoNivelFreatico(cuencaIdentificador, subcuencaIdentificador) {
+    // Si subcuencaIdentificador es 'sin_registro', pasar 'null' como string
+    const subcuencaParam = subcuencaIdentificador === 'sin_registro' ? 'null' : subcuencaIdentificador;
+    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_NIVEL_FREATICO}?cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}&subcuenca_identificador=${encodeURIComponent(subcuencaParam)}`);
   }
 
   // Métodos para puntos
