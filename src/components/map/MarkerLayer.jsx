@@ -10,16 +10,42 @@ export const MarkerLayer = React.memo(({
   handleShowSidebarCuencas,
   handleShowSidebarSubcuencas,
   handleShowSidebarPunto,
-  apiService
+  apiService,
+  isSelectingPointForComparison,
+  onPointClickForComparison,
+  selectedPointsForComparison = [null, null]
 }) => {
   const map = useMap();
   const clusterGroupRef = useRef(null);
+
+  const handleMarkerClick = useCallback((punto) => {
+    if (isSelectingPointForComparison) {
+      onPointClickForComparison(punto);
+    }
+  }, [isSelectingPointForComparison, onPointClickForComparison]);
+
+  // Función para verificar si un punto está seleccionado para comparación
+  // Retorna el índice (1 o 2) si está seleccionado, o null si no lo está
+  const getComparisonIndex = useCallback((punto) => {
+    for (let i = 0; i < selectedPointsForComparison.length; i++) {
+      const selectedPoint = selectedPointsForComparison[i];
+      if (selectedPoint &&
+          selectedPoint.lat === punto.lat &&
+          selectedPoint.lon === punto.lon) {
+        return i + 1; // Retorna 1 o 2 (índice + 1)
+      }
+    }
+    return null;
+  }, [selectedPointsForComparison]);
+
   const renderMarkers = useMemo(() => (
     puntos
       .filter(isValidCoordinate)
       .map((punto, index) => {
         const color = getMarkerColor(punto);
-        const customIcon = createDropIcon(color);
+        const comparisonIndex = getComparisonIndex(punto);
+        const isHighlighted = comparisonIndex !== null;
+        const customIcon = createDropIcon(color, isHighlighted, comparisonIndex);
 
         // Si no se pudo crear el icono (Leaflet no está disponible), no renderizar
         if (!customIcon) return null;
@@ -29,21 +55,26 @@ export const MarkerLayer = React.memo(({
             key={`${punto.utm_este}-${punto.utm_norte}-${index}`}
             position={[punto.lat, punto.lon]}
             icon={customIcon}
+            eventHandlers={{
+              click: () => handleMarkerClick(punto)
+            }}
           >
-            <Popup>
-              <PopupPunto
-                punto={punto}
-                handleShowSidebarCuencas={handleShowSidebarCuencas}
-                handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
-                handleShowSidebarPunto={handleShowSidebarPunto}
-                apiService={apiService}
-              />
-            </Popup>
+            {!isSelectingPointForComparison && (
+              <Popup>
+                <PopupPunto
+                  punto={punto}
+                  handleShowSidebarCuencas={handleShowSidebarCuencas}
+                  handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
+                  handleShowSidebarPunto={handleShowSidebarPunto}
+                  apiService={apiService}
+                />
+              </Popup>
+            )}
           </Marker>
         );
       })
       .filter(Boolean) // Filtrar elementos null
-  ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService]);
+  ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService, isSelectingPointForComparison, handleMarkerClick, getComparisonIndex]);
 
   // Hook para refrescar clusters después de zoom automático
   useEffect(() => {

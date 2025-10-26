@@ -38,14 +38,9 @@ class ApiService {
 
       return await response.json();
     } catch (error) {
-      // No mostrar console.error si el error es por "No se encontraron datos" (respuesta válida)
-      const isNoDataError = error.message?.includes('No se encontraron datos') ||
-                            error.response?.data?.detail?.includes('No se encontraron datos');
-
-      if (!isNoDataError) {
-        console.error(`Error en ${endpoint}:`, error);
-      }
-
+      // Suprimir completamente console.error para mantener la API confidencial
+      // Los errores 404 son normales cuando no hay datos (series de tiempo, etc.)
+      // El componente que llama manejará los errores apropiadamente
       throw error;
     }
   }

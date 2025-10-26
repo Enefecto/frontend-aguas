@@ -50,7 +50,7 @@ export const LayerSelector = ({ currentLayer, onLayerChange }) => {
   return (
     <div
       ref={containerRef}
-      className="absolute right-4 z-[999]"
+      className="absolute right-4 z-[1100] max-h-[700px]:top-[120px]"
       style={{top: '320px', right: '4px'}}
     >
       {/* Botón compacto inicial */}
@@ -107,7 +107,7 @@ export const LayerSelector = ({ currentLayer, onLayerChange }) => {
 
       {/* Panel expandido */}
       {isExpanded && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-[1000]">
+        <div className="absolute top-full left-1/2 mt-2 z-[1000]" style={{transform: 'translateX(calc(-50% - 30px))'}}>
           <div className="bg-white shadow-xl rounded-lg border border-gray-200 overflow-hidden min-w-[200px] animate-fadeInScale">
             {/* Encabezado */}
             <div className="bg-gradient-to-r from-cyan-50 to-cyan-100 px-4 py-3 border-b border-cyan-200">
@@ -198,11 +198,11 @@ export const LayerSelector = ({ currentLayer, onLayerChange }) => {
         @keyframes fadeInScale {
           from {
             opacity: 0;
-            transform: translateX(-50%) scale(0.95) translateY(-10px);
+            transform: translateX(calc(-50% - 30px)) scale(0.95) translateY(-10px);
           }
           to {
             opacity: 1;
-            transform: translateX(-50%) scale(1) translateY(0);
+            transform: translateX(calc(-50% - 30px)) scale(1) translateY(0);
           }
         }
         .animate-fadeInScale {
