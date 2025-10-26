@@ -1,18 +1,18 @@
 ---
 import "../styles/global.css";
 import Mapa from "../components/Mapa.jsx";
-import WaterNavbar from "../components/navigation/WaterNavbar.astro";
 const apiUrl = import.meta.env.API_URL;
 ---
 
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Mapa de Coordenadas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aguas Transparentes</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
-  <body class="bg-white">
-    <WaterNavbar />
-    <div class="w-full">
+  <body class="bg-white m-0 p-0 h-screen w-screen overflow-hidden">
+    <div class="w-full h-full">
       <Mapa client:only="react" apiUrl={apiUrl} />
     </div>
   </body>

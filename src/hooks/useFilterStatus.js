@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { UI_CONFIG } from '../constants/uiConfig.js';
 
-export const useFilterStatus = (puntos, filtros, filtroCaudal, ordenCaudal, isLoaded, handleCoordenadasUnicas, queryCompleted) => {
+export const useFilterStatus = (puntos, filtros, filtroCaudal, ordenCaudal, isLoaded, handleCoordenadasUnicas, queryCompleted, limitMax) => {
   const [consultandoPuntos, setConsultandoPuntos] = useState(UI_CONFIG.LOADING_STATES.IDLE);
   const [isOpen, setIsOpen] = useState(false);
   const [hayFiltrosPendientes, setHayFiltrosPendientes] = useState(false);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   // Animación de apertura del sidebar
   useEffect(() => {
@@ -13,12 +14,14 @@ export const useFilterStatus = (puntos, filtros, filtroCaudal, ordenCaudal, isLo
     }, UI_CONFIG.ANIMATIONS.SIDEBAR_DELAY);
   }, []);
 
-  // Auto-consulta cuando se carga la data inicial
+  // Auto-consulta cuando se carga la data inicial Y limitMax esté disponible
   useEffect(() => {
-    if (isLoaded) {
-      handleCoordenadasUnicas();
+    if (isLoaded && limitMax && !initialLoadDone) {
+      // Pasar limitMax como override para asegurar que se use el máximo en la primera carga
+      handleCoordenadasUnicas(limitMax);
+      setInitialLoadDone(true);
     }
-  }, [isLoaded]);
+  }, [isLoaded, limitMax]);
 
   // Marcar como exitoso cuando la consulta se complete (con o sin puntos)
   useEffect(() => {

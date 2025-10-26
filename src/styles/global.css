@@ -10,7 +10,7 @@
 }
 
 .map-altura {
-  height: calc(100vh - 4rem); /* h-16 = 4rem */
+  height: 100vh;
 }
 .leaflet-draw {
   z-index: 10000 !important;

@@ -47,15 +47,19 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
     }
   }, [filtros.cuenca, filtros.subcuenca, isLoaded, caudalRange]);
 
-  // Actualizar límite cuando cambie limitMax
+  // Actualizar límite cuando cambie limitMax o cuando cambien los filtros geográficos
   useEffect(() => {
-    if (isLoaded && limitMax && filtros.limit > limitMax) {
-      setFiltros(prev => ({
-        ...prev,
-        limit: limitMax
-      }));
+    if (isLoaded && limitMax) {
+      // Si el límite actual es el valor por defecto (10), establecerlo al máximo
+      // O si el límite supera el máximo permitido, ajustarlo
+      if (filtros.limit === FILTER_CONFIG.DEFAULT_FILTERS.limit || filtros.limit > limitMax) {
+        setFiltros(prev => ({
+          ...prev,
+          limit: limitMax
+        }));
+      }
     }
-  }, [limitMax, isLoaded]);
+  }, [limitMax, isLoaded, filtros.region, filtros.cuenca, filtros.subcuenca]);
 
   // Limpiar puntos cuando cambien filtros para evitar cache
   useEffect(() => {
@@ -83,10 +87,16 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   };
 
   // Función para obtener coordenadas únicas
-  const handleCoordenadasUnicas = async () => {
+  const handleCoordenadasUnicas = async (overrideLimit = null) => {
     try {
       setQueryCompleted(false); // Reset del estado de consulta
-      const queryParams = buildQueryParams(filtros, filtroCaudal, ordenCaudal, datosOriginales);
+
+      // Si se proporciona un límite override, usarlo temporalmente
+      const filtrosParaQuery = overrideLimit !== null
+        ? { ...filtros, limit: overrideLimit }
+        : filtros;
+
+      const queryParams = buildQueryParams(filtrosParaQuery, filtroCaudal, ordenCaudal, datosOriginales);
       const data = await apiService.getPuntos(queryParams);
 
       if (Array.isArray(data)) {
@@ -94,7 +104,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
         const puntosConvertidos = data.map(punto => convertPuntoUTMtoLatLon(punto));
 
         setPuntos(puntosConvertidos);
-        setLimiteSolicitado(filtros.limit);
+        setLimiteSolicitado(overrideLimit !== null ? overrideLimit : filtros.limit);
         setQueryCompleted(true);
       } else {
         console.error("Respuesta inesperada:", data);

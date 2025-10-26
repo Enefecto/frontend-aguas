@@ -43,7 +43,7 @@ export default function SidebarFiltros({
     setIsOpen,
     handleUpdateStateConsultandoPuntos,
     hayFiltrosPendientes
-  } = useFilterStatus(puntos, filtros, filtroCaudal, ordenCaudal, isLoaded, handleCoordenadasUnicas, queryCompleted);
+  } = useFilterStatus(puntos, filtros, filtroCaudal, ordenCaudal, isLoaded, handleCoordenadasUnicas, queryCompleted, limitMax);
 
   const handleConsultarClick = () => {
     handleCoordenadasUnicas();
