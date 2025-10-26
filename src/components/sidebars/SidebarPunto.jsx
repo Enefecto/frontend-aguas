@@ -1,12 +1,10 @@
 import { TrophySpin, Slab } from 'react-loading-indicators';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
 import { PuntoGraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
-import { formatNumberCL } from '../../utils/formatNumberCL';
 import { ModalDetalles } from '../UI/ModalDetalles';
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { downsampleData } from '../../utils/dataOptimization';
+import { useState, useEffect } from 'react';
+import SingleTimeSeriesChart from '../charts/SingleTimeSeriesChart';
 
 export default function SidebarPunto({
   analisisPuntoSeleccionado,
@@ -85,49 +83,6 @@ export default function SidebarPunto({
         });
     }
   }, [alturaLimnimetrica, punto.utm_norte, punto.utm_este, apiService, graphicsPuntosLoading]);
-
-  // Optimizar datos de caudal con downsampling (memoizado)
-  const caudal_por_tiempo_optimizado = useMemo(() => {
-    if (!graficosPuntosData?.caudal_por_tiempo || graficosPuntosData.caudal_por_tiempo.length === 0) return [];
-    // Solo aplicar downsampling si hay más de 400 puntos
-    return graficosPuntosData.caudal_por_tiempo.length > 400
-      ? downsampleData(graficosPuntosData.caudal_por_tiempo, 400)
-      : graficosPuntosData.caudal_por_tiempo;
-  }, [graficosPuntosData?.caudal_por_tiempo]);
-
-  // Optimizar datos de nivel freático con downsampling (memoizado)
-  const nivel_freatico_optimizado = useMemo(() => {
-    if (!datosNivelFreatico?.nivel_por_tiempo || datosNivelFreatico.nivel_por_tiempo.length === 0) return [];
-    // Solo aplicar downsampling si hay más de 400 puntos
-    return datosNivelFreatico.nivel_por_tiempo.length > 400
-      ? downsampleData(datosNivelFreatico.nivel_por_tiempo, 400)
-      : datosNivelFreatico.nivel_por_tiempo;
-  }, [datosNivelFreatico?.nivel_por_tiempo]);
-
-  // Optimizar datos de altura limnimétrica con downsampling (memoizado)
-  const altura_limnimetrica_optimizada = useMemo(() => {
-    if (!datosAlturaLimnimetrica?.altura_por_tiempo || datosAlturaLimnimetrica.altura_por_tiempo.length === 0) return [];
-    // Solo aplicar downsampling si hay más de 400 puntos
-    return datosAlturaLimnimetrica.altura_por_tiempo.length > 400
-      ? downsampleData(datosAlturaLimnimetrica.altura_por_tiempo, 400)
-      : datosAlturaLimnimetrica.altura_por_tiempo;
-  }, [datosAlturaLimnimetrica?.altura_por_tiempo]);
-
-  // Calcular rango de fechas para gráfico (memoizado)
-  const getDateRange = useCallback((data) => {
-    if (!data || data.length === 0) return null;
-    const dates = data.map(d => new Date(d.fecha_medicion));
-    const minDate = new Date(Math.min(...dates));
-    const maxDate = new Date(Math.max(...dates));
-
-    const formatDate = (date) => date.toLocaleDateString('es-CL', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }).replace('.', '');
-
-    return `${formatDate(minDate)} - ${formatDate(maxDate)}`;
-  }, []);
 
   return (
     <div
@@ -287,124 +242,35 @@ export default function SidebarPunto({
       )}
 
       {graphicsPuntosLoading === 2 && (
-        <div className="space-y-10 mt-6 border-t pt-6">
+        <div className="space-y-28 mt-6 border-t pt-6">
           <h3 className="text-lg font-semibold">Gráficos</h3>
 
+          {/* Gráfico de Caudal */}
           <div className="w-full h-[260px] md:h-80 lg:h-96">
-            <h4 className="text-sm font-semibold mb-1 text-gray-700">Caudal por tiempo</h4>
-            {caudal_por_tiempo_optimizado && caudal_por_tiempo_optimizado.length > 0 && (
-              <p className="text-xs text-gray-500 mb-2">
-                Periodo: {getDateRange(caudal_por_tiempo_optimizado)}
-              </p>
-            )}
-
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={caudal_por_tiempo_optimizado}
-                // más espacio a la izquierda para que no se corte el eje Y
-                margin={{ top: 8, right: 10, left: 5, bottom: 24 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-
-                <XAxis
-                  dataKey="fecha_medicion"
-                  tickFormatter={(str) =>
-                    new Date(str).toLocaleDateString('es-CL', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric'
-                    }).replace('.', '') // quita el punto de "sept."
-                  }
-                  minTickGap={30}
-                  tickMargin={8}
-                  tick={{ fontSize: 10 }}
-                />
-
-                <Tooltip
-                  labelFormatter={(label) =>
-                    new Date(label).toLocaleDateString('es-CL', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric'
-                    }).replace('.', '')
-                  }
-                  formatter={(value) => [`${formatNumberCL(value)} L/s`, 'Caudal']}
-                />
-
-                <YAxis
-                  // dominio limpio: 0 a 5% sobre el máx
-                  domain={[0, (dataMax) => (dataMax ?? 0) * 1.05]}
-                  // ancho reservado para que quepan bien los números
-                  width={64}
-                  tick={{ fontSize: 10 }}
-                  // formateo con miles y decimales
-                  tickFormatter={(v) => formatNumberCL(v)}
-                />
-
-                <Tooltip
-                  labelFormatter={(label) =>
-                    new Date(label).toLocaleString('es-CL')
-                  }
-                  formatter={(value) => [`${formatNumberCL(value)} L/s`, 'Caudal']}
-                />
-
-                <Line type="monotone" dataKey="caudal" stroke="#2563eb" dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+            <SingleTimeSeriesChart
+              data={graficosPuntosData.caudal_por_tiempo || []}
+              titulo="Caudal por tiempo"
+              unidad="L/s"
+              dataKey="caudal"
+              color="#2563eb"
+            />
           </div>
 
           {/* Gráfico de Nivel Freático */}
           {nivelFreatico && (
-            <div className="w-full h-[260px] md:h-80 lg:h-96 mt-10">
-              <h4 className="text-sm font-semibold mb-1 text-gray-700">Nivel Freático por tiempo</h4>
+            <div className="w-full h-[260px] md:h-80 lg:h-96">
               {loadingNivelFreatico ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
                 </div>
-              ) : nivel_freatico_optimizado && nivel_freatico_optimizado.length > 0 ? (
-                <>
-                  <p className="text-xs text-gray-500 mb-2">
-                    Periodo: {getDateRange(nivel_freatico_optimizado)}
-                  </p>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={nivel_freatico_optimizado}
-                      margin={{ top: 8, right: 10, left: 5, bottom: 24 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis
-                        dataKey="fecha_medicion"
-                        tickFormatter={(str) =>
-                          new Date(str).toLocaleDateString('es-CL', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                          }).replace('.', '')
-                        }
-                        minTickGap={30}
-                        tickMargin={8}
-                        tick={{ fontSize: 10 }}
-                      />
-                      <YAxis
-                        domain={[0, (dataMax) => (dataMax ?? 0) * 1.05]}
-                        width={64}
-                        tick={{ fontSize: 10 }}
-                        tickFormatter={(v) => formatNumberCL(v)}
-                      />
-                      <Tooltip
-                        labelFormatter={(label) =>
-                          new Date(label).toLocaleDateString('es-CL', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                          }).replace('.', '')
-                        }
-                        formatter={(value) => [`${formatNumberCL(value)} m`, 'Nivel Freático']}
-                      />
-                      <Line type="monotone" dataKey="nivel_freatico" stroke="#0891b2" dot={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </>
+              ) : datosNivelFreatico?.nivel_por_tiempo && datosNivelFreatico.nivel_por_tiempo.length > 0 ? (
+                <SingleTimeSeriesChart
+                  data={datosNivelFreatico.nivel_por_tiempo}
+                  titulo="Nivel Freático por tiempo"
+                  unidad="m"
+                  dataKey="nivel_freatico"
+                  color="#0891b2"
+                />
               ) : (
                 <p className="text-sm text-gray-500">No hay datos disponibles</p>
               )}
@@ -413,56 +279,19 @@ export default function SidebarPunto({
 
           {/* Gráfico de Altura Limnimétrica */}
           {alturaLimnimetrica && (
-            <div className="w-full h-[260px] md:h-80 lg:h-96 mt-10">
-              <h4 className="text-sm font-semibold mb-1 text-gray-700">Altura Limnimétrica por tiempo</h4>
+            <div className="w-full h-[260px] md:h-80 lg:h-96">
               {loadingAlturaLimnimetrica ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
                 </div>
-              ) : altura_limnimetrica_optimizada && altura_limnimetrica_optimizada.length > 0 ? (
-                <>
-                  <p className="text-xs text-gray-500 mb-2">
-                    Periodo: {getDateRange(altura_limnimetrica_optimizada)}
-                  </p>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={altura_limnimetrica_optimizada}
-                      margin={{ top: 8, right: 10, left: 5, bottom: 24 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis
-                        dataKey="fecha_medicion"
-                        tickFormatter={(str) =>
-                          new Date(str).toLocaleDateString('es-CL', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                          }).replace('.', '')
-                        }
-                        minTickGap={30}
-                        tickMargin={8}
-                        tick={{ fontSize: 10 }}
-                      />
-                      <YAxis
-                        domain={[0, (dataMax) => (dataMax ?? 0) * 1.05]}
-                        width={64}
-                        tick={{ fontSize: 10 }}
-                        tickFormatter={(v) => formatNumberCL(v)}
-                      />
-                      <Tooltip
-                        labelFormatter={(label) =>
-                          new Date(label).toLocaleDateString('es-CL', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                          }).replace('.', '')
-                        }
-                        formatter={(value) => [`${formatNumberCL(value)} m`, 'Altura Limnimétrica']}
-                      />
-                      <Line type="monotone" dataKey="altura_linimetrica" stroke="#FF5722" dot={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </>
+              ) : datosAlturaLimnimetrica?.altura_por_tiempo && datosAlturaLimnimetrica.altura_por_tiempo.length > 0 ? (
+                <SingleTimeSeriesChart
+                  data={datosAlturaLimnimetrica.altura_por_tiempo}
+                  titulo="Altura Limnimétrica por tiempo"
+                  unidad="m"
+                  dataKey="altura_linimetrica"
+                  color="#FF5722"
+                />
               ) : (
                 <p className="text-sm text-gray-500">No hay datos disponibles</p>
               )}

@@ -38,7 +38,14 @@ class ApiService {
 
       return await response.json();
     } catch (error) {
-      console.error(`Error en ${endpoint}:`, error);
+      // No mostrar console.error si el error es por "No se encontraron datos" (respuesta válida)
+      const isNoDataError = error.message?.includes('No se encontraron datos') ||
+                            error.response?.data?.detail?.includes('No se encontraron datos');
+
+      if (!isNoDataError) {
+        console.error(`Error en ${endpoint}:`, error);
+      }
+
       throw error;
     }
   }
