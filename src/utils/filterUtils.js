@@ -1,6 +1,15 @@
 import { FILTER_CONFIG } from '../constants/apiEndpoints.js';
 import { getNombreRegion } from '../constants/regionesChile.js';
 import { calcularFechasPredefinidas } from './fechasPredefinidas.js';
+import { validateFilterInput, validateWhitelist, validateNumber } from './sanitize.js';
+
+// Constantes de validación
+const CAUDAL_MIN_LIMIT = 0;
+const CAUDAL_MAX_LIMIT = 1000000; // 1 millón l/s como límite superior razonable
+const LIMIT_MIN = 1;
+const LIMIT_MAX = 10000; // Límite superior para prevenir sobrecarga
+const ALLOWED_POZO_VALUES = ['true', 'false', ''];
+const ALLOWED_FILTRO_NULL_VALUES = ['true', 'false'];
 
 export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOriginales) => {
   const cuencaCod = datosOriginales.find(
@@ -19,24 +28,64 @@ export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOrigin
 
   const queryParams = new URLSearchParams();
 
-  // Filtros soportados por la API
-  if (filtros.region) queryParams.append("region", filtros.region);
+  // Filtros soportados por la API con validación
 
-  if (cuencaCod !== undefined) queryParams.append("cod_cuenca", cuencaCod);
-
-  if (filtros.subcuenca === 'No registrada') {
-    queryParams.append("filtro_null_subcuenca", "true");
-  } else if (subcuencaCod !== undefined) {
-    queryParams.append("cod_subcuenca", subcuencaCod);
+  // Región: validar que sea un número
+  if (filtros.region) {
+    const regionValidada = validateNumber(filtros.region, null);
+    if (regionValidada !== null) {
+      queryParams.append("region", String(regionValidada));
+    }
   }
 
-  queryParams.append("caudal_minimo", filtroCaudal[0]);
-  queryParams.append("caudal_maximo", filtroCaudal[1]);
-  queryParams.append("limit", filtros.limit || 120);
+  if (cuencaCod !== undefined) {
+    queryParams.append("cod_cuenca", String(cuencaCod));
+  }
 
-  // Filtro de tipo de punto (pozo)
+  if (filtros.subcuenca === 'No registrada') {
+    // Validar que solo sea 'true' o 'false'
+    const filtroNullValidado = validateWhitelist('true', ALLOWED_FILTRO_NULL_VALUES, 'true');
+    queryParams.append("filtro_null_subcuenca", filtroNullValidado);
+  } else if (subcuencaCod !== undefined) {
+    queryParams.append("cod_subcuenca", String(subcuencaCod));
+  }
+
+  // Validar caudales: asegurar que estén en rangos razonables
+  const caudalMinValidado = validateFilterInput(
+    filtroCaudal[0],
+    CAUDAL_MIN_LIMIT,
+    CAUDAL_MAX_LIMIT,
+    0
+  );
+  const caudalMaxValidado = validateFilterInput(
+    filtroCaudal[1],
+    CAUDAL_MIN_LIMIT,
+    CAUDAL_MAX_LIMIT,
+    1000
+  );
+
+  queryParams.append("caudal_minimo", String(caudalMinValidado));
+  queryParams.append("caudal_maximo", String(caudalMaxValidado));
+
+  // Validar limit: asegurar que esté en rango razonable
+  const limitValidado = validateFilterInput(
+    filtros.limit || 120,
+    LIMIT_MIN,
+    LIMIT_MAX,
+    120
+  );
+  queryParams.append("limit", String(limitValidado));
+
+  // Filtro de tipo de punto (pozo) - validar contra whitelist
   if (filtros.pozo !== undefined && filtros.pozo !== "") {
-    queryParams.append("pozo", filtros.pozo);
+    const pozoValidado = validateWhitelist(
+      String(filtros.pozo),
+      ALLOWED_POZO_VALUES,
+      ''
+    );
+    if (pozoValidado !== '') {
+      queryParams.append("pozo", pozoValidado);
+    }
   }
 
   return queryParams;

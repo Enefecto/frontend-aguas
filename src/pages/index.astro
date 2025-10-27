@@ -1,7 +1,46 @@
 ---
 import "../styles/global.css";
 import Mapa from "../components/Mapa.jsx";
+
+// Validación de seguridad para API_URL
 const apiUrl = import.meta.env.API_URL;
+
+// Verificar que API_URL esté definida
+if (!apiUrl) {
+  throw new Error(
+    '❌ ERROR DE CONFIGURACIÓN: La variable de entorno API_URL no está definida. ' +
+    'Por favor, configura API_URL en tu archivo .env o en la configuración de Azure.'
+  );
+}
+
+// Validar que sea una URL válida con protocolo HTTPS
+try {
+  const url = new URL(apiUrl);
+
+  // En producción, solo permitir HTTPS
+  if (import.meta.env.PROD && url.protocol !== 'https:') {
+    throw new Error(
+      '❌ ERROR DE SEGURIDAD: La API_URL debe usar protocolo HTTPS en producción. ' +
+      `URL actual: ${apiUrl}`
+    );
+  }
+
+  // Validar que tenga un host válido
+  if (!url.host || url.host === '') {
+    throw new Error(
+      '❌ ERROR DE CONFIGURACIÓN: La API_URL no tiene un host válido. ' +
+      `URL actual: ${apiUrl}`
+    );
+  }
+} catch (error) {
+  if (error instanceof TypeError) {
+    throw new Error(
+      `❌ ERROR DE CONFIGURACIÓN: La API_URL no es una URL válida. ` +
+      `Valor actual: ${apiUrl}. Error: ${error.message}`
+    );
+  }
+  throw error;
+}
 ---
 
 <html lang="es">

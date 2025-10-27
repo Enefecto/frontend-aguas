@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
+import { sanitizeHTML, validateColor } from '../../utils/sanitize.js';
 
 export function Legend({
   colores = { subterraneo: '#FF5722', extraccion: '#2E7BCC', sinClasificar: '#9CA3AF' },
@@ -14,7 +15,7 @@ export function Legend({
     ctl.onAdd = () => {
       const div = L.DomUtil.create('div', 'custom-legend');
 
-      // estilos tipo “card”
+      // estilos tipo "card"
       Object.assign(div.style, {
         background: '#ffffff',
         border: '1px solid #e5e7eb',
@@ -33,7 +34,11 @@ export function Legend({
       // evita propagar eventos al mapa
       L.DomEvent.disableClickPropagation(div);
 
-      div.innerHTML = `
+      // Validar colores antes de usar en HTML
+      const safeSubterraneo = validateColor(colores.subterraneo, '#FF5722');
+      const safeExtraccion = validateColor(colores.extraccion, '#2E7BCC');
+
+      const htmlContent = `
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:700;">
           <span>Leyenda</span>
         </div>
@@ -42,7 +47,7 @@ export function Legend({
         <div style="display:flex;align-items:center;gap:8px;margin:6px 0;">
           <svg width="18" height="18" viewBox="0 0 28 36" aria-hidden="true">
             <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
-                  fill="${colores.subterraneo}" stroke="white" stroke-width="1.1"/>
+                  fill="${safeSubterraneo}" stroke="white" stroke-width="1.1"/>
           </svg>
           <span>Extracción subterránea</span>
         </div>
@@ -50,12 +55,14 @@ export function Legend({
         <div style="display:flex;align-items:center;gap:8px;margin:6px 0;">
           <svg width="18" height="18" viewBox="0 0 28 36" aria-hidden="true">
             <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
-                  fill="${colores.extraccion}" stroke="white" stroke-width="1.1"/>
+                  fill="${safeExtraccion}" stroke="white" stroke-width="1.1"/>
           </svg>
           <span>Extracción superficial</span>
         </div>
-
       `;
+
+      // Sanitizar HTML antes de inyectar
+      div.innerHTML = sanitizeHTML(htmlContent);
 
       return div;
     };

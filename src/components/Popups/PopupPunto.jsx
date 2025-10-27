@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { formatNumberCL } from "../../utils/formatNumberCL";
 import { getPuntoTypeLabel } from "../../utils/mapUtils";
+import { sanitizeText, safeFormatNumber } from "../../utils/sanitize";
 
 // Caché global para evitar peticiones duplicadas
 const puntoInfoCache = new Map();
@@ -62,13 +63,19 @@ export const PopupPunto = ({punto, handleShowSidebarCuencas, handleShowSidebarSu
   }
 
   // Determinar si la subcuenca tiene registro o no
-  const subcuencaNombre = puntoInfo.nombre_subcuenca || 'Sin registro';
+  const subcuencaNombre = sanitizeText(puntoInfo.nombre_subcuenca) || 'Sin registro';
   const subcuencaCodigo = puntoInfo.cod_subcuenca || 'sin_registro';
+
+  // Sanitizar y validar datos antes de renderizar
+  const safeCuencaNombre = sanitizeText(puntoInfo.nombre_cuenca);
+  const safeTipo = sanitizeText(getPuntoTypeLabel(puntoInfo));
+  const safeCaudalPromedio = safeFormatNumber(puntoInfo.caudal_promedio, 'es-CL', 'N/A');
+  const safeMediciones = safeFormatNumber(puntoInfo.n_mediciones, 'es-CL', '0');
 
   return (
     <div className="text-sm flex flex-col justify-between items-start gap-2" style={{ minWidth: '280px' }}>
       <p className='flex gap-2 flex-wrap'>
-        <strong>Cuenca:</strong> {puntoInfo.nombre_cuenca}
+        <strong>Cuenca:</strong> {safeCuencaNombre}
         <span
           onClick={() => handleShowSidebarCuencas(puntoInfo.nombre_cuenca, puntoInfo.cod_cuenca)}
           className='cuenca-analizar'
@@ -85,9 +92,9 @@ export const PopupPunto = ({punto, handleShowSidebarCuencas, handleShowSidebarSu
           (Ver Detalles)
         </span>
       </p>
-      <p><strong>Tipo:</strong> {getPuntoTypeLabel(puntoInfo)}</p>
-      <p><strong>Caudal promedio:</strong> {puntoInfo.caudal_promedio?.toLocaleString() || 'N/A'} (L/s)</p>
-      <p><strong>Nº de Mediciones:</strong> {formatNumberCL(puntoInfo.n_mediciones)}</p>
+      <p><strong>Tipo:</strong> {safeTipo}</p>
+      <p><strong>Caudal promedio:</strong> {safeCaudalPromedio} (L/s)</p>
+      <p><strong>Nº de Mediciones:</strong> {safeMediciones}</p>
       <button
         className='bg-cyan-800 text-white p-2 cursor-pointer hover:bg-cyan-600 w-full mt-2'
         onClick={() => handleShowSidebarPunto({...punto, ...puntoInfo})}
