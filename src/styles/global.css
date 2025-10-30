@@ -27,8 +27,8 @@
 /* Optimización para móviles */
 @media (max-width: 768px) {
   .custom-legend {
-    margin-bottom: 30px !important;
-    margin-right: 5px !important;
+    margin-bottom: 80px !important;
+    margin-right: 8px !important;
     max-height: 120px !important;
     overflow: visible !important;
   }
@@ -65,7 +65,7 @@
 
   /* Asegurar que la leyenda tenga espacio suficiente */
   .leaflet-bottom.leaflet-right .custom-legend {
-    margin-bottom: 25px !important;
+    margin-bottom: 80px !important;
   }
 }
 
