@@ -11,6 +11,19 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: undefined,
+        },
+      },
+    },
+    optimizeDeps: {
+      include: ['leaflet', 'leaflet-draw'],
+    },
+    ssr: {
+      noExternal: ['leaflet', 'leaflet-draw', 'react-leaflet-draw'],
+    },
     server: {
       headers: {
         // Prevenir clickjacking

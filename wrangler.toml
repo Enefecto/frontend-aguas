@@ -1,0 +1,6 @@
+name = "frontend-aguas"
+compatibility_date = "2025-10-30"
+
+# Para sitios estáticos generados con Astro, usamos la configuración de assets
+[assets]
+directory = "./dist"
