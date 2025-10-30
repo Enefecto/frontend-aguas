@@ -27,9 +27,21 @@ export function Legend({
         lineHeight: '1.25',
         minWidth: '190px',
         userSelect: 'none',
+        zIndex: '1000',
       });
 
       div.style.fontFamily = getComputedStyle(document.body).fontFamily;
+
+      // Ajustes responsivos para móviles
+      const isMobile = window.matchMedia('(max-width: 768px)').matches;
+      if (isMobile) {
+        Object.assign(div.style, {
+          fontSize: '11px',
+          padding: '8px 10px',
+          minWidth: '170px',
+          maxWidth: '180px',
+        });
+      }
 
       // evita propagar eventos al mapa
       L.DomEvent.disableClickPropagation(div);
@@ -38,22 +50,26 @@ export function Legend({
       const safeSubterraneo = validateColor(colores.subterraneo, '#FF5722');
       const safeExtraccion = validateColor(colores.extraccion, '#2E7BCC');
 
+      const iconSize = isMobile ? '14' : '18';
+      const gapSize = isMobile ? '6px' : '8px';
+      const marginSize = isMobile ? '4px' : '6px';
+
       const htmlContent = `
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:700;">
+        <div style="display:flex;align-items:center;gap:${gapSize};margin-bottom:${marginSize};font-weight:700;">
           <span>Leyenda</span>
         </div>
 
-        <hr/>
-        <div style="display:flex;align-items:center;gap:8px;margin:6px 0;">
-          <svg width="18" height="18" viewBox="0 0 28 36" aria-hidden="true">
+        <hr style="margin:${marginSize} 0;"/>
+        <div style="display:flex;align-items:center;gap:${gapSize};margin:${marginSize} 0;">
+          <svg width="${iconSize}" height="${iconSize}" viewBox="0 0 28 36" aria-hidden="true">
             <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
                   fill="${safeSubterraneo}" stroke="white" stroke-width="1.1"/>
           </svg>
           <span>Extracción subterránea</span>
         </div>
 
-        <div style="display:flex;align-items:center;gap:8px;margin:6px 0;">
-          <svg width="18" height="18" viewBox="0 0 28 36" aria-hidden="true">
+        <div style="display:flex;align-items:center;gap:${gapSize};margin:${marginSize} 0;">
+          <svg width="${iconSize}" height="${iconSize}" viewBox="0 0 28 36" aria-hidden="true">
             <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
                   fill="${safeExtraccion}" stroke="white" stroke-width="1.1"/>
           </svg>

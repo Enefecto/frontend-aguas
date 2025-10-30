@@ -9,6 +9,54 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Asegurar que la leyenda esté por encima de la atribución */
+.custom-legend {
+  z-index: 1000 !important;
+  margin-bottom: 5px !important;
+}
+
+/* Ajustar la atribución de Leaflet para que no se solape */
+.leaflet-control-attribution {
+  font-size: 10px !important;
+  max-width: 100% !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  padding: 2px 5px !important;
+  line-height: 1.2 !important;
+}
+
+/* Optimización para móviles */
+@media (max-width: 768px) {
+  .custom-legend {
+    margin-bottom: 3px !important;
+    margin-right: 3px !important;
+  }
+
+  .leaflet-control-attribution {
+    font-size: 8px !important;
+    padding: 1px 3px !important;
+    margin-right: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Ocultar atribución en móviles si es necesario */
+  .leaflet-control-attribution {
+    display: block !important;
+    max-width: calc(100vw - 20px) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* Asegurar que la leyenda no se solape con los controles */
+  .leaflet-bottom.leaflet-right {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 5px !important;
+    padding-bottom: 5px !important;
+  }
+}
+
 .map-altura {
   height: 100vh;
 }
