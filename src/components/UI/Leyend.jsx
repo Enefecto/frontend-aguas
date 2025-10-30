@@ -36,10 +36,12 @@ export function Legend({
       const isMobile = window.matchMedia('(max-width: 768px)').matches;
       if (isMobile) {
         Object.assign(div.style, {
-          fontSize: '11px',
-          padding: '8px 10px',
-          minWidth: '170px',
-          maxWidth: '180px',
+          fontSize: '10px',
+          padding: '6px 8px',
+          minWidth: '160px',
+          maxWidth: '170px',
+          borderRadius: '8px',
+          lineHeight: '1.2',
         });
       }
 
@@ -50,9 +52,9 @@ export function Legend({
       const safeSubterraneo = validateColor(colores.subterraneo, '#FF5722');
       const safeExtraccion = validateColor(colores.extraccion, '#2E7BCC');
 
-      const iconSize = isMobile ? '14' : '18';
-      const gapSize = isMobile ? '6px' : '8px';
-      const marginSize = isMobile ? '4px' : '6px';
+      const iconSize = isMobile ? '12' : '18';
+      const gapSize = isMobile ? '5px' : '8px';
+      const marginSize = isMobile ? '3px' : '6px';
 
       const htmlContent = `
         <div style="display:flex;align-items:center;gap:${gapSize};margin-bottom:${marginSize};font-weight:700;">
