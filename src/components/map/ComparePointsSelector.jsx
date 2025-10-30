@@ -35,7 +35,7 @@ export const ComparePointsSelector = ({ selectedPoints, onPointSelect, onCompare
   return (
     <div
       ref={containerRef}
-      className="absolute right-4 z-[1100] max-h-[700px]:top-[180px]"
+      className="absolute right-4 z-[999] max-h-[700px]:top-[180px]"
       style={{top: '380px', right: '4px'}}
     >
       {/* Botón compacto inicial */}

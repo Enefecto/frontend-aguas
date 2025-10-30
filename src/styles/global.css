@@ -72,6 +72,20 @@
 .map-altura {
   height: 100vh;
 }
+
+/* Asegurar que el sidebar de filtros contenga todo el contenido correctamente */
+.leaflet-container {
+  overflow: hidden !important;
+}
+
+/* En móviles, asegurar que el sidebar cubra completamente y no se vea nada por los lados */
+@media (max-width: 640px) {
+  /* Sidebar de filtros en móviles */
+  .absolute.left-0.top-0.bg-white.shadow-md {
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
+}
 .leaflet-draw {
   z-index: 10000 !important;
 }

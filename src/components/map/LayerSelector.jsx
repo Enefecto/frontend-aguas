@@ -50,7 +50,7 @@ export const LayerSelector = ({ currentLayer, onLayerChange }) => {
   return (
     <div
       ref={containerRef}
-      className="absolute right-4 z-[1100] max-h-[700px]:top-[120px]"
+      className="absolute right-4 z-[999] max-h-[700px]:top-[120px]"
       style={{top: '320px', right: '4px'}}
     >
       {/* Botón compacto inicial */}
