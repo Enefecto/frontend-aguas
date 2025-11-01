@@ -54,11 +54,14 @@ export default function SidebarFiltros({
     <div
       className={`absolute left-0 top-0 z-[${UI_CONFIG.Z_INDEX.SIDEBAR}] bg-white shadow-2xl h-full
         w-screen sm:w-100 max-w-full sm:max-w-none transform transition-transform duration-${UI_CONFIG.ANIMATIONS.SIDEBAR_TRANSITION} ease-in-out
-        flex flex-col
+        grid
         ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+      style={{
+        gridTemplateRows: '1fr auto'
+      }}
     >
       {/* Contenido scrolleable */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pt-8 px-4 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm pb-4">
+      <div className="overflow-y-auto overflow-x-hidden pt-8 px-4 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm pb-4">
         <ButtonOpenCloseSidebar
           toggleSidebar={setSidebarAbierto}
           isFiltrosSidebar={true}
@@ -124,7 +127,7 @@ export default function SidebarFiltros({
       </div>
 
       {/* Footer sticky siempre visible al final */}
-      <div className="flex-shrink-0 w-full bg-white border-t p-3 sm:p-4 space-y-2 sm:space-y-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] pb-8">
+      <div className="w-full bg-white border-t p-3 sm:p-4 space-y-2 sm:space-y-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] pb-6 safe-area-inset-bottom">
         <div className="flex justify-center">
           <StatusButton
             onClick={handleConsultarClick}
