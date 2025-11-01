@@ -11,6 +11,29 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: undefined,
+        },
+        onwarn(warning, warn) {
+          // Ignorar advertencias específicas de leaflet-draw
+          if (warning.code === 'MISSING_EXPORT' && warning.exporter?.includes('leaflet-draw')) {
+            return;
+          }
+          warn(warning);
+        },
+      },
+    },
+    optimizeDeps: {
+      include: ['leaflet', 'leaflet-draw'],
+      esbuildOptions: {
+        target: 'es2020',
+      },
+    },
+    ssr: {
+      noExternal: ['leaflet', 'leaflet-draw', 'react-leaflet-draw'],
+    },
     server: {
       headers: {
         // Prevenir clickjacking

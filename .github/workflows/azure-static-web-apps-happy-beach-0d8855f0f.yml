@@ -53,8 +53,11 @@ jobs:
           skip_app_build: false
         env:
           # Variables de entorno para el proceso de build
-          # Agrega aquí las variables que necesites durante el build
           NODE_ENV: production
+          # Variable pública de API - requerida por Astro
+          PUBLIC_API_URL: ${{ secrets.PUBLIC_API_URL }}
+          # Forzar la versión de Node.js que ya está configurada
+          NODE_VERSION: '20'
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
