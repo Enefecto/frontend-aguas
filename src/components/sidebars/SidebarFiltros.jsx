@@ -52,75 +52,79 @@ export default function SidebarFiltros({
 
   return (
     <div
-      className={`absolute left-0 top-0 z-[${UI_CONFIG.Z_INDEX.SIDEBAR}] bg-white shadow-2xl pt-8 px-4 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm h-full
-        w-screen sm:w-100 max-w-full sm:max-w-none max-h-screen overflow-y-auto overflow-x-hidden transform transition-transform duration-${UI_CONFIG.ANIMATIONS.SIDEBAR_TRANSITION} ease-in-out
-        pb-[180px] sm:pb-0
+      className={`absolute left-0 top-0 z-[${UI_CONFIG.Z_INDEX.SIDEBAR}] bg-white shadow-2xl h-full
+        w-screen sm:w-100 max-w-full sm:max-w-none transform transition-transform duration-${UI_CONFIG.ANIMATIONS.SIDEBAR_TRANSITION} ease-in-out
+        flex flex-col
         ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
-      <ButtonOpenCloseSidebar
-        toggleSidebar={setSidebarAbierto}
-        isFiltrosSidebar={true}
-        setIsOpen={setIsOpen}
-      />
+      {/* Contenido scrolleable */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pt-8 px-4 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm pb-4">
+        <ButtonOpenCloseSidebar
+          toggleSidebar={setSidebarAbierto}
+          isFiltrosSidebar={true}
+          setIsOpen={setIsOpen}
+        />
 
-      <h2 className="text-lg font-bold mb-4">Filtros</h2>
+        <h2 className="text-lg font-bold mb-4">Filtros</h2>
 
-      <RegionFilter
-        filtros={filtros}
-        handleFiltroChange={handleFiltroChange}
-        regionesUnicas={regionesUnicas}
-      />
+        <RegionFilter
+          filtros={filtros}
+          handleFiltroChange={handleFiltroChange}
+          regionesUnicas={regionesUnicas}
+        />
 
-      <CuencaFilter
-        filtros={filtros}
-        handleFiltroChange={handleFiltroChange}
-        cuencasUnicas={cuencasUnicas}
-      />
+        <CuencaFilter
+          filtros={filtros}
+          handleFiltroChange={handleFiltroChange}
+          cuencasUnicas={cuencasUnicas}
+        />
 
-      <SubcuencaFilter
-        filtros={filtros}
-        handleFiltroChange={handleFiltroChange}
-        subcuencasUnicas={subcuencasUnicas}
-      />
+        <SubcuencaFilter
+          filtros={filtros}
+          handleFiltroChange={handleFiltroChange}
+          subcuencasUnicas={subcuencasUnicas}
+        />
 
-      <LimitFilter
-        filtros={filtros}
-        setFiltros={setFiltros}
-        limitMax={limitMax}
-      />
+        <LimitFilter
+          filtros={filtros}
+          setFiltros={setFiltros}
+          limitMax={limitMax}
+        />
 
-      <CaudalFilter
-        filtroCaudal={filtroCaudal}
-        setFiltroCaudal={setFiltroCaudal}
-        min={min}
-        max={max}
-      />
+        <CaudalFilter
+          filtroCaudal={filtroCaudal}
+          setFiltroCaudal={setFiltroCaudal}
+          min={min}
+          max={max}
+        />
 
-      <OrdenCaudalFilter
-        ordenCaudal={ordenCaudal}
-        setOrdenCaudal={setOrdenCaudal}
-      />
+        <OrdenCaudalFilter
+          ordenCaudal={ordenCaudal}
+          setOrdenCaudal={setOrdenCaudal}
+        />
 
-      <TipoPuntoFilter
-        filtros={filtros}
-        handleFiltroChange={handleFiltroChange}
-      />
+        <TipoPuntoFilter
+          filtros={filtros}
+          handleFiltroChange={handleFiltroChange}
+        />
 
-      <div className="mt-2 border-t pt-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-slate-700">Agrupar puntos</span>
-          <CustomSwitch
-            checked={agrupar}
-            onChange={(e) => setAgrupar(e.target.checked)}
-            inputProps={{ 'aria-label': 'Agrupar puntos' }}
-          />
+        <div className="mt-2 border-t pt-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-slate-700">Agrupar puntos</span>
+            <CustomSwitch
+              checked={agrupar}
+              onChange={(e) => setAgrupar(e.target.checked)}
+              inputProps={{ 'aria-label': 'Agrupar puntos' }}
+            />
+          </div>
+          <p className="text-xs text-slate-500 mt-1">
+            Combina marcadores cercanos para mejorar el rendimiento visual.
+          </p>
         </div>
-        <p className="text-xs text-slate-500 mt-1">
-          Combina marcadores cercanos para mejorar el rendimiento visual.
-        </p>
       </div>
 
-      <div className="sticky bottom-0 left-0 right-0 w-full bg-white border-t p-3 sm:p-4 space-y-2 sm:space-y-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] -mx-4 sm:mx-0 px-4 sm:px-0">
+      {/* Footer sticky siempre visible al final */}
+      <div className="flex-shrink-0 w-full bg-white border-t p-3 sm:p-4 space-y-2 sm:space-y-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
         <div className="flex justify-center">
           <StatusButton
             onClick={handleConsultarClick}
