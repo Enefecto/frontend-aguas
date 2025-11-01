@@ -116,5 +116,6 @@ Sistema de filtrado complejo con dependencias en cascada:
 
 ### Configuración de Entorno
 
-- URL de API configurada vía archivo `.env` con variable `API_URL`
-- Accedida en componentes Astro vía `import.meta.env.API_URL`
+- URL de API configurada vía archivo `.env` con variable `PUBLIC_API_URL`
+- Accedida en componentes Astro vía `import.meta.env.PUBLIC_API_URL`
+- **Importante**: Las variables de entorno públicas en Astro deben tener el prefijo `PUBLIC_` para estar disponibles en el cliente

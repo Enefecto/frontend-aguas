@@ -2,14 +2,14 @@
 import "../styles/global.css";
 import Mapa from "../components/Mapa.jsx";
 
-// Validación de seguridad para API_URL
-const apiUrl = import.meta.env.API_URL;
+// Validación de seguridad para PUBLIC_API_URL
+const apiUrl = import.meta.env.PUBLIC_API_URL;
 
-// Verificar que API_URL esté definida
+// Verificar que PUBLIC_API_URL esté definida
 if (!apiUrl) {
   throw new Error(
-    '❌ ERROR DE CONFIGURACIÓN: La variable de entorno API_URL no está definida. ' +
-    'Por favor, configura API_URL en tu archivo .env o en la configuración de Azure.'
+    '❌ ERROR DE CONFIGURACIÓN: La variable de entorno PUBLIC_API_URL no está definida. ' +
+    'Por favor, configura PUBLIC_API_URL en tu archivo .env o en la configuración de despliegue.'
   );
 }
 
@@ -20,7 +20,7 @@ try {
   // En producción, solo permitir HTTPS
   if (import.meta.env.PROD && url.protocol !== 'https:') {
     throw new Error(
-      '❌ ERROR DE SEGURIDAD: La API_URL debe usar protocolo HTTPS en producción. ' +
+      '❌ ERROR DE SEGURIDAD: La PUBLIC_API_URL debe usar protocolo HTTPS en producción. ' +
       `URL actual: ${apiUrl}`
     );
   }
@@ -28,14 +28,14 @@ try {
   // Validar que tenga un host válido
   if (!url.host || url.host === '') {
     throw new Error(
-      '❌ ERROR DE CONFIGURACIÓN: La API_URL no tiene un host válido. ' +
+      '❌ ERROR DE CONFIGURACIÓN: La PUBLIC_API_URL no tiene un host válido. ' +
       `URL actual: ${apiUrl}`
     );
   }
 } catch (error) {
   if (error instanceof TypeError) {
     throw new Error(
-      `❌ ERROR DE CONFIGURACIÓN: La API_URL no es una URL válida. ` +
+      `❌ ERROR DE CONFIGURACIÓN: La PUBLIC_API_URL no es una URL válida. ` +
       `Valor actual: ${apiUrl}. Error: ${error.message}`
     );
   }
