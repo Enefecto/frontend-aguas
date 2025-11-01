@@ -124,7 +124,7 @@ export default function SidebarFiltros({
       </div>
 
       {/* Footer sticky siempre visible al final */}
-      <div className="flex-shrink-0 w-full bg-white border-t p-3 sm:p-4 space-y-2 sm:space-y-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+      <div className="flex-shrink-0 w-full bg-white border-t p-3 sm:p-4 space-y-2 sm:space-y-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] min-h-[120px] sm:min-h-[140px]">
         <div className="flex justify-center">
           <StatusButton
             onClick={handleConsultarClick}
