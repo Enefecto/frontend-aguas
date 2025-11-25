@@ -56,84 +56,89 @@ La aplicación utiliza una **arquitectura de capas modular** que separa responsa
 ### Arquitectura de Componentes
 
 ```mermaid
-graph TB
-    subgraph "Astro Layer"
-        A[index.astro]
-    end
+┌──────────────────────────────────────────────────────────────┐
+│                        Astro Layer                            │
+│                   index.astro (Entry)                         │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+┌───────────────────────────▼───────────────────────────────────┐
+│                         React App                             │
+│                   (Client-Side Rendering)                     │
+│                                                              │
+│   Mapa.jsx                                                    │
+│   ┌────────────────────────────────────────────────────────┐  │
+│   │                    MapProvider (Context)               │  │
+│   │                                                        │  │
+│   │   ┌──────────────────────────────────────────────────┐ │  │
+│   │   │               Custom Hooks Layer                 │ │  │
+│   │   │  - useMapData                                   │ │  │
+│   │   │  - useFilterLogic                               │ │  │
+│   │   │  - useSidebarState                              │ │  │
+│   │   │  - useAnalysisData                              │ │  │
+│   │   └──────────────────────────────────────────────────┘ │  │
+│   │                                                        │  │
+│   │   ┌──────────────────────────────────────────────────┐ │  │
+│   │   │                Main Components                   │ │  │
+│   │   │  - MapContainer                                  │ │  │
+│   │   │  - SidebarManager                                │ │  │
+│   │   │  - ComparePoints                                 │ │  │
+│   │   └──────────────────────────────────────────────────┘ │  │
+│   │                                                        │  │
+│   │   ┌──────────────────────────────────────────────────┐ │  │
+│   │   │                Map Components                    │ │  │
+│   │   │  - MarkerLayer                                   │ │  │
+│   │   │  - CuencasLayer                                  │ │  │
+│   │   │  - ToolsEditControl                              │ │  │
+│   │   └──────────────────────────────────────────────────┘ │  │
+│   │                                                        │  │
+│   │   ┌──────────────────────────────────────────────────┐ │  │
+│   │   │                Sidebar Components                │ │  │
+│   │   │  - SidebarFiltros                                │ │  │
+│   │   │  - SidebarCuenca                                 │ │  │
+│   │   │  - SidebarSubcuenca                              │ │  │
+│   │   │  - SidebarPunto                                  │ │  │
+│   │   └──────────────────────────────────────────────────┘ │  │
+│   └────────────────────────────────────────────────────────┘  │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+┌───────────────────────────▼───────────────────────────────────┐
+│                           Services                            │
+│                       - ApiService                            │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+┌───────────────────────────▼───────────────────────────────────┐
+│                   Utils & Constants                           │
+│                - filterUtils                                  │
+│                - mapUtils                                     │
+│                - constants                                    │
+└───────────────────────────────────────────────────────────────┘
 
-    subgraph "React App"
-        B[Mapa.jsx]
-        C[MapProvider]
-        D[MapaContent]
-
-        subgraph "Custom Hooks"
-            H1[useMapData]
-            H2[useFilterLogic]
-            H3[useSidebarState]
-            H4[useAnalysisData]
-        end
-
-        subgraph "Main Components"
-            E[MapContainer]
-            F[SidebarManager]
-            G[ComparePoints]
-        end
-
-        subgraph "Map Components"
-            M1[MarkerLayer]
-            M2[CuencasLayer]
-            M3[ToolsEditControl]
-        end
-
-        subgraph "Sidebar Components"
-            S1[SidebarFiltros]
-            S2[SidebarCuenca]
-            S3[SidebarSubcuenca]
-            S4[SidebarPunto]
-        end
-    end
-
-    subgraph "Services"
-        I[ApiService]
-    end
-
-    subgraph "Utils & Constants"
-        J[filterUtils]
-        K[mapUtils]
-        L[constants]
-    end
-
-    A --> B
-    B --> C
-    C --> H1 & H2 & H3 & H4
-    C --> D
-    D --> E & F & G
-    E --> M1 & M2 & M3
-    F --> S1 & S2 & S3 & S4
-    H1 --> I
-    H2 --> J
-    E --> K
-    I --> L
 ```
 
 ### Flujo de Estado con Context API
 
 ```mermaid
-graph LR
-    subgraph "MapContext Provider"
-        A[useMapData] --> |datos originales| B[Estado Global]
-        C[useFilterLogic] --> |filtros| B
-        D[useSidebarState] --> |UI state| B
-        E[useAnalysisData] --> |análisis| B
-    end
-
-    B --> |consume| F[MapaContent]
-    B --> |consume| G[MapContainer]
-    B --> |consume| H[SidebarManager]
-
-    F --> |acciones| B
-    G --> |acciones| B
-    H --> |acciones| B
+┌───────────────────────────────────────────────┐
+│             MapContext Provider                │
+│                                               │
+│   useMapData ----------→ (Estado Global) ←--------- useFilterLogic
+│        │                                          
+│        └────────→ useSidebarState                 
+│        └────────→ useAnalysisData                 
+└───────────────────────────┬───────────────────────┘
+                            │
+              ┌─────────────▼─────────────────┐
+              │    Componentes Consumidores    │
+              │                                │
+              │  - MapaContent                 │
+              │  - MapContainer                │
+              │  - SidebarManager              │
+              └─────────────┬─────────────────┘
+                            │
+                  ┌─────────▼─────────┐
+                  │    Acciones        │
+                  │   (update state)   │
+                  └────────────────────┘
 ```
 
 ## Estructura de Carpetas
@@ -265,80 +270,193 @@ Funciones puras reutilizables para:
 ### 1. Inicialización de la Aplicación
 
 ```mermaid
-sequenceDiagram
-    participant User
-    participant Astro
-    participant Mapa
-    participant MapProvider
-    participant useMapData
-    participant ApiService
-    participant Backend
+┌──────────────────────────────────────────────────────────────┐
+│                              User                             │
+│                 Accede a la aplicación web                    │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                             Astro                             │
+│  - Valida PUBLIC_API_URL                                      │
+│  - Renderiza Mapa.jsx con client:only="react"                 │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                            Mapa.jsx                           │
+│             Inicializa el árbol de componentes React          │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                         MapProvider                           │
+│                Crea y expone el contexto global               │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                          useMapData                           │
+│            Hook responsable de solicitar los datos            │
+└───────────────────────────┬───────────────────────────────────┘
+                            │ Instancia ApiService
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                          ApiService                           │
+│       GET /cuencas                                           │
+│       GET /cuencas/stats                                     │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                           Backend                             │
+│      Devuelve datos de cuencas y estadísticas agrupadas       │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                          useMapData                           │
+│    Procesa respuestas y devuelve el estado listo              │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                         MapProvider                           │
+│               Construye el contexto inicial global            │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                           Mapa.jsx                            │
+│                  Renderiza el mapa con datos                  │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                              User                             │
+│                     Ve el mapa completamente cargado          │
+└──────────────────────────────────────────────────────────────┘
 
-    User->>Astro: Accede a la app
-    Astro->>Astro: Valida PUBLIC_API_URL
-    Astro->>Mapa: Renderiza con client:only="react"
-    Mapa->>MapProvider: Inicializa contexto
-    MapProvider->>useMapData: Hook de datos
-    useMapData->>ApiService: Instancia servicio
-    ApiService->>Backend: GET /cuencas
-    Backend-->>ApiService: Datos de cuencas
-    ApiService->>Backend: GET /cuencas/stats
-    Backend-->>ApiService: Estadísticas
-    ApiService-->>useMapData: Datos
-    useMapData-->>MapProvider: Estado inicial
-    MapProvider-->>Mapa: Contexto listo
-    Mapa->>User: Renderiza mapa
 ```
 
 ### 2. Flujo de Filtrado
 
 ```mermaid
-sequenceDiagram
-    participant User
-    participant SidebarFiltros
-    participant useFilterLogic
-    participant ApiService
-    participant Backend
-    participant MapContainer
+┌──────────────────────────────────────────────────────────────┐
+│                              User                             │
+│                   Cambia filtro (ej: región)                  │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                        SidebarFiltros                         │
+│                 handleFiltroChange()                          │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                        useFilterLogic                         │
+│   - Actualiza estado de filtros                               │
+│   - Recalcula opciones disponibles                            │
+│   - Solicita puntos con filtros                               │
+└───────────────────────────┬───────────────────────────────────┘
+                            │ getPuntos(queryParams)
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                          ApiService                           │
+│                GET /puntos?filters=...                        │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                            Backend                            │
+│                Devuelve puntos filtrados                      │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                        useFilterLogic                         │
+│         - Actualiza estado global de filtros                  │
+│         - Retorna nuevas opciones y nuevos puntos             │
+└───────────────────────────┬───────────────────────────────────┘
+            │                                │
+            ▼                                ▼
+┌──────────────────────────────────────┐   ┌────────────────────┐
+│          SidebarFiltros              │   │    MapContainer     │
+│   Muestra nuevas opciones de filtro  │   │  Re-renderiza mapa  │
+└──────────────────────────────────────┘   └────────────────────┘
 
-    User->>SidebarFiltros: Cambia filtro (ej: región)
-    SidebarFiltros->>useFilterLogic: handleFiltroChange()
-    useFilterLogic->>useFilterLogic: Actualiza estado filtros
-    useFilterLogic->>useFilterLogic: Recalcula opciones disponibles
-    useFilterLogic->>ApiService: getPuntos(queryParams)
-    ApiService->>Backend: GET /puntos?filters...
-    Backend-->>ApiService: Puntos filtrados
-    ApiService-->>useFilterLogic: Datos
-    useFilterLogic->>useFilterLogic: Actualiza estado global
-    useFilterLogic-->>SidebarFiltros: Nuevas opciones
-    useFilterLogic-->>MapContainer: Nuevos puntos
-    MapContainer->>User: Re-renderiza marcadores
 ```
 
 ### 3. Flujo de Análisis de Cuenca
 
 ```mermaid
-sequenceDiagram
-    participant User
-    participant MapContainer
-    participant useAnalysisData
-    participant ApiService
-    participant Backend
-    participant SidebarCuenca
+┌──────────────────────────────────────────────────────────────┐
+│                              User                             │
+│                    Click en una cuenca del mapa              │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                        MapContainer                           │
+│     loadCuencaAnalysis(nombre, codigo)                        │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                       useAnalysisData                         │
+│   - Activa loading                                            │
+│   - Solicita análisis de caudal                               │
+└───────────────────────────┬───────────────────────────────────┘
+                            │ getCuencaAnalisisCaudal()
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                          ApiService                           │
+│        GET /cuencas/analisis_caudal?params...                 │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                            Backend                            │
+│            Devuelve estadísticas de caudal                    │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                       useAnalysisData                         │
+│          Recibe caudal → solicita análisis de informantes    │
+└───────────────────────────┬───────────────────────────────────┘
+                            │ getCuencaAnalisisInformantes()
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                          ApiService                           │
+│       GET /cuencas/analisis_informantes?params...             │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                            Backend                            │
+│               Devuelve datos de informantes                   │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                       useAnalysisData                         │
+│      Compila datos y finaliza estado (loading:false)          │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                         SidebarCuenca                         │
+│      Renderiza estadísticas, gráficos y análisis              │
+└───────────────────────────┬───────────────────────────────────┘
+                            │
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                              User                             │
+│          Visualiza gráficos e información de la cuenca        │
+└──────────────────────────────────────────────────────────────┘
 
-    User->>MapContainer: Click en cuenca
-    MapContainer->>useAnalysisData: loadCuencaAnalysis(nombre, codigo)
-    useAnalysisData->>useAnalysisData: Actualiza loading state
-    useAnalysisData->>ApiService: getCuencaAnalisisCaudal()
-    ApiService->>Backend: GET /cuencas/analisis_caudal?...
-    Backend-->>ApiService: Estadísticas de caudal
-    ApiService-->>useAnalysisData: Datos
-    useAnalysisData->>ApiService: getCuencaAnalisisInformantes()
-    ApiService->>Backend: GET /cuencas/analisis_informantes?...
-    Backend-->>ApiService: Datos de informantes
-    ApiService-->>useAnalysisData: Datos
-    useAnalysisData-->>SidebarCuenca: Renderiza análisis
-    SidebarCuenca->>User: Muestra estadísticas y gráficos
 ```
 
 ## Patrones de Diseño
@@ -559,20 +677,42 @@ class ApiService {
 ## Diagrama de Dependencias
 
 ```mermaid
-graph TD
-    A[Astro] --> B[React]
-    B --> C[React Leaflet]
-    C --> D[Leaflet]
-    B --> E[Material-UI]
-    B --> F[Chart.js / Recharts]
-    B --> G[Tailwind CSS]
+┌───────────────────────────────────────────────┐
+│                    Astro                       │
+└───────────────────────────┬────────────────────┘
+                            │
+                            ▼
+┌───────────────────────────────────────────────┐
+│                    React                       │
+│                                                │
+│  - React Leaflet                                │
+│  - Material UI                                   │
+│  - Chart.js / Recharts                           │
+│  - Tailwind CSS                                  │
+└───────────────┬────────────────────────────────┘
+                │
+                ▼
+┌───────────────────────────────────────────────┐
+│                 React Leaflet                  │
+└───────────────┬────────────────────────────────┘
+                │
+                ▼
+┌───────────────────────────────────────────────┐
+│                    Leaflet                     │
+│     - Leaflet Draw                             │
+│     - Leaflet MarkerCluster                    │
+└────────────────────────────────────────────────┘
 
-    D --> H[Leaflet Draw]
-    D --> I[Leaflet MarkerCluster]
+┌───────────────────────────────────────────────┐
+│                     Turf.js                    │
+│              → Geo Utils                       │
+└────────────────────────────────────────────────┘
 
-    J[Turf.js] --> K[Geo Utils]
+┌───────────────────────────────────────────────┐
+│                   DOMPurify                    │
+│              → Sanitize Utils                  │
+└────────────────────────────────────────────────┘
 
-    L[DOMPurify] --> M[Sanitize Utils]
 ```
 
 ## Próximos Pasos Arquitectónicos (Recomendaciones)

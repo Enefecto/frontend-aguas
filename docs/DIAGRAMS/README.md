@@ -18,117 +18,13 @@ Todos los diagramas están en formato **Mermaid** que GitHub renderiza automáti
 
 ## Diagrama de Arquitectura General
 
-```mermaid
-graph TB
-    subgraph "Cliente - Navegador"
-        A[Usuario]
-    end
-
-    subgraph "Frontend - Astro + React"
-        B[index.astro]
-        C[Mapa.jsx]
-        D[MapProvider]
-        E[MapContainer]
-        F[SidebarManager]
-        G[Custom Hooks]
-        H[ApiService]
-    end
-
-    subgraph "Backend - FastAPI"
-        I[API REST]
-        J[Base de Datos]
-    end
-
-    subgraph "Infraestructura"
-        K[Azure Static Web Apps]
-        L[CDN Global]
-        M[Azure API Service]
-    end
-
-    A --> B
-    B --> C
-    C --> D
-    D --> G
-    D --> E
-    D --> F
-    G --> H
-    H --> I
-    I --> J
-
-    K --> B
-    L --> K
-    M --> I
-
-    style A fill:#e1f5ff
-    style D fill:#fff3cd
-    style H fill:#d1ecf1
-    style I fill:#f8d7da
-```
+![Diagrama de Arquitectura General](./DiagramaArquitecturaGeneral.png)
 
 ---
 
 ## Diagrama de Componentes
 
-```mermaid
-graph TB
-    Mapa[Mapa.jsx<br/>Componente Raíz]
-
-    subgraph "Context Provider"
-        MapProvider[MapProvider<br/>Estado Global]
-    end
-
-    subgraph "Custom Hooks"
-        H1[useMapData<br/>Datos iniciales]
-        H2[useFilterLogic<br/>Lógica filtros]
-        H3[useSidebarState<br/>Estado UI]
-        H4[useAnalysisData<br/>Análisis]
-    end
-
-    subgraph "Componentes de Vista"
-        MapContainer[MapContainer<br/>Mapa principal]
-        SidebarManager[SidebarManager<br/>Gestor sidebars]
-        ComparePoints[ComparePoints<br/>Comparación]
-    end
-
-    subgraph "Componentes del Mapa"
-        MarkerLayer[MarkerLayer<br/>Marcadores]
-        CuencasLayer[CuencasLayer<br/>Polígonos]
-        ToolsEdit[ToolsEditControl<br/>Herramientas]
-        Legend[Legend<br/>Leyenda]
-    end
-
-    subgraph "Sidebars"
-        SidebarFiltros[SidebarFiltros<br/>Filtros]
-        SidebarCuenca[SidebarCuenca<br/>Análisis cuenca]
-        SidebarPunto[SidebarPunto<br/>Análisis punto]
-    end
-
-    subgraph "Servicios"
-        ApiService[ApiService<br/>Cliente API]
-    end
-
-    Mapa --> MapProvider
-    MapProvider --> H1 & H2 & H3 & H4
-    MapProvider --> MapContainer
-    MapProvider --> SidebarManager
-    MapProvider --> ComparePoints
-
-    MapContainer --> MarkerLayer
-    MapContainer --> CuencasLayer
-    MapContainer --> ToolsEdit
-    MapContainer --> Legend
-
-    SidebarManager --> SidebarFiltros
-    SidebarManager --> SidebarCuenca
-    SidebarManager --> SidebarPunto
-
-    H1 --> ApiService
-    H2 --> ApiService
-    H4 --> ApiService
-
-    style MapProvider fill:#fff3cd
-    style ApiService fill:#d1ecf1
-```
+![Diagrama de Componentes](./DiagramaComponentes.png)
 
 ---
 
@@ -136,56 +32,11 @@ graph TB
 
 ### Inicialización de la Aplicación
 
-```mermaid
-sequenceDiagram
-    participant U as Usuario
-    participant A as Astro
-    participant M as Mapa.jsx
-    participant P as MapProvider
-    participant H as useMapData
-    participant API as ApiService
-    participant B as Backend
-
-    U->>A: Accede a la app
-    A->>A: Valida PUBLIC_API_URL
-    A->>M: Renderiza <Mapa client:only>
-    M->>P: Inicializa Provider
-    P->>H: Ejecuta useMapData
-    H->>API: Crea instancia
-    API->>B: GET /api/cuencas
-    B-->>API: Datos cuencas
-    API->>B: GET /api/cuencas/stats
-    B-->>API: Estadísticas
-    API-->>H: Datos cargados
-    H-->>P: Estado inicial listo
-    P-->>M: Context disponible
-    M-->>U: Mapa renderizado
-```
+![Inicializacion de la Aplicacion](./InicializacionAplicacion.png)
 
 ### Flujo de Filtrado
 
-```mermaid
-sequenceDiagram
-    participant U as Usuario
-    participant S as SidebarFiltros
-    participant F as useFilterLogic
-    participant API as ApiService
-    participant B as Backend
-    participant Map as MapContainer
-
-    U->>S: Selecciona región
-    S->>F: handleFiltroChange({region: 'XV'})
-    F->>F: Actualiza estado filtros
-    F->>F: Recalcula opciones cascada
-    F->>API: getPuntos({region: 'XV'})
-    API->>B: GET /api/puntos?region=XV
-    B-->>API: Array de puntos
-    API-->>F: Datos filtrados
-    F->>F: Actualiza estado global
-    F-->>S: Nuevas opciones disponibles
-    F-->>Map: Nuevos puntos
-    Map-->>U: Marcadores actualizados
-```
+![Flujo de Filtrado](./FlujoFiltrado.png)
 
 ### Flujo de Análisis de Cuenca
 
