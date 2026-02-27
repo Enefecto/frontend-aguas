@@ -98,6 +98,7 @@ export const SidebarManager = ({
           graficosData={graficosData}
           setRightSidebarAbiertoCuencas={setRightSidebarAbiertoCuencas}
           loadCuencasGraphics={loadCuencasGraphics}
+          apiService={apiService}
         />
       )}
 
@@ -109,6 +110,7 @@ export const SidebarManager = ({
           graficosData={graficosSubcuencasData}
           setRightSidebarAbiertoSubcuencas={setRightSidebarAbiertoSubcuencas}
           loadSubcuencasGraphics={loadSubcuencasGraphics}
+          apiService={apiService}
         />
       )}
 

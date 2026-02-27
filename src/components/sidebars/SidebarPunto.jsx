@@ -30,11 +30,15 @@ export default function SidebarPunto({
   const [loadingNivelFreatico, setLoadingNivelFreatico] = useState(false);
   const [loadingAlturaLimnimetrica, setLoadingAlturaLimnimetrica] = useState(false);
 
+  // Informante state
+  const [ultimoInformante, setUltimoInformante] = useState(null);
+  const [loadingInformante, setLoadingInformante] = useState(false);
+
   useEffect(() => {
     setTimeout(() => {
       setIsOpen(true);
     }, 100);
-  },[])
+  }, [])
 
   // Cargar datos de nivel freático si existe
   useEffect(() => {
@@ -84,6 +88,34 @@ export default function SidebarPunto({
     }
   }, [alturaLimnimetrica, punto.utm_norte, punto.utm_este, apiService, graphicsPuntosLoading]);
 
+  // Cargar informante si existe el punto
+  useEffect(() => {
+    console.log("Intentando cargar informante:", { utm_norte: punto.utm_norte, utm_este: punto.utm_este, apiService: !!apiService, analisisPuntoSeleccionadoLoading });
+    if (punto.utm_norte && punto.utm_este && apiService && !analisisPuntoSeleccionadoLoading) {
+      setLoadingInformante(true);
+      apiService.getInformantes({
+        utm_norte: punto.utm_norte,
+        utm_este: punto.utm_este,
+        limit: 1
+      })
+        .then(data => {
+          console.log("Respuesta de informantes:", data);
+          if (data && data.length > 0) {
+            setUltimoInformante(data[0]);
+          } else {
+            setUltimoInformante(null);
+          }
+        })
+        .catch(err => {
+          console.error("Error al cargar último informante:", err);
+          setUltimoInformante(null);
+        })
+        .finally(() => {
+          setLoadingInformante(false);
+        });
+    }
+  }, [punto.utm_norte, punto.utm_este, apiService, analisisPuntoSeleccionadoLoading]);
+
   return (
     <div
       className={`
@@ -132,7 +164,7 @@ export default function SidebarPunto({
               <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100">
                 <svg width="18" height="18" viewBox="0 0 28 36" aria-hidden="true">
                   <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
-                        fill="#FF5722" stroke="white" strokeWidth="1.5" />
+                    fill="#FF5722" stroke="white" strokeWidth="1.5" />
                 </svg>
               </span>
 
@@ -171,7 +203,7 @@ export default function SidebarPunto({
               <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-cyan-100">
                 <svg width="18" height="18" viewBox="0 0 28 36" aria-hidden="true">
                   <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
-                        fill="#0891b2" stroke="white" strokeWidth="1.5" />
+                    fill="#0891b2" stroke="white" strokeWidth="1.5" />
                 </svg>
               </span>
 
@@ -220,15 +252,47 @@ export default function SidebarPunto({
         </div>
       )}
 
+      {/* Tarjeta de Último Informante */}
+      {(ultimoInformante || loadingInformante) && (
+        <div className="mt-4 pt-4 border-t">
+          <h3 className="text-base font-semibold text-gray-700 mb-2 border-b pb-1">Datos del Informante</h3>
+          {loadingInformante ? (
+            <div className="flex justify-center p-4"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div></div>
+          ) : ultimoInformante ? (
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 shadow-sm flex items-start gap-3">
+              <div className="bg-white p-2 rounded-full border border-slate-200 text-slate-500 mt-1 shrink-0">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-800 leading-tight">
+                  {ultimoInformante.nombre_completo || 'Desconocido'}
+                </p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Reportes registrados: <span className="font-medium text-slate-700">{ultimoInformante.cantidad_reportes}</span>
+                </p>
+                {ultimoInformante.ultima_fecha_medicion && (
+                  <p className="text-xs text-slate-500 mt-0.5" title="Última fecha de medición registrada">
+                    Última medición: <span className="font-medium text-slate-700">
+                      {new Date(ultimoInformante.ultima_fecha_medicion).toLocaleDateString('es-CL')}
+                    </span>
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      )}
+
       {graphicsPuntosLoading === 0 && (
         <button
           onClick={() => loadPuntosGraphics(punto.utm_norte, punto.utm_este)}
           disabled={!punto.utm_norte || !punto.utm_este || analisisPuntoSeleccionadoLoading}
-          className={`block mt-6 font-semibold px-4 py-2 rounded transition ${
-            !punto.utm_norte || !punto.utm_este || analisisPuntoSeleccionadoLoading
-              ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-              : 'bg-cyan-700 text-white cursor-pointer hover:bg-cyan-600'
-          }`}
+          className={`block mt-6 font-semibold px-4 py-2 rounded transition ${!punto.utm_norte || !punto.utm_este || analisisPuntoSeleccionadoLoading
+            ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+            : 'bg-cyan-700 text-white cursor-pointer hover:bg-cyan-600'
+            }`}
         >
           {analisisPuntoSeleccionadoLoading ? 'Cargando datos...' : 'Cargar Gráficos'}
         </button>

@@ -22,7 +22,10 @@ export const API_ENDPOINTS = {
   PUNTOS_ESTADISTICAS: '/api/puntos/estadisticas',
   PUNTOS_SERIES_TIEMPO_CAUDAL: '/api/puntos/series_de_tiempo/caudal',
   PUNTOS_SERIES_TIEMPO_NIVEL_FREATICO: '/api/puntos/series_de_tiempo/nivel_freatico',
-  PUNTOS_SERIES_TIEMPO_ALTURA_LIMNIMETRICA: '/api/puntos/series_de_tiempo/altura_linimetrica'
+  PUNTOS_SERIES_TIEMPO_ALTURA_LIMNIMETRICA: '/api/puntos/series_de_tiempo/altura_linimetrica',
+
+  // Endpoints de informantes
+  INFORMANTES: '/api/informantes'
 };
 
 export const FILTER_CONFIG = {

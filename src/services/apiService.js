@@ -185,6 +185,23 @@ class ApiService {
   async getPuntosSeriesTiempoAlturaLimnimetrica(utmNorte, utmEste) {
     return this.request(`${API_ENDPOINTS.PUNTOS_SERIES_TIEMPO_ALTURA_LIMNIMETRICA}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
   }
+
+  // Métodos para informantes
+  async getInformantes(params = {}) {
+    const queryParams = new URLSearchParams();
+
+    // Agregar solo los parámetros que están definidos
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        // Manejar el caso especial de 'sin_registro' para subcuencas
+        const paramValue = (key === 'cod_subcuenca' && value === 'sin_registro') ? 'null' : value;
+        queryParams.append(key, paramValue);
+      }
+    });
+
+    const queryString = queryParams.toString();
+    return this.request(`${API_ENDPOINTS.INFORMANTES}${queryString ? '?' + queryString : ''}`);
+  }
 }
 
 export default ApiService;
