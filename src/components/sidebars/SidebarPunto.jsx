@@ -255,7 +255,7 @@ export default function SidebarPunto({
       {/* Tarjeta de Último Informante */}
       {(ultimoInformante || loadingInformante) && (
         <div className="mt-4 pt-4 border-t">
-          <h3 className="text-base font-semibold text-gray-700 mb-2 border-b pb-1">Datos del Informante</h3>
+          <h3 className="text-base font-semibold text-gray-700 mb-2 border-b pb-1">Último Informante</h3>
           {loadingInformante ? (
             <div className="flex justify-center p-4"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div></div>
           ) : ultimoInformante ? (
