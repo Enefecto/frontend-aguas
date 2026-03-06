@@ -6,7 +6,7 @@ import { sanitizeText, safeFormatNumber } from "../../utils/sanitize";
 // Caché global para evitar peticiones duplicadas
 const puntoInfoCache = new Map();
 
-export const PopupPunto = ({punto, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService}) => {
+export const PopupPunto = ({ punto, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService }) => {
   const [puntoInfo, setPuntoInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const hasFetchedRef = useRef(false);
@@ -92,12 +92,13 @@ export const PopupPunto = ({punto, handleShowSidebarCuencas, handleShowSidebarSu
           (Ver Detalles)
         </span>
       </p>
+      <p><strong>Código de obra:</strong> {puntoInfo.codigo || 'Sin registro'}</p>
       <p><strong>Tipo:</strong> {safeTipo}</p>
       <p><strong>Caudal promedio:</strong> {safeCaudalPromedio} (L/s)</p>
       <p><strong>Nº de Mediciones:</strong> {safeMediciones}</p>
       <button
         className='bg-cyan-800 text-white p-2 cursor-pointer hover:bg-cyan-600 w-full mt-2'
-        onClick={() => handleShowSidebarPunto({...punto, ...puntoInfo})}
+        onClick={() => handleShowSidebarPunto({ ...punto, ...puntoInfo })}
       >
         Analizar Punto
       </button>

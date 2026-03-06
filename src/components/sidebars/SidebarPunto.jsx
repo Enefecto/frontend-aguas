@@ -138,6 +138,11 @@ export default function SidebarPunto({
           {punto.lat?.toFixed(5)} / {punto.lon?.toFixed(5)}
         </span>
       </h3>
+      {punto.codigo && (
+        <p className="text-base text-gray-700 mt-1">
+          <strong>Código de obra:</strong> {punto.codigo}
+        </p>
+      )}
 
       {/* Periodo de análisis */}
       {!analisisPuntoSeleccionadoLoading && caudal.primera_fecha && caudal.ultima_fecha && (
