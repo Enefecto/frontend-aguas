@@ -135,3 +135,22 @@ export const TipoPuntoFilter = ({ filtros, handleFiltroChange }) => (
     placeholder="-- Todos --"
   />
 );
+
+export const CodigoObraFilter = ({ filtros, setFiltros }) => (
+  <div className="mb-4">
+    <label className="block font-medium mb-1">Buscar código de obra:</label>
+    <TextField
+      fullWidth
+      variant="outlined"
+      size="small"
+      placeholder="Ej: PB-1234"
+      value={filtros.codigo_obra || ''}
+      onChange={(e) => {
+        setFiltros(prev => ({
+          ...prev,
+          codigo_obra: e.target.value
+        }));
+      }}
+    />
+  </div>
+);

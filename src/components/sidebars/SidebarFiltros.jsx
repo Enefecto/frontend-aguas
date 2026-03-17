@@ -10,7 +10,8 @@ import {
   LimitFilter,
   CaudalFilter,
   OrdenCaudalFilter,
-  TipoPuntoFilter
+  TipoPuntoFilter,
+  CodigoObraFilter
 } from './FilterSection.jsx';
 import { UI_CONFIG } from '../../constants/uiConfig.js';
 
@@ -109,6 +110,11 @@ export default function SidebarFiltros({
         <TipoPuntoFilter
           filtros={filtros}
           handleFiltroChange={handleFiltroChange}
+        />
+
+        <CodigoObraFilter
+          filtros={filtros}
+          setFiltros={setFiltros}
         />
 
         <div className="mt-2 border-t pt-3">

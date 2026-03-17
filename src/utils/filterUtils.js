@@ -88,6 +88,11 @@ export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOrigin
     }
   }
 
+  // Filtro de código de obra
+  if (filtros.codigo_obra) {
+    queryParams.append("codigo_obra", String(filtros.codigo_obra).trim());
+  }
+
   return queryParams;
 };
 
