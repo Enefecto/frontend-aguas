@@ -22,6 +22,11 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
   unidad = "",
   valueKey = "valor"
 }) {
+  const [lineasVisibles, setLineasVisibles] = useState({
+    avg: true,
+    min: true,
+    max: true
+  });
   const [selectedMes, setSelectedMes] = useState(null);
   const [dataDiarioFiltrado, setDataDiarioFiltrado] = useState(null);
   const [periodoSeleccionado, setPeriodoSeleccionado] = useState(2); // Default: 2 años
@@ -185,30 +190,65 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
   }, [unidad]);
 
   return (
-    <div className="space-y-10">
-      {/* Selector de período */}
-      {opcionesPeriodo.length > 1 && (
-        <div className="flex items-center gap-3 mb-4">
-          <label className="text-sm font-semibold text-gray-700">Período:</label>
-          <select
-            value={periodoSeleccionado}
-            onChange={(e) => {
-              const valor = e.target.value === 'todos' ? 'todos' : Number(e.target.value);
-              setPeriodoSeleccionado(valor);
-            }}
-            className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all cursor-pointer shadow-sm"
-          >
-            {opcionesPeriodo.map(opcion => (
-              <option key={opcion.valor} value={opcion.valor}>
-                {opcion.etiqueta}
-              </option>
-            ))}
-          </select>
-          {rangoFechas && (
-            <span className="text-xs text-gray-500">
-              Mostrando: {rangoFechas}
-            </span>
-          )}
+    <div className="space-y-4">
+      {/* Controles del gráfico */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
+        {/* Selector de período */}
+        {opcionesPeriodo.length > 1 && (
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">Período:</label>
+            <select
+              value={periodoSeleccionado}
+              onChange={(e) => {
+                const valor = e.target.value === 'todos' ? 'todos' : Number(e.target.value);
+                setPeriodoSeleccionado(valor);
+              }}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-white hover:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all cursor-pointer shadow-sm"
+            >
+              {opcionesPeriodo.map(opcion => (
+                <option key={opcion.valor} value={opcion.valor}>
+                  {opcion.etiqueta}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Toggles de líneas */}
+        <div className="flex items-center gap-4 flex-wrap">
+          <label className="flex items-center gap-1.5 text-sm cursor-pointer hover:opacity-80 transition-opacity">
+            <input 
+              type="checkbox" 
+              checked={lineasVisibles.max}
+              onChange={(e) => setLineasVisibles(prev => ({...prev, max: e.target.checked}))}
+              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+            />
+            <span className="font-medium text-gray-700" style={{color: '#2563eb'}}>Máximo</span>
+          </label>
+          <label className="flex items-center gap-1.5 text-sm cursor-pointer hover:opacity-80 transition-opacity">
+            <input 
+              type="checkbox" 
+              checked={lineasVisibles.avg}
+              onChange={(e) => setLineasVisibles(prev => ({...prev, avg: e.target.checked}))}
+              className="w-4 h-4 rounded text-sky-500 focus:ring-sky-500 cursor-pointer"
+            />
+            <span className="font-medium text-gray-700" style={{color: '#0ea5e9'}}>Promedio</span>
+          </label>
+          <label className="flex items-center gap-1.5 text-sm cursor-pointer hover:opacity-80 transition-opacity">
+            <input 
+              type="checkbox" 
+              checked={lineasVisibles.min}
+              onChange={(e) => setLineasVisibles(prev => ({...prev, min: e.target.checked}))}
+              className="w-4 h-4 rounded text-orange-500 focus:ring-orange-500 cursor-pointer"
+            />
+            <span className="font-medium text-gray-700" style={{color: '#f97316'}}>Mínimo</span>
+          </label>
+        </div>
+      </div>
+
+      {rangoFechas && (
+        <div className="text-xs text-gray-500 text-right">
+          Mostrando: {rangoFechas}
         </div>
       )}
 
@@ -235,16 +275,16 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
             <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
             <Tooltip content={CustomTooltipMensual} />
             <Legend />
-            <Line type="monotone" dataKey={`avg_${valueKey}`} stroke="#0ea5e9" name="Promedio" dot={false} />
-            <Line type="monotone" dataKey={`min_${valueKey}`} stroke="#f97316" name="Mínimo" dot={false} />
-            <Line type="monotone" dataKey={`max_${valueKey}`} stroke="#2563eb" name="Máximo" dot={false} />
+            {lineasVisibles.avg && <Line type="monotone" dataKey={`avg_${valueKey}`} stroke="#0ea5e9" name="Promedio" dot={false} strokeWidth={2} />}
+            {lineasVisibles.min && <Line type="monotone" dataKey={`min_${valueKey}`} stroke="#f97316" name="Mínimo" dot={false} strokeWidth={1.5} />}
+            {lineasVisibles.max && <Line type="monotone" dataKey={`max_${valueKey}`} stroke="#2563eb" name="Máximo" dot={false} strokeWidth={1.5} />}
           </LineChart>
         </ResponsiveContainer>
       </div>
 
       {/* Gráfico Diario */}
       {selectedMes && dataDiarioFiltrado && dataDiarioFiltrado.length > 0 && (
-        <div className="w-full h-[260px] md:h-80 lg:h-96 mt-18">
+        <div className="w-full h-[260px] md:h-80 lg:h-96 mt-12 pt-8 border-t border-gray-100">
           <h4 className="text-sm font-semibold mb-1 text-gray-700">
             {titulo} diario para {selectedMes}
           </h4>
@@ -258,7 +298,9 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
               <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => formatNumberCL(v)} />
               <Tooltip content={CustomTooltipDiario} />
               <Legend />
-              <Line type="monotone" dataKey={`avg_${valueKey}`} stroke="#0ea5e9" name="Promedio" dot={false} />
+              {lineasVisibles.avg && <Line type="monotone" dataKey={`avg_${valueKey}`} stroke="#0ea5e9" name="Promedio" dot={false} strokeWidth={2} />}
+              {lineasVisibles.min && <Line type="monotone" dataKey={`min_${valueKey}`} stroke="#f97316" name="Mínimo" dot={false} strokeWidth={1.5} />}
+              {lineasVisibles.max && <Line type="monotone" dataKey={`max_${valueKey}`} stroke="#2563eb" name="Máximo" dot={false} strokeWidth={1.5} />}
             </LineChart>
           </ResponsiveContainer>
         </div>
