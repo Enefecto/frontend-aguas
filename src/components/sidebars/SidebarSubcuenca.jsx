@@ -3,7 +3,7 @@ import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
 import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import TimeSeriesChartPair from '../charts/TimeSeriesChartPair';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import ApiService from '../../services/apiService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -20,6 +20,20 @@ export default function SidebarSubcuenca({
   const [isOpen, setIsOpen] = useState(false);
   const [topInformantes, setTopInformantes] = useState([]);
   const [loadingInformantes, setLoadingInformantes] = useState(false);
+  const [filtroTipoExtraccion, setFiltroTipoExtraccion] = useState(null);
+  const isInitialMount = useRef(true);
+
+  // Recargar gráficos si cambia el filtro y ya estaban cargados/cargándose
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (graphicsSubcuencasLoading.caudal !== 0 || graphicsSubcuencasLoading.altura_linimetrica !== 0 || graphicsSubcuencasLoading.nivel_freatico !== 0) {
+      loadSubcuencasGraphics(filtroTipoExtraccion);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtroTipoExtraccion]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -123,14 +137,39 @@ export default function SidebarSubcuenca({
         </div>
       )}
 
+      {/* Filtro de Tipo de Extracción */}
+      <div className="mt-8 mb-2">
+        <h3 className="text-sm font-semibold text-gray-700 mb-2">Tipo de Extracción a graficar:</h3>
+        <div className="flex bg-gray-100 p-1 rounded-lg w-fit">
+          <button
+            onClick={() => setFiltroTipoExtraccion(null)}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${filtroTipoExtraccion === null ? 'bg-white shadow-sm text-cyan-800' : 'text-gray-600 hover:text-gray-900'}`}
+          >
+            Todos
+          </button>
+          <button
+            onClick={() => setFiltroTipoExtraccion(false)}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${filtroTipoExtraccion === false ? 'bg-white shadow-sm text-cyan-800' : 'text-gray-600 hover:text-gray-900'}`}
+          >
+            Superficial
+          </button>
+          <button
+            onClick={() => setFiltroTipoExtraccion(true)}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${filtroTipoExtraccion === true ? 'bg-white shadow-sm text-cyan-800' : 'text-gray-600 hover:text-gray-900'}`}
+          >
+            Subterráneo
+          </button>
+        </div>
+      </div>
+
       {/* Botón cargar gráficos */}
       {graphicsSubcuencasLoading.caudal === 0 &&
         graphicsSubcuencasLoading.altura_linimetrica === 0 &&
         graphicsSubcuencasLoading.nivel_freatico === 0 && (
           <button
-            onClick={loadSubcuencasGraphics}
+            onClick={() => loadSubcuencasGraphics(filtroTipoExtraccion)}
             disabled={!subcuencaAnalysis.codigoSubcuenca || !subcuencaAnalysis.codigoCuenca || subcuencaLoading}
-            className={`block mt-6 font-semibold px-4 py-2 rounded transition ${!subcuencaAnalysis.codigoSubcuenca || !subcuencaAnalysis.codigoCuenca || subcuencaLoading
+            className={`block mt-4 font-semibold px-4 py-2 rounded transition ${!subcuencaAnalysis.codigoSubcuenca || !subcuencaAnalysis.codigoCuenca || subcuencaLoading
               ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
               : 'bg-cyan-700 text-white cursor-pointer hover:bg-cyan-600'
               }`}

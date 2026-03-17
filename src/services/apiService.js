@@ -105,16 +105,19 @@ class ApiService {
     return this.request(`${API_ENDPOINTS.CUENCAS_ANALISIS_INFORMANTES}?cuenca_identificador=${cuencaIdentificador}`);
   }
 
-  async getCuencaSeriesTiempoCaudal(cuencaIdentificador) {
-    return this.request(`${API_ENDPOINTS.CUENCAS_SERIES_TIEMPO_CAUDAL}?cuenca_identificador=${cuencaIdentificador}`);
+  async getCuencaSeriesTiempoCaudal(cuencaIdentificador, pozo = null) {
+    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
+    return this.request(`${API_ENDPOINTS.CUENCAS_SERIES_TIEMPO_CAUDAL}?cuenca_identificador=${cuencaIdentificador}${pozoParam}`);
   }
 
-  async getCuencaSeriesTiempoAlturaLinimetrica(cuencaIdentificador) {
-    return this.request(`${API_ENDPOINTS.CUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA}?cuenca_identificador=${cuencaIdentificador}`);
+  async getCuencaSeriesTiempoAlturaLinimetrica(cuencaIdentificador, pozo = null) {
+    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
+    return this.request(`${API_ENDPOINTS.CUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA}?cuenca_identificador=${cuencaIdentificador}${pozoParam}`);
   }
 
-  async getCuencaSeriesTiempoNivelFreatico(cuencaIdentificador) {
-    return this.request(`${API_ENDPOINTS.CUENCAS_SERIES_TIEMPO_NIVEL_FREATICO}?cuenca_identificador=${cuencaIdentificador}`);
+  async getCuencaSeriesTiempoNivelFreatico(cuencaIdentificador, pozo = null) {
+    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
+    return this.request(`${API_ENDPOINTS.CUENCAS_SERIES_TIEMPO_NIVEL_FREATICO}?cuenca_identificador=${cuencaIdentificador}${pozoParam}`);
   }
 
   // Métodos para subcuencas
@@ -134,22 +137,25 @@ class ApiService {
     return this.request(url);
   }
 
-  async getSubcuencaSeriesTiempoCaudal(cuencaIdentificador, subcuencaIdentificador) {
+  async getSubcuencaSeriesTiempoCaudal(cuencaIdentificador, subcuencaIdentificador, pozo = null) {
     // Si subcuencaIdentificador es 'sin_registro', pasar 'null' como string
     const subcuencaParam = subcuencaIdentificador === 'sin_registro' ? 'null' : subcuencaIdentificador;
-    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_CAUDAL}?cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}&subcuenca_identificador=${encodeURIComponent(subcuencaParam)}`);
+    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
+    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_CAUDAL}?cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}&subcuenca_identificador=${encodeURIComponent(subcuencaParam)}${pozoParam}`);
   }
 
-  async getSubcuencaSeriesTiempoAlturaLinimetrica(cuencaIdentificador, subcuencaIdentificador) {
+  async getSubcuencaSeriesTiempoAlturaLinimetrica(cuencaIdentificador, subcuencaIdentificador, pozo = null) {
     // Si subcuencaIdentificador es 'sin_registro', pasar 'null' como string
     const subcuencaParam = subcuencaIdentificador === 'sin_registro' ? 'null' : subcuencaIdentificador;
-    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA}?cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}&subcuenca_identificador=${encodeURIComponent(subcuencaParam)}`);
+    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
+    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA}?cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}&subcuenca_identificador=${encodeURIComponent(subcuencaParam)}${pozoParam}`);
   }
 
-  async getSubcuencaSeriesTiempoNivelFreatico(cuencaIdentificador, subcuencaIdentificador) {
+  async getSubcuencaSeriesTiempoNivelFreatico(cuencaIdentificador, subcuencaIdentificador, pozo = null) {
     // Si subcuencaIdentificador es 'sin_registro', pasar 'null' como string
     const subcuencaParam = subcuencaIdentificador === 'sin_registro' ? 'null' : subcuencaIdentificador;
-    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_NIVEL_FREATICO}?cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}&subcuenca_identificador=${encodeURIComponent(subcuencaParam)}`);
+    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
+    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_NIVEL_FREATICO}?cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}&subcuenca_identificador=${encodeURIComponent(subcuencaParam)}${pozoParam}`);
   }
 
   // Métodos para puntos

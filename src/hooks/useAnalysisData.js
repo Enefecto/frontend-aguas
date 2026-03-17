@@ -179,7 +179,7 @@ export const useAnalysisData = (apiService) => {
   };
 
   // Función para cargar gráficos de cuenca
-  const loadCuencasGraphics = async () => {
+  const loadCuencasGraphics = async (pozo = null) => {
     // Establecer todos como cargando
     setGraphicsCuencasLoading({
       caudal: UI_CONFIG.LOADING_STATES.LOADING,
@@ -188,7 +188,7 @@ export const useAnalysisData = (apiService) => {
     });
 
     // Cargar caudal
-    apiService.getCuencaSeriesTiempoCaudal(cuencaAnalysis.codigoCuenca)
+    apiService.getCuencaSeriesTiempoCaudal(cuencaAnalysis.codigoCuenca, pozo)
       .then(data => {
         // Manejar respuesta vacía, sin datos o con solo 1 registro
         if (!data || !data.caudal_por_tiempo || data.caudal_por_tiempo.length < 2) {
@@ -212,7 +212,7 @@ export const useAnalysisData = (apiService) => {
       });
 
     // Cargar altura limnimétrica
-    apiService.getCuencaSeriesTiempoAlturaLinimetrica(cuencaAnalysis.codigoCuenca)
+    apiService.getCuencaSeriesTiempoAlturaLinimetrica(cuencaAnalysis.codigoCuenca, pozo)
       .then(data => {
         // Manejar respuesta vacía, sin datos o con solo 1 registro
         if (!data || !data.altura_por_tiempo || data.altura_por_tiempo.length < 2) {
@@ -236,7 +236,7 @@ export const useAnalysisData = (apiService) => {
       });
 
     // Cargar nivel freático
-    apiService.getCuencaSeriesTiempoNivelFreatico(cuencaAnalysis.codigoCuenca)
+    apiService.getCuencaSeriesTiempoNivelFreatico(cuencaAnalysis.codigoCuenca, pozo)
       .then(data => {
         // Manejar respuesta vacía, sin datos o con solo 1 registro
         if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length < 2) {
@@ -349,7 +349,7 @@ export const useAnalysisData = (apiService) => {
   };
 
   // Función para cargar gráficos de subcuenca
-  const loadSubcuencasGraphics = async () => {
+  const loadSubcuencasGraphics = async (pozo = null) => {
     // Establecer todos como cargando
     setGraphicsSubcuencasLoading({
       caudal: UI_CONFIG.LOADING_STATES.LOADING,
@@ -358,7 +358,7 @@ export const useAnalysisData = (apiService) => {
     });
 
     // Cargar caudal
-    apiService.getSubcuencaSeriesTiempoCaudal(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca)
+    apiService.getSubcuencaSeriesTiempoCaudal(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca, pozo)
       .then(data => {
         // Manejar respuesta vacía, sin datos o con solo 1 registro
         if (!data || !data.caudal_por_tiempo || data.caudal_por_tiempo.length < 2) {
@@ -382,7 +382,7 @@ export const useAnalysisData = (apiService) => {
       });
 
     // Cargar altura limnimétrica
-    apiService.getSubcuencaSeriesTiempoAlturaLinimetrica(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca)
+    apiService.getSubcuencaSeriesTiempoAlturaLinimetrica(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca, pozo)
       .then(data => {
         // Manejar respuesta vacía, sin datos o con solo 1 registro
         if (!data || !data.altura_por_tiempo || data.altura_por_tiempo.length < 2) {
@@ -406,7 +406,7 @@ export const useAnalysisData = (apiService) => {
       });
 
     // Cargar nivel freático
-    apiService.getSubcuencaSeriesTiempoNivelFreatico(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca)
+    apiService.getSubcuencaSeriesTiempoNivelFreatico(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca, pozo)
       .then(data => {
         // Manejar respuesta vacía, sin datos o con solo 1 registro
         if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length < 2) {
