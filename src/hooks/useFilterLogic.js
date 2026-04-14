@@ -65,7 +65,9 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   useEffect(() => {
     setPuntos([]);
     setQueryCompleted(false);
-  }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.tipoPunto, filtros.fechaInicio, filtros.fechaFin, filtros.fechaPredefinida]);
+  }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.tipoPunto,
+      filtros.shac, filtros.apr, filtros.id_junta,
+      filtros.fechaInicio, filtros.fechaFin, filtros.fechaPredefinida]);
 
   // Función para manejar cambios en filtros
   const handleFiltroChange = (e) => {

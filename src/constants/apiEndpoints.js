@@ -24,6 +24,20 @@ export const API_ENDPOINTS = {
   PUNTOS_SERIES_TIEMPO_NIVEL_FREATICO: '/api/puntos/series_de_tiempo/nivel_freatico',
   PUNTOS_SERIES_TIEMPO_ALTURA_LIMNIMETRICA: '/api/puntos/series_de_tiempo/altura_linimetrica',
 
+  // Endpoints de SHAC
+  SHACS: '/api/shacs',
+  SHAC_SERIES_TIEMPO_CAUDAL: '/api/cuencas/shac/series_de_tiempo/caudal',
+  SHAC_SERIES_TIEMPO_ALTURA_LINIMETRICA: '/api/cuencas/shac/series_de_tiempo/altura_linimetrica',
+  SHAC_SERIES_TIEMPO_NIVEL_FREATICO: '/api/cuencas/shac/series_de_tiempo/nivel_freatico',
+
+  // Endpoints de juntas
+  JUNTAS: '/api/juntas',
+
+  // Endpoints de subsubcuencas
+  SUBSUBCUENCAS_SERIES_TIEMPO_CAUDAL: '/api/cuencas/subsubcuenca/series_de_tiempo/caudal',
+  SUBSUBCUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA: '/api/cuencas/subsubcuenca/series_de_tiempo/altura_linimetrica',
+  SUBSUBCUENCAS_SERIES_TIEMPO_NIVEL_FREATICO: '/api/cuencas/subsubcuenca/series_de_tiempo/nivel_freatico',
+
   // Endpoints de informantes
   INFORMANTES: '/api/informantes'
 };
@@ -34,6 +48,9 @@ export const FILTER_CONFIG = {
     region: '',
     cuenca: '',
     subcuenca: '',
+    shac: '',
+    apr: '',
+    id_junta: '',
     limit: 10,
     pozo: ''
   },

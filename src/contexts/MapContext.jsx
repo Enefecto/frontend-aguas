@@ -21,7 +21,9 @@ export const MapProvider = ({ children, apiUrl }) => {
     minMaxDatosOriginales,
     isLoaded,
     error,
-    apiService
+    apiService,
+    shacsDisponibles,
+    juntasDisponibles
   } = useMapData(apiUrl);
 
   // Hook de lógica de filtros
@@ -40,6 +42,8 @@ export const MapProvider = ({ children, apiUrl }) => {
     isLoaded,
     error,
     apiService,
+    shacsDisponibles,
+    juntasDisponibles,
 
     // Lógica de filtros
     ...filterLogic,

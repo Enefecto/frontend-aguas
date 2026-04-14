@@ -136,6 +136,42 @@ export const TipoPuntoFilter = ({ filtros, handleFiltroChange }) => (
   />
 );
 
+export const ShacFilter = ({ filtros, handleFiltroChange, shacsDisponibles = [] }) => (
+  <SelectFilter
+    label="Sector SHAC:"
+    name="shac"
+    value={filtros.shac ?? ""}
+    onChange={handleFiltroChange}
+    options={shacsDisponibles}
+    placeholder="-- Todos --"
+  />
+);
+
+export const AprFilter = ({ filtros, handleFiltroChange }) => (
+  <SelectFilter
+    label="Agua Potable Rural:"
+    name="apr"
+    value={filtros.apr ?? ""}
+    onChange={handleFiltroChange}
+    options={[
+      { value: "true", label: "Sí (APR)" },
+      { value: "false", label: "No" }
+    ]}
+    placeholder="-- Todos --"
+  />
+);
+
+export const JuntaFilter = ({ filtros, handleFiltroChange, juntasDisponibles = [] }) => (
+  <SelectFilter
+    label="Junta de Vigilancia:"
+    name="id_junta"
+    value={filtros.id_junta ?? ""}
+    onChange={handleFiltroChange}
+    options={juntasDisponibles}
+    placeholder="-- Todas --"
+  />
+);
+
 export const CodigoObraFilter = ({ filtros, setFiltros }) => (
   <div className="mb-4">
     <label className="block font-medium mb-1">Buscar código de obra:</label>

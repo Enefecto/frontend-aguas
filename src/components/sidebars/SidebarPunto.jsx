@@ -34,6 +34,9 @@ export default function SidebarPunto({
   const [ultimoInformante, setUltimoInformante] = useState(null);
   const [loadingInformante, setLoadingInformante] = useState(false);
 
+  // Punto info detallado (sector_sha, canal, junta, subsubcuenca)
+  const [puntoInfo, setPuntoInfo] = useState(null);
+
   useEffect(() => {
     setTimeout(() => {
       setIsOpen(true);
@@ -88,6 +91,15 @@ export default function SidebarPunto({
     }
   }, [alturaLimnimetrica, punto.utm_norte, punto.utm_este, apiService, graphicsPuntosLoading]);
 
+  // Cargar info detallada del punto desde /puntos/info
+  useEffect(() => {
+    if (punto.utm_norte && punto.utm_este && apiService) {
+      apiService.getPuntoInfo(punto.utm_norte, punto.utm_este)
+        .then(data => setPuntoInfo(data))
+        .catch(() => setPuntoInfo(null));
+    }
+  }, [punto.utm_norte, punto.utm_este, apiService]);
+
   // Cargar informante si existe el punto
   useEffect(() => {
     console.log("Intentando cargar informante:", { utm_norte: punto.utm_norte, utm_este: punto.utm_este, apiService: !!apiService, analisisPuntoSeleccionadoLoading });
@@ -141,6 +153,42 @@ export default function SidebarPunto({
       {punto.codigo && (
         <p className="text-base text-gray-700 mt-1">
           <strong>Código de obra:</strong> {punto.codigo}
+        </p>
+      )}
+
+      {(puntoInfo?.sector_sha || punto.sector_sha) && (
+        <p className="text-sm text-gray-600 mt-1">
+          <strong>Sector SHAC:</strong> {puntoInfo?.sector_sha || punto.sector_sha}
+        </p>
+      )}
+
+      {(puntoInfo?.apr ?? punto.apr) !== null && (puntoInfo?.apr ?? punto.apr) !== undefined && (
+        <p className="text-sm text-gray-600 mt-1">
+          <strong>APR:</strong> {(puntoInfo?.apr ?? punto.apr) ? 'Sí' : 'No'}
+        </p>
+      )}
+
+      {(puntoInfo?.id_junta || punto.id_junta) && (
+        <p className="text-sm text-gray-600 mt-1">
+          <strong>Junta de Vigilancia:</strong> ID {puntoInfo?.id_junta || punto.id_junta}
+          {puntoInfo?.parte_junta !== null && puntoInfo?.parte_junta !== undefined && (
+            <span> | Participa: {puntoInfo.parte_junta ? 'Sí' : 'No'}</span>
+          )}
+          {puntoInfo?.representa_junta !== null && puntoInfo?.representa_junta !== undefined && (
+            <span> | Representa: {puntoInfo.representa_junta ? 'Sí' : 'No'}</span>
+          )}
+        </p>
+      )}
+
+      {puntoInfo?.canal_transmision !== null && puntoInfo?.canal_transmision !== undefined && (
+        <p className="text-sm text-gray-600 mt-1">
+          <strong>Canal de Transmisión:</strong> {puntoInfo.canal_transmision}
+        </p>
+      )}
+
+      {puntoInfo?.nombre_subsubcuenca && (
+        <p className="text-sm text-gray-600 mt-1">
+          <strong>Subsubcuenca:</strong> {puntoInfo.nombre_subsubcuenca}
         </p>
       )}
 

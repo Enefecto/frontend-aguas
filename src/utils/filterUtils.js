@@ -93,6 +93,21 @@ export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOrigin
     queryParams.append("codigo_obra", String(filtros.codigo_obra).trim());
   }
 
+  // Filtro SHAC
+  if (filtros.shac) {
+    queryParams.append("shac", String(filtros.shac));
+  }
+
+  // Filtro APR
+  if (filtros.apr !== undefined && filtros.apr !== "") {
+    queryParams.append("apr", String(filtros.apr));
+  }
+
+  // Filtro Junta
+  if (filtros.id_junta) {
+    queryParams.append("id_junta", String(filtros.id_junta));
+  }
+
   return queryParams;
 };
 

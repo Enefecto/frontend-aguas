@@ -91,7 +91,11 @@ const MapaContent = () => {
 
     // API
     apiUrl,
-    apiService
+    apiService,
+
+    // Listas para filtros
+    shacsDisponibles,
+    juntasDisponibles
   } = useMapContext();
 
   const [agrupar, setAgrupar] = useState(false);
@@ -237,6 +241,8 @@ const MapaContent = () => {
         agrupar={agrupar}
         setAgrupar={setAgrupar}
         queryCompleted={queryCompleted}
+        shacsDisponibles={shacsDisponibles}
+        juntasDisponibles={juntasDisponibles}
 
         // Props para SidebarCuenca
         cuencaAnalysis={cuencaAnalysis}

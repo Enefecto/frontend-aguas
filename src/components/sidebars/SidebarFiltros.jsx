@@ -7,6 +7,9 @@ import {
   RegionFilter,
   CuencaFilter,
   SubcuencaFilter,
+  ShacFilter,
+  AprFilter,
+  JuntaFilter,
   LimitFilter,
   CaudalFilter,
   OrdenCaudalFilter,
@@ -36,7 +39,9 @@ export default function SidebarFiltros({
   agrupar,
   setAgrupar,
   handleFiltroChange,
-  queryCompleted
+  queryCompleted,
+  shacsDisponibles = [],
+  juntasDisponibles = []
 }) {
   const {
     consultandoPuntos,
@@ -87,6 +92,23 @@ export default function SidebarFiltros({
           filtros={filtros}
           handleFiltroChange={handleFiltroChange}
           subcuencasUnicas={subcuencasUnicas}
+        />
+
+        <ShacFilter
+          filtros={filtros}
+          handleFiltroChange={handleFiltroChange}
+          shacsDisponibles={shacsDisponibles}
+        />
+
+        <AprFilter
+          filtros={filtros}
+          handleFiltroChange={handleFiltroChange}
+        />
+
+        <JuntaFilter
+          filtros={filtros}
+          handleFiltroChange={handleFiltroChange}
+          juntasDisponibles={juntasDisponibles}
         />
 
         <LimitFilter

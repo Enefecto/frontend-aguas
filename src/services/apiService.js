@@ -192,6 +192,30 @@ class ApiService {
     return this.request(`${API_ENDPOINTS.PUNTOS_SERIES_TIEMPO_ALTURA_LIMNIMETRICA}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
   }
 
+  // Métodos para SHAC
+  async getShacs() {
+    return this.request(API_ENDPOINTS.SHACS);
+  }
+
+  async getJuntas() {
+    return this.request(API_ENDPOINTS.JUNTAS);
+  }
+
+  async getShacSeriesTiempoCaudal(shacIdentificador, pozo = null) {
+    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
+    return this.request(`${API_ENDPOINTS.SHAC_SERIES_TIEMPO_CAUDAL}?shac_identificador=${shacIdentificador}${pozoParam}`);
+  }
+
+  async getShacSeriesTiempoAlturaLinimetrica(shacIdentificador, pozo = null) {
+    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
+    return this.request(`${API_ENDPOINTS.SHAC_SERIES_TIEMPO_ALTURA_LINIMETRICA}?shac_identificador=${shacIdentificador}${pozoParam}`);
+  }
+
+  async getShacSeriesTiempoNivelFreatico(shacIdentificador, pozo = null) {
+    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
+    return this.request(`${API_ENDPOINTS.SHAC_SERIES_TIEMPO_NIVEL_FREATICO}?shac_identificador=${shacIdentificador}${pozoParam}`);
+  }
+
   // Métodos para informantes
   async getInformantes(params = {}) {
     const queryParams = new URLSearchParams();

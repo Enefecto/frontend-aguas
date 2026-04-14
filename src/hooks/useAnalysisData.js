@@ -26,19 +26,35 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
     if (!mensualMap[mesClave]) {
       mensualMap[mesClave] = {
         mes: mesClave,
-        valores: []
+        valores: [],
+        valores_sumados: [],
+        totalizador_vals: []
       };
     }
     mensualMap[mesClave].valores.push(valor);
+    if (item.caudal_sumado != null) {
+      mensualMap[mesClave].valores_sumados.push(Number(item.caudal_sumado) || 0);
+    }
+    if (item.totalizador_max != null) {
+      mensualMap[mesClave].totalizador_vals.push(Number(item.totalizador_max) || 0);
+    }
 
     // Agrupar por día
     if (!diarioMap[diaClave]) {
       diarioMap[diaClave] = {
         fecha: diaClave,
-        valores: []
+        valores: [],
+        valores_sumados: [],
+        totalizador_vals: []
       };
     }
     diarioMap[diaClave].valores.push(valor);
+    if (item.caudal_sumado != null) {
+      diarioMap[diaClave].valores_sumados.push(Number(item.caudal_sumado) || 0);
+    }
+    if (item.totalizador_max != null) {
+      diarioMap[diaClave].totalizador_vals.push(Number(item.totalizador_max) || 0);
+    }
   });
 
   // Calcular estadísticas para datos mensuales
@@ -50,12 +66,25 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
       ? valores.reduce((sum, v) => sum + v, 0) / valores.length
       : 0;
 
-    return {
+    const result = {
       mes: item.mes,
       [`min_${valueKey}`]: Number(min_valor.toFixed(2)),
       [`avg_${valueKey}`]: Number(avg_valor.toFixed(2)),
       [`max_${valueKey}`]: Number(max_valor.toFixed(2))
     };
+
+    if (item.valores_sumados.length > 0) {
+      result[`sum_${valueKey}`] = Number(
+        item.valores_sumados.reduce((a, b) => a + b, 0).toFixed(2)
+      );
+    }
+    if (item.totalizador_vals.length > 0) {
+      result.totalizador_max = Number(
+        Math.max(...item.totalizador_vals).toFixed(2)
+      );
+    }
+
+    return result;
   }).sort((a, b) => a.mes.localeCompare(b.mes));
 
   // Calcular estadísticas para datos diarios
@@ -67,12 +96,25 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
       ? valores.reduce((sum, v) => sum + v, 0) / valores.length
       : 0;
 
-    return {
+    const result = {
       fecha: item.fecha,
       [`min_${valueKey}`]: Number(min_valor.toFixed(2)),
       [`avg_${valueKey}`]: Number(avg_valor.toFixed(2)),
       [`max_${valueKey}`]: Number(max_valor.toFixed(2))
     };
+
+    if (item.valores_sumados.length > 0) {
+      result[`sum_${valueKey}`] = Number(
+        item.valores_sumados.reduce((a, b) => a + b, 0).toFixed(2)
+      );
+    }
+    if (item.totalizador_vals.length > 0) {
+      result.totalizador_max = Number(
+        Math.max(...item.totalizador_vals).toFixed(2)
+      );
+    }
+
+    return result;
   }).sort((a, b) => a.fecha.localeCompare(b.fecha));
 
   return {

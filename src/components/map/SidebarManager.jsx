@@ -35,6 +35,8 @@ export const SidebarManager = ({
   agrupar,
   setAgrupar,
   queryCompleted,
+  shacsDisponibles,
+  juntasDisponibles,
 
   // Props para SidebarCuenca
   cuencaAnalysis,
@@ -83,6 +85,8 @@ export const SidebarManager = ({
           setAgrupar={setAgrupar}
           handleFiltroChange={handleFiltroChange}
           queryCompleted={queryCompleted}
+          shacsDisponibles={shacsDisponibles}
+          juntasDisponibles={juntasDisponibles}
         />
       )}
 
