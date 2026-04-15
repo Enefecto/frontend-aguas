@@ -74,7 +74,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
     const { name, value } = e.target;
 
     if (name === 'region') {
-      setFiltros({ region: value, cuenca: '', subcuenca: '', limit: filtros.limit, tipoPunto: filtros.tipoPunto, fechaInicio: filtros.fechaInicio, fechaFin: filtros.fechaFin, fechaPredefinida: filtros.fechaPredefinida });
+      setFiltros(prev => ({ ...prev, region: value, cuenca: '', subcuenca: '' }));
     } else if (name === 'cuenca') {
       setFiltros(prev => ({ ...prev, cuenca: value, subcuenca: '' }));
     } else if (name === 'tipoPunto') {

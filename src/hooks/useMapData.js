@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ApiService from '../services/apiService.js';
 
 export const useMapData = (apiUrl) => {
@@ -9,7 +9,7 @@ export const useMapData = (apiUrl) => {
   const [shacsDisponibles, setShacsDisponibles] = useState([]);
   const [juntasDisponibles, setJuntasDisponibles] = useState([]);
 
-  const apiService = new ApiService(apiUrl);
+  const apiService = useMemo(() => new ApiService(apiUrl), [apiUrl]);
 
   useEffect(() => {
     const loadInitialData = async () => {

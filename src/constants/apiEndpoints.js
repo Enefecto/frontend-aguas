@@ -52,7 +52,12 @@ export const FILTER_CONFIG = {
     apr: '',
     id_junta: '',
     limit: 10,
-    pozo: ''
+    pozo: '',
+    tipoPunto: '',
+    codigo_obra: '',
+    fechaInicio: '',
+    fechaFin: '',
+    fechaPredefinida: ''
   },
 
   // Configuración de caudal

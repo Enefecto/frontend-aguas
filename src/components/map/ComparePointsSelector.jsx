@@ -248,39 +248,6 @@ export const ComparePointsSelector = ({ selectedPoints, onPointSelect, onCompare
           </div>
         </div>
       )}
-
-      {/* Estilos de animación */}
-      <style jsx="true">{`
-        /* Posicionamiento del panel por defecto (hacia abajo) */
-        .compare-panel-container {
-          top: 100%;
-          margin-top: 8px;
-        }
-
-        /* En pantallas con altura menor a 800px, abrir hacia arriba */
-        @media (max-height: 800px) {
-          .compare-panel-container {
-            bottom: 100%;
-            top: auto;
-            margin-top: 0;
-            margin-bottom: 8px;
-          }
-        }
-
-        @keyframes fadeInScale {
-          from {
-            opacity: 0;
-            transform: translateX(-50%) scale(0.95) translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(-50%) scale(1) translateY(0);
-          }
-        }
-        .animate-fadeInScale {
-          animation: fadeInScale 0.2s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 };

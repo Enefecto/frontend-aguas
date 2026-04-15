@@ -102,7 +102,6 @@ export default function SidebarPunto({
 
   // Cargar informante si existe el punto
   useEffect(() => {
-    console.log("Intentando cargar informante:", { utm_norte: punto.utm_norte, utm_este: punto.utm_este, apiService: !!apiService, analisisPuntoSeleccionadoLoading });
     if (punto.utm_norte && punto.utm_este && apiService && !analisisPuntoSeleccionadoLoading) {
       setLoadingInformante(true);
       apiService.getInformantes({
@@ -111,7 +110,6 @@ export default function SidebarPunto({
         limit: 1
       })
         .then(data => {
-          console.log("Respuesta de informantes:", data);
           if (data && data.length > 0) {
             setUltimoInformante(data[0]);
           } else {

@@ -143,3 +143,5 @@ export const MarkerLayer = React.memo(({
     </LayerGroup>
   );
 });
+
+MarkerLayer.displayName = 'MarkerLayer';

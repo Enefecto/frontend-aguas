@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { UI_CONFIG } from '../constants/uiConfig.js';
 
 export const useFilterStatus = (puntos, filtros, filtroCaudal, ordenCaudal, isLoaded, handleCoordenadasUnicas, queryCompleted, limitMax) => {
@@ -6,6 +6,7 @@ export const useFilterStatus = (puntos, filtros, filtroCaudal, ordenCaudal, isLo
   const [isOpen, setIsOpen] = useState(false);
   const [hayFiltrosPendientes, setHayFiltrosPendientes] = useState(false);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const timeoutRef = useRef(null);
 
   // Animación de apertura del sidebar
   useEffect(() => {
@@ -27,6 +28,11 @@ export const useFilterStatus = (puntos, filtros, filtroCaudal, ordenCaudal, isLo
   useEffect(() => {
     if (queryCompleted) {
       setConsultandoPuntos(UI_CONFIG.LOADING_STATES.SUCCESS);
+      // Limpiar timeout de seguridad si la consulta terminó
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     }
   }, [queryCompleted]);
 
@@ -53,19 +59,34 @@ export const useFilterStatus = (puntos, filtros, filtroCaudal, ordenCaudal, isLo
     }
   }, [consultandoPuntos]);
 
+  // Limpiar timeout al desmontar
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleUpdateStateConsultandoPuntos = () => {
     setConsultandoPuntos(UI_CONFIG.LOADING_STATES.LOADING);
 
-    // ✅ Timeout de seguridad de 30 segundos
-    const timeoutId = setTimeout(() => {
-      if (consultandoPuntos === UI_CONFIG.LOADING_STATES.LOADING) {
-        console.warn('Timeout: La consulta tardó más de 30 segundos');
-        setConsultandoPuntos(UI_CONFIG.LOADING_STATES.ERROR);
-      }
-    }, 30000);
+    // Limpiar timeout anterior si existe
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
 
-    // Limpiar el timeout si el componente se desmonta o cambia
-    return () => clearTimeout(timeoutId);
+    // Timeout de seguridad de 30 segundos
+    timeoutRef.current = setTimeout(() => {
+      setConsultandoPuntos(prev => {
+        if (prev === UI_CONFIG.LOADING_STATES.LOADING) {
+          console.warn('Timeout: La consulta tardó más de 30 segundos');
+          return UI_CONFIG.LOADING_STATES.ERROR;
+        }
+        return prev;
+      });
+      timeoutRef.current = null;
+    }, 30000);
   };
 
   return {

@@ -58,8 +58,8 @@ export default function SidebarFiltros({
 
   return (
     <div
-      className={`absolute left-0 top-0 z-[${UI_CONFIG.Z_INDEX.SIDEBAR}] bg-white shadow-2xl h-full
-        w-screen sm:w-100 max-w-full sm:max-w-none transform transition-transform duration-${UI_CONFIG.ANIMATIONS.SIDEBAR_TRANSITION} ease-in-out
+      className={`absolute left-0 top-0 z-[1000] bg-white shadow-2xl h-full
+        w-screen sm:w-100 max-w-full sm:max-w-none transform transition-transform duration-500 ease-in-out
         grid
         ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       style={{

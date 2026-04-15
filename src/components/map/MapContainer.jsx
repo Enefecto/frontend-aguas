@@ -73,3 +73,5 @@ export const MapContainer = React.memo(({
     </LeafletMapContainer>
   );
 });
+
+MapContainer.displayName = 'MapContainer';

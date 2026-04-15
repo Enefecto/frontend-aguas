@@ -192,23 +192,6 @@ export const LayerSelector = ({ currentLayer, onLayerChange }) => {
           </div>
         </div>
       )}
-
-      {/* Estilos de animación */}
-      <style jsx="true">{`
-        @keyframes fadeInScale {
-          from {
-            opacity: 0;
-            transform: translateX(calc(-50% - 30px)) scale(0.95) translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(calc(-50% - 30px)) scale(1) translateY(0);
-          }
-        }
-        .animate-fadeInScale {
-          animation: fadeInScale 0.2s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 };

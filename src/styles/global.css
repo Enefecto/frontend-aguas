@@ -405,3 +405,36 @@
     animation: slideDownOutDesktop 0.3s ease-in forwards;
   }
 }
+
+/* Animación fadeInScale para paneles expandibles (LayerSelector, ComparePointsSelector) */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fadeInScale {
+  animation: fadeInScale 0.2s ease-out forwards;
+}
+
+/* Posicionamiento del panel de comparación de puntos */
+.compare-panel-container {
+  top: 100%;
+  margin-top: 8px;
+}
+
+/* En pantallas con altura menor a 800px, abrir hacia arriba */
+@media (max-height: 800px) {
+  .compare-panel-container {
+    bottom: 100%;
+    top: auto;
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+}
+
