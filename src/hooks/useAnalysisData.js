@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { UI_CONFIG } from '../constants/uiConfig.js';
 
 /**
@@ -185,7 +185,7 @@ export const useAnalysisData = (apiService) => {
   const [graficosPuntosData, setGraficosPuntosData] = useState([]);
 
   // Función para cargar análisis de cuenca
-  const loadCuencaAnalysis = async (nomCuenca, codCuenca) => {
+  const loadCuencaAnalysis = useCallback(async (nomCuenca, codCuenca) => {
     setCuencaAnalysis({ nombreCuenca: nomCuenca, codigoCuenca: codCuenca });
     setCuencaLoading(true);
     setGraphicsCuencasLoading({
@@ -218,7 +218,7 @@ export const useAnalysisData = (apiService) => {
       console.error("Error al obtener datos de análisis:", err);
       setCuencaLoading(false);
     }
-  };
+  }, [apiService]);
 
   // Función para cargar gráficos de cuenca
   const loadCuencasGraphics = async (pozo = null) => {
@@ -303,7 +303,7 @@ export const useAnalysisData = (apiService) => {
   };
 
   // Función para cargar análisis de punto
-  const loadPuntoAnalysis = async (punto) => {
+  const loadPuntoAnalysis = useCallback(async (punto) => {
     setAnalisisPuntoSeleccionadoLoading(true);
     setGraphicsPuntosLoading(UI_CONFIG.LOADING_STATES.IDLE);
 
@@ -319,7 +319,7 @@ export const useAnalysisData = (apiService) => {
       console.error("Error al obtener análisis del punto:", err);
       setAnalisisPuntoSeleccionadoLoading(false);
     }
-  };
+  }, [apiService]);
 
   // Función para cargar gráficos de punto
   const loadPuntosGraphics = async (utmNorte, utmEste) => {
@@ -344,7 +344,7 @@ export const useAnalysisData = (apiService) => {
   };
 
   // Función para cargar análisis de subcuenca
-  const loadSubcuencaAnalysis = async (nomSubcuenca, codSubcuenca, codCuenca = null, nomCuenca = null) => {
+  const loadSubcuencaAnalysis = useCallback(async (nomSubcuenca, codSubcuenca, codCuenca = null, nomCuenca = null) => {
     // Si es sin_registro, enviar cod_cuenca en lugar de cod_subcuenca
     const esSinRegistro = codSubcuenca === 'sin_registro';
     const parametros = esSinRegistro
@@ -388,7 +388,7 @@ export const useAnalysisData = (apiService) => {
       console.error("Error al obtener datos de análisis de subcuenca:", err);
       setSubcuencaLoading(false);
     }
-  };
+  }, [apiService]);
 
   // Función para cargar gráficos de subcuenca
   const loadSubcuencasGraphics = async (pozo = null) => {
