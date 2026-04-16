@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 export const useSidebarState = () => {
   const [sidebarAbierto, setSidebarAbierto] = useState(true);
@@ -6,32 +6,31 @@ export const useSidebarState = () => {
   const [rightSidebarAbiertoSubcuencas, setRightSidebarAbiertoSubcuencas] = useState(false);
   const [rightSidebarAbiertoPunto, setRightSidebarAbiertoPunto] = useState(false);
 
-  const openCuencaSidebar = () => {
+  const openCuencaSidebar = useCallback(() => {
     setRightSidebarAbiertoPunto(false);
     setRightSidebarAbiertoSubcuencas(false);
     setRightSidebarAbiertoCuencas(true);
-  };
+  }, []);
 
-  const openSubcuencaSidebar = () => {
+  const openSubcuencaSidebar = useCallback(() => {
     setRightSidebarAbiertoPunto(false);
     setRightSidebarAbiertoCuencas(false);
     setRightSidebarAbiertoSubcuencas(true);
-  };
+  }, []);
 
-  const openPuntoSidebar = () => {
+  const openPuntoSidebar = useCallback(() => {
     setRightSidebarAbiertoCuencas(false);
     setRightSidebarAbiertoSubcuencas(false);
     setRightSidebarAbiertoPunto(true);
-  };
+  }, []);
 
-  const closeRightSidebars = () => {
+  const closeRightSidebars = useCallback(() => {
     setRightSidebarAbiertoCuencas(false);
     setRightSidebarAbiertoSubcuencas(false);
     setRightSidebarAbiertoPunto(false);
-  };
+  }, []);
 
   return {
-    // Estados
     sidebarAbierto,
     setSidebarAbierto,
     rightSidebarAbiertoCuencas,
@@ -40,8 +39,6 @@ export const useSidebarState = () => {
     setRightSidebarAbiertoSubcuencas,
     rightSidebarAbiertoPunto,
     setRightSidebarAbiertoPunto,
-
-    // Funciones de conveniencia
     openCuencaSidebar,
     openSubcuencaSidebar,
     openPuntoSidebar,
