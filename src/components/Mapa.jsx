@@ -103,7 +103,11 @@ const MapaContent = () => {
     juntasDisponibles
   } = useMapContext();
 
-  const [agrupar, setAgrupar] = useState(true);
+  const [agrupar, setAgrupar] = useState(false);
+
+  useEffect(() => {
+    if (isLeafletLoaded) setAgrupar(true);
+  }, [isLeafletLoaded]);
 
   const handleShowSidebarCuencas = React.useCallback((nomCuenca, codCuenca) => {
     openCuencaSidebar();
