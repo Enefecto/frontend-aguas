@@ -1,8 +1,29 @@
-import React, { useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { Marker, Popup, LayerGroup, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { createDropIcon, getMarkerColor, createClusterIcon, isValidCoordinate } from '../../utils/mapUtils.js';
 import { PopupPunto } from '../Popups/PopupPunto.jsx';
+
+const useBoundsFilter = (puntos, agrupar) => {
+  const map = useMap();
+  const [bounds, setBounds] = useState(() => map.getBounds().pad(0.2));
+
+  useEffect(() => {
+    const update = () => setBounds(map.getBounds().pad(0.2));
+    map.on('moveend', update);
+    map.on('zoomend', update);
+    return () => {
+      map.off('moveend', update);
+      map.off('zoomend', update);
+    };
+  }, [map]);
+
+  if (agrupar) return puntos;
+
+  return puntos.filter(p =>
+    Number.isFinite(p.lat) && Number.isFinite(p.lon) && bounds.contains([p.lat, p.lon])
+  );
+};
 
 export const MarkerLayer = React.memo(({
   puntos,
@@ -17,6 +38,7 @@ export const MarkerLayer = React.memo(({
 }) => {
   const map = useMap();
   const clusterGroupRef = useRef(null);
+  const visiblePuntos = useBoundsFilter(puntos, agrupar);
 
   const handleMarkerClick = useCallback((punto) => {
     if (isSelectingPointForComparison) {
@@ -39,7 +61,7 @@ export const MarkerLayer = React.memo(({
   }, [selectedPointsForComparison]);
 
   const renderMarkers = useMemo(() => (
-    puntos
+    visiblePuntos
       .filter(isValidCoordinate)
       .map((punto, index) => {
         const color = getMarkerColor(punto);
@@ -74,7 +96,7 @@ export const MarkerLayer = React.memo(({
         );
       })
       .filter(Boolean) // Filtrar elementos null
-  ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService, isSelectingPointForComparison, handleMarkerClick, getComparisonIndex]);
+  ), [visiblePuntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService, isSelectingPointForComparison, handleMarkerClick, getComparisonIndex]);
 
   // Hook para refrescar clusters después de zoom automático
   useEffect(() => {
