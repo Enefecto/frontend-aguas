@@ -1,41 +1,41 @@
 import { MAP_CONFIG } from '../constants/mapConfig.js';
 
+const _iconCache = new Map();
+
 export const createDropIcon = (fill = MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTION, isHighlighted = false, comparisonIndex = null) => {
   const L = window.L;
   if (!L) return null;
 
-  // Si está destacado, usar un contorno cyan brillante con animación de pulso
+  if (!isHighlighted && !comparisonIndex) {
+    if (_iconCache.has(fill)) return _iconCache.get(fill);
+  }
+
   const strokeColor = isHighlighted ? '#06b6d4' : 'white';
   const strokeWidth = isHighlighted ? '3' : '2';
   const className = isHighlighted ? 'highlighted-marker' : '';
 
-  // Colores del badge según el índice de comparación
   const badgeColors = {
-    1: { bg: '#3B82F6', text: 'white' },  // Azul para Punto 1
-    2: { bg: '#F97316', text: 'white' }   // Naranja para Punto 2
+    1: { bg: '#3B82F6', text: 'white' },
+    2: { bg: '#F97316', text: 'white' }
   };
 
-  return L.divIcon({
+  const icon = L.divIcon({
     className: className,
     html: `
       <div style="position: relative; width: 28px; height: 36px;">
         <svg width="28" height="36" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
           ${isHighlighted ? `
-            <!-- Anillo de pulso para markers destacados -->
             <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
                   fill="none" stroke="#06b6d4" stroke-width="6" opacity="0.4">
               <animate attributeName="stroke-width" values="6;10;6" dur="1.5s" repeatCount="indefinite"/>
               <animate attributeName="opacity" values="0.4;0.1;0.4" dur="1.5s" repeatCount="indefinite"/>
             </path>
           ` : ''}
-          <!-- contorno para contraste -->
           <path d="M14 2 C14 2 4 15 4 21 a10 10 0 0 0 20 0 C24 15 14 2 14 2z"
                 fill="${fill}" stroke="${strokeColor}" stroke-width="${strokeWidth}"/>
-          <!-- brillo sutil -->
           <ellipse cx="11" cy="18" rx="2.2" ry="3.6" fill="rgba(255,255,255,0.35)"/>
         </svg>
         ${comparisonIndex ? `
-          <!-- Badge numerado para comparación -->
           <div style="
             position: absolute;
             top: -8px;
@@ -63,6 +63,12 @@ export const createDropIcon = (fill = MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTIO
     iconAnchor: MAP_CONFIG.ICON_CONFIG.ANCHOR,
     popupAnchor: MAP_CONFIG.ICON_CONFIG.POPUP_ANCHOR,
   });
+
+  if (!isHighlighted && !comparisonIndex) {
+    _iconCache.set(fill, icon);
+  }
+
+  return icon;
 };
 
 export const getMarkerColor = (punto) => {
