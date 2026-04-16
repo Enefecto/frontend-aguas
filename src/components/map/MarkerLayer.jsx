@@ -110,7 +110,7 @@ export const MarkerLayer = React.memo(({
     }
   }, [agrupar, map]);
 
-  if (agrupar) {
+  if (agrupar && puntos.length > 0) {
     return (
       <MarkerClusterGroup
         key="cluster-on"
