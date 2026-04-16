@@ -15,6 +15,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   const [puntos, setPuntos] = useState([]);
   const [limiteSolicitado, setLimiteSolicitado] = useState();
   const [queryCompleted, setQueryCompleted] = useState(false);
+  const [limitMaxFromQuery, setLimitMaxFromQuery] = useState(null);
 
   // Opciones filtradas para los selects
   const filteredOptions = useMemo(() =>
@@ -29,23 +30,27 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   );
 
   // Límite máximo dinámico
-  const limitMax = useMemo(() =>
+  const limitMaxFromStats = useMemo(() =>
     calculateLimitMax(filtros, minMaxDatosOriginales, isLoaded),
     [filtros, minMaxDatosOriginales, isLoaded]
   );
+
+  // Usar el total real de la última query si está disponible (más preciso que las estadísticas)
+  const limitMax = limitMaxFromQuery ?? limitMaxFromStats;
 
   // Valores min/max para el slider
   const min = Math.floor(caudalRange?.avgMin ?? 0);
   const max = Math.ceil(caudalRange?.avgMax ?? 1000);
 
-  // Actualizar rango de caudal cuando cambien filtros
+  // Actualizar rango de caudal cuando cambien cuenca/subcuenca o carguen datos
   useEffect(() => {
-    if (isLoaded && caudalRange) {
-      const nuevoMin = Math.floor(caudalRange.avgMin);
-      const nuevoMax = Math.ceil(caudalRange.avgMax);
-      setFiltroCaudal([nuevoMin, nuevoMax]);
+    if (isLoaded) {
+      const range = calculateCaudalRange(filtros, minMaxDatosOriginales, isLoaded);
+      if (range) {
+        setFiltroCaudal([Math.floor(range.avgMin ?? 0), Math.ceil(range.avgMax ?? 1000)]);
+      }
     }
-  }, [filtros.cuenca, filtros.subcuenca, isLoaded, caudalRange]);
+  }, [filtros.cuenca, filtros.subcuenca, isLoaded, minMaxDatosOriginales]);
 
   // Actualizar límite cuando cambie limitMax o cuando cambien los filtros geográficos
   useEffect(() => {
@@ -61,10 +66,11 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
     }
   }, [limitMax, isLoaded, filtros.region, filtros.cuenca, filtros.subcuenca]);
 
-  // Limpiar puntos cuando cambien filtros para evitar cache
+  // Limpiar puntos y totales reales cuando cambien filtros para evitar cache
   useEffect(() => {
     setPuntos([]);
     setQueryCompleted(false);
+    setLimitMaxFromQuery(null);
   }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.tipoPunto,
       filtros.shac, filtros.apr, filtros.id_junta,
       filtros.fechaInicio, filtros.fechaFin, filtros.fechaPredefinida]);
@@ -98,7 +104,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
         ? { ...filtros, limit: overrideLimit }
         : filtros;
 
-      const queryParams = buildQueryParams(filtrosParaQuery, filtroCaudal, ordenCaudal, datosOriginales);
+      const queryParams = buildQueryParams(filtrosParaQuery, filtroCaudal, ordenCaudal, datosOriginales, limitMax);
       const data = await apiService.getPuntos(queryParams);
 
       if (Array.isArray(data)) {
@@ -106,7 +112,16 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
         const puntosConvertidos = data.map(punto => convertPuntoUTMtoLatLon(punto));
 
         setPuntos(puntosConvertidos);
-        setLimiteSolicitado(overrideLimit !== null ? overrideLimit : filtros.limit);
+        const limiteUsado = overrideLimit !== null ? overrideLimit : filtros.limit;
+        const totalReal = puntosConvertidos.length;
+        // Si retornó menos que el límite, sabemos el total real de puntos para estos filtros
+        if (totalReal < limiteUsado) {
+          setLimitMaxFromQuery(totalReal);
+          setFiltros(prev => ({ ...prev, limit: totalReal }));
+        }
+        // Solo mostrar advertencia si la API retornó exactamente el límite (puede haber más)
+        setLimiteSolicitado(totalReal >= limiteUsado ? limiteUsado : totalReal);
+
         setQueryCompleted(true);
       } else {
         console.error("Respuesta inesperada:", data);

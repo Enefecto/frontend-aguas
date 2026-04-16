@@ -65,5 +65,5 @@ export const FILTER_CONFIG = {
   DEFAULT_ORDEN_CAUDAL: 'max',
 
   // Límites
-  DEFAULT_LIMIT_MAX: 100
+  DEFAULT_LIMIT_MAX: 10000
 };

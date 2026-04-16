@@ -1,121 +1,80 @@
 # CLAUDE.md
 
-Este archivo proporciona orientación a Claude Code (claude.ai/code) cuando trabaja con código en este repositorio.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Comandos
+## Commands
 
-### Desarrollo
-- `npm run dev` - Iniciar el servidor de desarrollo
-- `npm run build` - Construir el proyecto para producción
-- `npm run preview` - Previsualizar la construcción de producción
+- `npm run dev` - Start dev server
+- `npm run build` - Production build
+- `npm run preview` - Preview production build
 
-## Arquitectura del Proyecto
+No test runner or linter is configured.
 
-Esta es una aplicación **Astro + React + Leaflet** que crea un mapa interactivo de recursos hídricos con capacidades de análisis.
+## Environment
 
-### Stack Tecnológico Principal
-- **Astro**: Generador de sitios estáticos con integración de React
-- **React**: Biblioteca de componentes para elementos de UI interactivos
-- **Leaflet**: Renderizado de mapas y características geoespaciales
-- **Tailwind CSS**: Framework de estilos
-- **Material-UI**: Componentes UI para sidebars y formularios
+Create `.env` with:
+```
+PUBLIC_API_URL=http://localhost:8000
+```
 
-### Estructura de la Aplicación
+All API calls go through `src/services/apiService.js`. Endpoints are centralized in `src/constants/apiEndpoints.js`. The `PUBLIC_` prefix is required for Astro to expose the variable to client-side code.
 
-**Punto de Entrada Principal**: `src/pages/index.astro`
-- Renderiza la navegación principal e incrusta el componente MapaRefactorizado
-- Usa la directiva `client:only="react"` para el componente del mapa
-- Pasa la URL de la API desde variables de entorno
+## Architecture
 
-**Componente Principal Refactorizado**: `src/components/MapaRefactorizado.jsx`
-- Implementa el patrón Provider/Consumer con Context API
-- Divide la lógica en custom hooks especializados
-- Gestiona estado global mediante MapContext
-- Utiliza componentes modulares para el mapa y sidebars
+**Entry point**: `src/pages/index.astro` renders `<Mapa client:only="react" apiUrl={...} />`. The `client:only="react"` directive is essential — Leaflet requires the DOM and cannot SSR.
 
-**Arquitectura Modular**:
-- **Context API**: `src/contexts/MapContext.jsx` - Estado global de la aplicación
-- **Custom Hooks**: `src/hooks/` - Lógica de negocio especializada
-- **Servicios**: `src/services/apiService.js` - Abstracción de llamadas API
-- **Utilidades**: `src/utils/` - Funciones puras reutilizables
-- **Constantes**: `src/constants/` - Configuraciones centralizadas
+**Component tree**:
+```
+Mapa.jsx
+└── MapProvider (MapContext.jsx)         ← all state lives here
+    ├── MapContainer.jsx                 ← Leaflet map, markers, draw tools
+    └── SidebarManager.jsx               ← routes sidebar visibility to correct sidebar
+        ├── SidebarFiltros.jsx           ← filter controls
+        ├── SidebarCuenca.jsx            ← cuenca/subcuenca/SHAC analysis + charts
+        └── SidebarPunto.jsx             ← individual point analysis + time series
+```
 
-### Organización de Componentes Clave
+**State management**: `MapContext.jsx` composes four hooks and spreads them into context:
+- `useMapData` — fetches initial cuencas + filtros reactivos + SHACs/Juntas on mount
+- `useFilterLogic` — manages `filtros` state, derives select options, builds query params, fetches puntos
+- `useSidebarState` — tracks which sidebar is open and what cuenca/punto is selected
+- `useAnalysisData` — lazy-fetches time series and analysis data when a cuenca/punto is clicked
 
-**Componentes del Mapa** (`src/components/map/`):
-- `MapContainer.jsx` - Contenedor principal del mapa con capas base
-- `MarkerLayer.jsx` - Gestión de marcadores y clustering
-- `SidebarManager.jsx` - Orquestador de todos los sidebars
+All components consume context via `useMapContext()`. Never pass props through multiple layers — add to context instead.
 
-**Sidebars** (`src/components/sidebars/`):
-- `SidebarFiltrosRefactored.jsx` - Controles de filtro modulares y optimizados
-- `FilterSection.jsx` - Componentes de filtro reutilizables
-- `SidebarCuenca.jsx` - Análisis de cuencas con gráficos y estadísticas
-- `SidebarPunto.jsx` - Análisis específico de puntos y datos de series temporales
+## Key Data Flow
 
-**Componentes UI Reutilizables** (`src/components/ui/`):
-- `LoadingSpinner.jsx` - Spinner de carga reutilizable
-- `StatusButton.jsx` - Botón con estados (loading, success, error)
-- `FilterGroup.jsx` - Contenedores y controles de filtro
-- `CustomSwitch.jsx` - Switch personalizado con Material-UI
+**Filter → API translation** (`src/utils/filterUtils.js:buildQueryParams`):
+- Filter state uses display names (`filtros.cuenca = "Maipo"`)
+- `buildQueryParams` looks up `cod_cuenca` from `datosOriginales` before sending to API
+- `filtros.subcuenca = 'No registrada'` sends `filtro_null_subcuenca=true` instead of a code
+- All filter values are sanitized via `src/utils/sanitize.js` before appending to URLSearchParams
 
-**Componentes Legacy** (`src/components/UI/`):
-- `Leyend.jsx` - Componente de leyenda del mapa
-- `EstadisticBox.jsx` - Cajas de visualización de estadísticas
+**`datosOriginales`** holds the full cuencas array from `/api/cuencas`. It serves dual purpose: Leaflet polygon rendering and as a lookup table for deriving filter codes.
 
-**Herramientas Interactivas** (`src/components/tools/`):
-- `ToolsEditControl.jsx` - Herramientas de dibujo y edición para el mapa
+**Cascading filter options** are computed via `useMemo` in `useFilterLogic` using `getFilteredOptions()`. Region selection clears cuenca; cuenca selection clears subcuenca.
 
-**Popups** (`src/components/Popups/`):
-- Varios componentes popup para mostrar información de puntos
+## Leaflet Loading
 
-### Flujo de Datos e Integración de API
+`Mapa.jsx` manually sets `window.L` before importing `leaflet-draw`:
+```js
+const L = await import('leaflet');
+window.L = L.default;
+await import('leaflet-draw');
+```
+This ordering is required — `leaflet-draw` expects `window.L` to exist. Do not move or parallelize these imports.
 
-La aplicación obtiene datos de una API backend (configurada vía archivo `.env`):
+## Points (Puntos)
 
-**Endpoints Principales de Datos**:
-- `/cuencas` - Datos de límites de cuencas
-- `/cuencas/stats` - Datos estadísticos para filtrado
-- `/puntos` - Puntos de medición de agua con capacidades de filtrado
-- `/cuencas/analisis_caudal` - Análisis de caudal de cuencas
-- `/cuencas/analisis_informantes` - Análisis de informantes con gráficos
-- `/puntos/estadisticas` - Estadísticas de puntos individuales
-- `/puntos/series_de_tiempo/caudal` - Datos de series temporales de caudal
+Points are identified by `(utm_norte, utm_este)` coordinate pairs — there is no unique ID field. All point-specific API calls (`getPuntosEstadisticas`, `getPuntosSeriesTiempo*`) take these two values. The popup and sidebar both receive the point object from the marker click.
 
-**Patrón de Gestión de Estado Refactorizado**:
-La aplicación usa un enfoque modular con Context API y custom hooks:
-- **MapContext**: Estado global compartido entre componentes
-- **useMapData**: Gestión de datos iniciales y API service
-- **useFilterLogic**: Lógica compleja de filtros y cálculos derivados
-- **useSidebarState**: Estados de visibilidad de sidebars
-- **useAnalysisData**: Datos de análisis de cuencas y puntos
-- **useFilterStatus**: Estados de UI para controles de filtros
+## Marker Colors
 
-### Características del Mapa
+Defined in `src/constants/mapConfig.js`:
+- Surface extraction (altura limnimétrica): `#FF5722` orange
+- Underground extraction (nivel freático): `#2E7BCC` blue  
+- Unclassified: `#9CA3AF` gray
 
-**Marcadores Personalizados**:
-- Iconos SVG de gotas de agua con diferentes colores para tipos de puntos
-- Naranja (#FF5722) para puntos de extracción superficial (altura limnimétrica)
-- Azul (#2E7BCC) para extracciones subterráneas (nivel freático)
+## UI Components Note
 
-**Agrupación**:
-- Agrupación opcional de marcadores usando react-leaflet-cluster
-- Estilo personalizado de clusters con conteos de puntos
-
-**Herramientas de Dibujo**:
-- Integración de Leaflet Draw para crear formas en el mapa
-- Análisis personalizado para puntos dentro de áreas dibujadas
-
-### Sistema de Filtrado
-
-Sistema de filtrado complejo con dependencias en cascada:
-- Jerarquía Región → Cuenca → Subcuenca
-- Filtrado por rango de caudal con min/max dinámicos basados en el área seleccionada
-- Filtrado por tipo de punto
-- Controles de límite de resultados
-
-### Configuración de Entorno
-
-- URL de API configurada vía archivo `.env` con variable `PUBLIC_API_URL`
-- Accedida en componentes Astro vía `import.meta.env.PUBLIC_API_URL`
-- **Importante**: Las variables de entorno públicas en Astro deben tener el prefijo `PUBLIC_` para estar disponibles en el cliente
+There are two UI component directories: `src/components/UI/` (legacy, capitalized) and `src/components/ui/` (newer, lowercase). Prefer the lowercase `ui/` directory for new reusable components.

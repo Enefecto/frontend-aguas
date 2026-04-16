@@ -11,7 +11,7 @@ const LIMIT_MAX = 10000; // Límite superior para prevenir sobrecarga
 const ALLOWED_POZO_VALUES = ['true', 'false', ''];
 const ALLOWED_FILTRO_NULL_VALUES = ['true', 'false'];
 
-export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOriginales) => {
+export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOriginales, limitMax = FILTER_CONFIG.DEFAULT_LIMIT_MAX) => {
   const cuencaCod = datosOriginales.find(
     d => d.nom_cuenca === filtros.cuenca
   )?.cod_cuenca;
@@ -67,12 +67,13 @@ export const buildQueryParams = (filtros, filtroCaudal, ordenCaudal, datosOrigin
   queryParams.append("caudal_minimo", String(caudalMinValidado));
   queryParams.append("caudal_maximo", String(caudalMaxValidado));
 
-  // Validar limit: asegurar que esté en rango razonable
+  // Validar limit: usar el máximo dinámico de puntos disponibles
+  const effectiveLimitMax = Math.max(limitMax, LIMIT_MIN);
   const limitValidado = validateFilterInput(
-    filtros.limit || 120,
+    filtros.limit || effectiveLimitMax,
     LIMIT_MIN,
-    LIMIT_MAX,
-    120
+    effectiveLimitMax,
+    effectiveLimitMax
   );
   queryParams.append("limit", String(limitValidado));
 
@@ -141,6 +142,30 @@ export const getFilteredOptions = (datosOriginales, filtros) => {
   };
 };
 
+// Normaliza un objeto de rango de caudal aceptando tanto camelCase como snake_case
+const normalizeCaudalRange = (obj) => {
+  if (!obj) return null;
+  return {
+    avgMin: obj.avgMin ?? obj.avg_min ?? 0,
+    avgMax: obj.avgMax ?? obj.avg_max ?? 1000,
+  };
+};
+
+const computeGlobalRangeFromCuencas = (caudal_por_cuenca) => {
+  if (!caudal_por_cuenca?.length) return { avgMin: 0, avgMax: 1000 };
+  let globalMin = Infinity;
+  let globalMax = -Infinity;
+  for (const c of caudal_por_cuenca) {
+    if (c.nom_cuenca === null) continue; // ignorar puntos sin cuenca asignada
+    const min = c.avgMin ?? c.avg_min;
+    const max = c.avgMax ?? c.avg_max;
+    if (min != null && !isNaN(min)) globalMin = Math.min(globalMin, min);
+    if (max != null && !isNaN(max)) globalMax = Math.max(globalMax, max);
+  }
+  if (!isFinite(globalMin) || !isFinite(globalMax)) return { avgMin: 0, avgMax: 1000 };
+  return { avgMin: globalMin, avgMax: globalMax };
+};
+
 export const calculateCaudalRange = (filtros, minMaxDatosOriginales, isLoaded) => {
   if (!isLoaded || !minMaxDatosOriginales) return { avgMin: 0, avgMax: 1000 };
 
@@ -148,27 +173,30 @@ export const calculateCaudalRange = (filtros, minMaxDatosOriginales, isLoaded) =
 
   // Intentar buscar por subcuenca si existe
   if (filtros.subcuenca) {
-    const resultSub = caudal_por_subcuenca.find(c =>
+    const resultSub = caudal_por_subcuenca?.find(c =>
       (c.nom_subcuenca ?? 'No registrada') === filtros.subcuenca &&
       (!filtros.cuenca || c.nom_cuenca === filtros.cuenca)
     );
-    if (resultSub) return resultSub;
+    if (resultSub) return normalizeCaudalRange(resultSub);
   }
 
   // Buscar por cuenca si está definida
   if (filtros.cuenca) {
-    const resultCuenca = caudal_por_cuenca.find(c => c.nom_cuenca === filtros.cuenca);
-    if (resultCuenca) return resultCuenca;
+    const resultCuenca = caudal_por_cuenca?.find(c => c.nom_cuenca === filtros.cuenca);
+    if (resultCuenca) return normalizeCaudalRange(resultCuenca);
   }
 
-  // Si nada coincide, retornar global
-  return caudal_global;
+  // Global: usar caudal_global si tiene datos, sino computar desde cuencas
+  const globalNorm = normalizeCaudalRange(caudal_global);
+  if (globalNorm.avgMax > 0) return globalNorm;
+  return computeGlobalRangeFromCuencas(caudal_por_cuenca);
 };
 
 export const calculateLimitMax = (filtros, minMaxDatosOriginales, isLoaded) => {
   if (!isLoaded || !minMaxDatosOriginales) return FILTER_CONFIG.DEFAULT_LIMIT_MAX;
 
   const { caudal_global, caudal_por_cuenca, caudal_por_subcuenca } = minMaxDatosOriginales;
+  if (!caudal_global) return FILTER_CONFIG.DEFAULT_LIMIT_MAX;
 
   // Subcuenca seleccionada
   if (filtros.subcuenca) {
@@ -206,6 +234,11 @@ export const calculateLimitMax = (filtros, minMaxDatosOriginales, isLoaded) => {
     if (matchCuenca) return matchCuenca.total_puntos || FILTER_CONFIG.DEFAULT_LIMIT_MAX;
   }
 
-  // Global por defecto
-  return caudal_global.total_puntos_unicos || FILTER_CONFIG.DEFAULT_LIMIT_MAX;
+  // Sumar total_puntos de todas las cuencas nombradas (excluyendo puntos sin cuenca)
+  const totalDesdeCuencas = caudal_por_cuenca
+    ?.filter(c => c.nom_cuenca !== null)
+    .reduce((acc, c) => acc + (c.total_puntos || 0), 0);
+  if (totalDesdeCuencas > 0) return totalDesdeCuencas;
+
+  return caudal_global.total_puntos_unicos ?? caudal_global.total_puntos ?? caudal_global.count ?? FILTER_CONFIG.DEFAULT_LIMIT_MAX;
 };

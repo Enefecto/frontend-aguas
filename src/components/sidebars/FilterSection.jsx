@@ -32,48 +32,48 @@ export const SubcuencaFilter = ({ filtros, handleFiltroChange, subcuencasUnicas 
   />
 );
 
-export const LimitFilter = ({ filtros, setFiltros, limitMax }) => (
-  <div className="mb-6">
-    <label className="block font-medium mb-10">Cantidad de puntos límite:</label>
-    <div className="flex items-center gap-4">
-      <Slider
-        min={1}
-        max={limitMax}
-        step={1}
-        value={filtros.limit > limitMax ? limitMax : filtros.limit}
-        onChange={(e, newValue) => {
-          setFiltros(prev => ({
-            ...prev,
-            limit: Number(newValue)
-          }));
-        }}
-        valueLabelDisplay="on"
-      />
+export const LimitFilter = ({ filtros, setFiltros, limitMax }) => {
+  const effectiveValue = Math.min(filtros.limit, limitMax);
+  return (
+    <div className="mb-6">
+      <label className="block font-medium mb-10">Cantidad de puntos límite:</label>
+      <div className="flex items-center gap-4">
+        <Slider
+          key={limitMax}
+          min={1}
+          max={limitMax}
+          step={1}
+          value={effectiveValue}
+          onChange={(e, newValue) => {
+            setFiltros(prev => ({ ...prev, limit: Number(newValue) }));
+          }}
+          valueLabelDisplay="on"
+        />
 
-      <TextField
-        type="number"
-        variant="outlined"
-        size="small"
-        value={filtros.limit}
-        onChange={(e) => {
-          const value = Number(e.target.value);
-          if (!isNaN(value)) {
-            const clamped = Math.max(1, Math.min(limitMax, value));
-            setFiltros(prev => ({
-              ...prev,
-              limit: clamped
-            }));
-          }
-        }}
-        inputProps={{
-          min: 1,
-          max: limitMax,
-          style: { width: 90, textAlign: 'center' }
-        }}
-      />
+        <TextField
+          type="number"
+          variant="outlined"
+          size="small"
+          value={effectiveValue}
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            if (!isNaN(value)) {
+              setFiltros(prev => ({
+                ...prev,
+                limit: Math.max(1, Math.min(limitMax, value))
+              }));
+            }
+          }}
+          inputProps={{
+            min: 1,
+            max: limitMax,
+            style: { width: 90, textAlign: 'center' }
+          }}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const CaudalFilter = ({ filtroCaudal, setFiltroCaudal, min, max }) => (
   <div className="mb-6">
@@ -154,7 +154,7 @@ export const AprFilter = ({ filtros, handleFiltroChange }) => (
     value={filtros.apr ?? ""}
     onChange={handleFiltroChange}
     options={[
-      { value: "true", label: "Sí (APR)" },
+      { value: "true", label: "Sí" },
       { value: "false", label: "No" }
     ]}
     placeholder="-- Todos --"

@@ -16,13 +16,30 @@ export const useMapData = (apiUrl) => {
       try {
         setError(null);
 
-        const [cuencasResponse, filtrosResponse] = await Promise.all([
+        // Cargar cuencas (requerido) y filtros reactivos (opcional) de forma independiente
+        const [cuencasResponse, filtrosResponse] = await Promise.allSettled([
           apiService.getCuencas(),
           apiService.getFiltrosReactivos()
         ]);
 
-        setDatosOriginales(cuencasResponse.cuencas);
-        setMinMaxDatosOriginales(filtrosResponse.estadisticas);
+        // Cuencas es requerido para que la app funcione
+        if (cuencasResponse.status === 'fulfilled') {
+          setDatosOriginales(cuencasResponse.value.cuencas);
+        } else {
+          console.error("Error al cargar cuencas:", cuencasResponse.reason);
+          setError(cuencasResponse.reason);
+          setIsLoaded(false);
+          return;
+        }
+
+        // Filtros reactivos es opcional (min/max para sliders)
+        if (filtrosResponse.status === 'fulfilled') {
+          setMinMaxDatosOriginales(filtrosResponse.value.estadisticas);
+        } else {
+          console.warn("Filtros reactivos no disponibles, usando valores por defecto:", filtrosResponse.reason?.message);
+          setMinMaxDatosOriginales([]);
+        }
+
         setIsLoaded(true);
       } catch (err) {
         console.error("Error al cargar datos iniciales:", err);
