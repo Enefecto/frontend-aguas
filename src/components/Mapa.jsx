@@ -98,7 +98,7 @@ const MapaContent = () => {
     juntasDisponibles
   } = useMapContext();
 
-  const [agrupar, setAgrupar] = useState(false);
+  const [agrupar, setAgrupar] = useState(true);
 
   const handleShowSidebarCuencas = React.useCallback((nomCuenca, codCuenca) => {
     openCuencaSidebar();
