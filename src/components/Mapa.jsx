@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -16,6 +16,11 @@ const MapaContent = () => {
   const [isSelectingPoint, setIsSelectingPoint] = useState(null); // null, 0, o 1
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showDuplicateError, setShowDuplicateError] = useState(false);
+  const stableSelectedPoints = useMemo(
+    () => selectedPointsForComparison,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedPointsForComparison[0], selectedPointsForComparison[1]]
+  );
 
   // Cargar leaflet-draw solo después de que leaflet esté disponible
   useEffect(() => {
@@ -131,25 +136,23 @@ const MapaContent = () => {
 
   const handlePointClickForComparison = React.useCallback((punto) => {
     if (isSelectingPoint !== null) {
-      // Verificar si el punto ya está seleccionado en el otro slot comparando coordenadas
       const otherSlotIndex = isSelectingPoint === 0 ? 1 : 0;
-      const otherPoint = selectedPointsForComparison[otherSlotIndex];
+      const otherPoint = stableSelectedPoints[otherSlotIndex];
 
       if (otherPoint &&
           otherPoint.lat === punto.lat &&
           otherPoint.lon === punto.lon) {
-        // Mostrar error de duplicado
         setShowDuplicateError(true);
         setTimeout(() => setShowDuplicateError(false), 2000);
         return;
       }
 
-      const newPoints = [...selectedPointsForComparison];
+      const newPoints = [...stableSelectedPoints];
       newPoints[isSelectingPoint] = punto;
       setSelectedPointsForComparison(newPoints);
       setIsSelectingPoint(null);
     }
-  }, [isSelectingPoint, selectedPointsForComparison]);
+  }, [isSelectingPoint, stableSelectedPoints]);
 
   const handleCompare = () => {
     if (selectedPointsForComparison[0] && selectedPointsForComparison[1]) {
@@ -181,11 +184,11 @@ const MapaContent = () => {
         handleShowSidebarPunto={handleShowSidebarPunto}
         isSelectingPointForComparison={isSelectingPoint !== null}
         onPointClickForComparison={handlePointClickForComparison}
-        selectedPointsForComparison={selectedPointsForComparison}
+        selectedPointsForComparison={stableSelectedPoints}
       />
 
       <ComparePointsSelector
-        selectedPoints={selectedPointsForComparison}
+        selectedPoints={stableSelectedPoints}
         onPointSelect={handlePointSelect}
         onCompare={handleCompare}
         isSelectingPoint={isSelectingPoint}
@@ -194,8 +197,8 @@ const MapaContent = () => {
       <ComparePointsModal
         isOpen={showCompareModal}
         onClose={() => setShowCompareModal(false)}
-        point1={selectedPointsForComparison[0]}
-        point2={selectedPointsForComparison[1]}
+        point1={stableSelectedPoints[0]}
+        point2={stableSelectedPoints[1]}
         apiService={apiService}
       />
 
