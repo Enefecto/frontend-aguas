@@ -6,9 +6,10 @@ import { PopupPunto } from '../Popups/PopupPunto.jsx';
 
 const useBoundsFilter = (puntos, agrupar) => {
   const map = useMap();
-  const [bounds, setBounds] = useState(() => map.getBounds().pad(0.2));
+  const [bounds, setBounds] = useState(null);
 
   useEffect(() => {
+    setBounds(map.getBounds().pad(0.2));
     if (agrupar) return;
     const update = () => setBounds(map.getBounds().pad(0.2));
     map.on('moveend', update);
@@ -19,7 +20,7 @@ const useBoundsFilter = (puntos, agrupar) => {
     };
   }, [map, agrupar]);
 
-  if (agrupar) return puntos;
+  if (agrupar || !bounds) return puntos;
 
   return puntos.filter(p =>
     Number.isFinite(p.lat) && Number.isFinite(p.lon) && bounds.contains([p.lat, p.lon])
