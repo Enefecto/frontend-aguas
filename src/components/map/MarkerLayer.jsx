@@ -9,6 +9,7 @@ const useBoundsFilter = (puntos, agrupar) => {
   const [bounds, setBounds] = useState(() => map.getBounds().pad(0.2));
 
   useEffect(() => {
+    if (agrupar) return;
     const update = () => setBounds(map.getBounds().pad(0.2));
     map.on('moveend', update);
     map.on('zoomend', update);
@@ -16,7 +17,7 @@ const useBoundsFilter = (puntos, agrupar) => {
       map.off('moveend', update);
       map.off('zoomend', update);
     };
-  }, [map]);
+  }, [map, agrupar]);
 
   if (agrupar) return puntos;
 

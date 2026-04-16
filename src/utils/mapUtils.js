@@ -6,7 +6,7 @@ export const createDropIcon = (fill = MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTIO
   const L = window.L;
   if (!L) return null;
 
-  if (!isHighlighted && !comparisonIndex) {
+  if (!isHighlighted && comparisonIndex === null) {
     if (_iconCache.has(fill)) return _iconCache.get(fill);
   }
 
@@ -64,7 +64,7 @@ export const createDropIcon = (fill = MAP_CONFIG.MARKER_COLORS.SURFACE_EXTRACTIO
     popupAnchor: MAP_CONFIG.ICON_CONFIG.POPUP_ANCHOR,
   });
 
-  if (!isHighlighted && !comparisonIndex) {
+  if (!isHighlighted && comparisonIndex === null) {
     _iconCache.set(fill, icon);
   }
 
