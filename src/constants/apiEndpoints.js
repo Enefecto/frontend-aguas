@@ -39,7 +39,12 @@ export const API_ENDPOINTS = {
   SUBSUBCUENCAS_SERIES_TIEMPO_NIVEL_FREATICO: '/api/cuencas/subsubcuenca/series_de_tiempo/nivel_freatico',
 
   // Endpoints de informantes
-  INFORMANTES: '/api/informantes'
+  INFORMANTES: '/api/informantes',
+
+  // Endpoints de derechos de agua
+  PUNTOS_DERECHOS: '/api/puntos/derechos',
+  CUENCAS_DERECHOS: '/api/cuencas/derechos',
+  SUBCUENCAS_DERECHOS: '/api/subcuencas/derechos'
 };
 
 export const FILTER_CONFIG = {

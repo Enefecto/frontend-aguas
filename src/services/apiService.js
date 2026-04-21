@@ -192,6 +192,18 @@ class ApiService {
     return this.request(`${API_ENDPOINTS.PUNTOS_SERIES_TIEMPO_ALTURA_LIMNIMETRICA}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
   }
 
+  async getPuntoDerechos(utmNorte, utmEste) {
+    return this.request(`${API_ENDPOINTS.PUNTOS_DERECHOS}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
+  }
+
+  async getCuencaDerechos(codCuenca) {
+    return this.request(`${API_ENDPOINTS.CUENCAS_DERECHOS}?cod_cuenca=${codCuenca}`);
+  }
+
+  async getSubcuencaDerechos(codCuenca, codSubcuenca) {
+    return this.request(`${API_ENDPOINTS.SUBCUENCAS_DERECHOS}?cod_cuenca=${codCuenca}&cod_subcuenca=${codSubcuenca}`);
+  }
+
   // Métodos para SHAC
   async getShacs() {
     return this.request(API_ENDPOINTS.SHACS);
