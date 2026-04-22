@@ -3,7 +3,7 @@ import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
 import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import TimeSeriesChartPair from '../charts/TimeSeriesChartPair';
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import ApiService from '../../services/apiService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -22,6 +22,8 @@ export default function SidebarSubcuenca({
   const [loadingInformantes, setLoadingInformantes] = useState(false);
   const [filtroTipoExtraccion, setFiltroTipoExtraccion] = useState(null);
   const isInitialMount = useRef(true);
+  const [derechosSubcuenca, setDerechosSubcuenca] = useState(null);
+  const derechosFetched = useRef(false);
 
   // Recargar gráficos si cambia el filtro y ya estaban cargados/cargándose
   useEffect(() => {
@@ -73,6 +75,22 @@ export default function SidebarSubcuenca({
       setTopInformantes([]);
     }
   }, [subcuencaAnalysis, graphicsSubcuencasLoading, apiService]);
+
+  const handleRequestDerechos = useCallback(() => {
+    if (!subcuencaAnalysis?.codigoSubcuenca || !subcuencaAnalysis?.codigoCuenca || !apiService || derechosFetched.current) return;
+    derechosFetched.current = true;
+    apiService.getSubcuencaDerechos(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca)
+      .then(data => setDerechosSubcuenca(data))
+      .catch(() => {
+        derechosFetched.current = false;
+        setDerechosSubcuenca(null);
+      });
+  }, [subcuencaAnalysis?.codigoSubcuenca, subcuencaAnalysis?.codigoCuenca, apiService]);
+
+  useEffect(() => {
+    setDerechosSubcuenca(null);
+    derechosFetched.current = false;
+  }, [subcuencaAnalysis?.codigoSubcuenca]);
 
   return (
     <div
@@ -134,6 +152,21 @@ export default function SidebarSubcuenca({
       ) : (
         <div className="space-y-2 mt-16 mx-auto flex justify-center">
           <TrophySpin color="#155e75" size="large" text="Cargando..." textColor="#000000" />
+        </div>
+      )}
+
+      {derechosSubcuenca && derechosSubcuenca.puntos_con_derechos > 0 && (
+        <div className="grid grid-cols-2 gap-3 mt-2">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+            <p className="text-xs text-green-700 font-semibold mb-1">Puntos con derechos</p>
+            <p className="text-base font-bold text-green-900">{derechosSubcuenca.puntos_con_derechos}</p>
+          </div>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+            <p className="text-xs text-green-700 font-semibold mb-1">Volumen anual total</p>
+            <p className="text-base font-bold text-green-900">
+              {new Intl.NumberFormat('es-CL').format(derechosSubcuenca.volumen_anual_total)} m³
+            </p>
+          </div>
         </div>
       )}
 
@@ -207,6 +240,8 @@ export default function SidebarSubcuenca({
                   titulo="Caudal"
                   unidad="L/s"
                   valueKey="caudal"
+                  derechosData={derechosSubcuenca}
+                  onRequestDerechos={handleRequestDerechos}
                 />
               ) : (
                 <div className="w-full p-6 bg-gray-50 rounded-lg border border-gray-200">
