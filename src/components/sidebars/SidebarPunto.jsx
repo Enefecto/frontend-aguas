@@ -5,6 +5,7 @@ import { PuntoGraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import { ModalDetalles } from '../UI/ModalDetalles';
 import { useState, useEffect } from 'react';
 import SingleTimeSeriesChart from '../charts/SingleTimeSeriesChart';
+import DerechosTab from './DerechosTab';
 
 export default function SidebarPunto({
   analisisPuntoSeleccionado,
@@ -24,6 +25,7 @@ export default function SidebarPunto({
   const alturaLimnimetrica = analisis?.altura_limnimetrica;
 
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('mediciones');
   const [modalAbierto, setModalAbierto] = useState(null); // 'altura' o 'nivel' o null
   const [datosNivelFreatico, setDatosNivelFreatico] = useState(null);
   const [datosAlturaLimnimetrica, setDatosAlturaLimnimetrica] = useState(null);
@@ -143,6 +145,32 @@ export default function SidebarPunto({
 
       <h2 className="text-2xl font-bold border-b pb-2 mt-2">Análisis del punto</h2>
 
+      {/* Tab navigation */}
+      <div className="flex border-b border-gray-200 mb-4">
+        <button
+          onClick={() => setActiveTab('mediciones')}
+          className={`flex-1 py-2 text-sm font-medium transition-colors ${
+            activeTab === 'mediciones'
+              ? 'text-cyan-700 border-b-2 border-cyan-700'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          📈 Mediciones
+        </button>
+        <button
+          onClick={() => setActiveTab('derechos')}
+          className={`flex-1 py-2 text-sm font-medium transition-colors ${
+            activeTab === 'derechos'
+              ? 'text-green-700 border-b-2 border-green-700'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          ⚖️ Derechos
+        </button>
+      </div>
+
+      {activeTab === 'mediciones' && (
+        <>
       <h3 className="text-lg font-semibold">
         Punto: <span className="text-cyan-800 font-bold">
           {punto.lat?.toFixed(5)} / {punto.lon?.toFixed(5)}
@@ -413,6 +441,18 @@ export default function SidebarPunto({
             </div>
           )}
         </div>
+      )}
+
+        </>
+      )}
+
+      {activeTab === 'derechos' && (
+        <DerechosTab
+          punto={punto}
+          apiService={apiService}
+          caudalData={graficosPuntosData?.caudal_por_tiempo || []}
+          graficosListos={graphicsPuntosLoading === 2}
+        />
       )}
 
       {/* Modales */}
