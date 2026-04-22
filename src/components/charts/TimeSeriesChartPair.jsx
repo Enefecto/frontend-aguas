@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, memo, useCallback } from 'react';
+import { useEffect, useState, useMemo, memo, useCallback, useRef } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts';
 import { formatNumberCL } from '../../utils/formatNumberCL';
 import { downsampleData } from '../../utils/dataOptimization';
@@ -20,7 +20,9 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
   dataDiario = [],
   titulo = "Serie de Tiempo",
   unidad = "",
-  valueKey = "valor"
+  valueKey = "valor",
+  derechosData = null,       // { caudal_mensual_suma: { enero: N, ... } } | null
+  onRequestDerechos = null,  // () => void — called when toggle first enabled
 }) {
   const [lineasVisibles, setLineasVisibles] = useState({
     avg: true,
@@ -45,6 +47,8 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
   const [periodoSeleccionado, setPeriodoSeleccionado] = useState(2); // Default: 2 años
   const [dataMensualFiltrado, setDataMensualFiltrado] = useState([]);
   const [dataDiarioFiltradoPorPeriodo, setDataDiarioFiltradoPorPeriodo] = useState([]);
+  const [mostrarAutorizado, setMostrarAutorizado] = useState(false);
+  const derechosRequested = useRef(false);
 
   // Calcular opciones de período disponibles basadas en los datos (memoizado)
   const opcionesPeriodo = useMemo(() => {
@@ -79,6 +83,20 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
     // Solo aplicar downsampling si hay más de 500 puntos
     return dataMensual.length > 500 ? downsampleData(dataMensual, 500) : dataMensual;
   }, [dataMensual]);
+
+  const MONTH_KEYS = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  ];
+
+  const dataMensualConAutorizado = useMemo(() => {
+    if (!derechosData?.caudal_mensual_suma || !mostrarAutorizado) return dataMensualFiltrado;
+    return dataMensualFiltrado.map(point => {
+      const monthIndex = new Date(point.mes + '-01').getMonth();
+      const mesKey = MONTH_KEYS[monthIndex];
+      return { ...point, caudal_autorizado: derechosData.caudal_mensual_suma[mesKey] ?? null };
+    });
+  }, [dataMensualFiltrado, derechosData, mostrarAutorizado]);
 
   // Optimizar datos diarios con downsampling usando useMemo
   const dataDiarioOptimizado = useMemo(() => {
@@ -170,11 +188,12 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
 
   const dataPrincipal = useMemo(() => {
     if (agrupacion === 'mes') {
-      return dataMensualFiltrado.map(d => ({ ...d, periodo: d.mes }));
+      const source = mostrarAutorizado ? dataMensualConAutorizado : dataMensualFiltrado;
+      return source.map(d => ({ ...d, periodo: d.mes }));
     } else {
       return dataAnualFiltrado;
     }
-  }, [agrupacion, dataMensualFiltrado, dataAnualFiltrado]);
+  }, [agrupacion, dataMensualFiltrado, dataMensualConAutorizado, mostrarAutorizado, dataAnualFiltrado]);
 
   // Al cambiar datos o filtro, deseleccionar si el periodo actual ya no existe
   useEffect(() => {
@@ -387,6 +406,30 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
             <strong>{agrupacion === 'mes' ? 'Mes' : 'Año'} seleccionado:</strong> {selectedPeriodo}
           </p>
         )}
+        {onRequestDerechos && (
+          <div className="flex items-center gap-2 mb-2">
+            <button
+              onClick={() => {
+                const newVal = !mostrarAutorizado;
+                setMostrarAutorizado(newVal);
+                if (newVal && !derechosRequested.current && onRequestDerechos) {
+                  derechosRequested.current = true;
+                  onRequestDerechos();
+                }
+              }}
+              className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                mostrarAutorizado
+                  ? 'bg-green-100 border-green-400 text-green-700'
+                  : 'bg-gray-100 border-gray-300 text-gray-500 hover:border-green-300'
+              }`}
+            >
+              {mostrarAutorizado ? '✓ Ocultar caudal autorizado' : 'Mostrar caudal autorizado'}
+            </button>
+            {mostrarAutorizado && !derechosData && (
+              <span className="text-xs text-gray-400">Cargando...</span>
+            )}
+          </div>
+        )}
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={dataPrincipal}
@@ -407,6 +450,16 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
             {lineasVisibles.max && <Line yAxisId="left" type="monotone" dataKey={`max_${valueKey}`} stroke="#2563eb" name="Máximo" dot={false} strokeWidth={1.5} />}
             {lineasVisibles.sum && hasSumData && <Line yAxisId="left" type="monotone" dataKey={`sum_${valueKey}`} stroke="#16a34a" name="Sumado" dot={false} strokeWidth={1.5} strokeDasharray="4 2" />}
             {lineasVisibles.totalizador && hasTotalizadorData && <Line yAxisId="right" type="monotone" dataKey="totalizador_max" stroke="#9333ea" name="Totalizador máx" dot={false} strokeWidth={1.5} strokeDasharray="6 3" />}
+            {mostrarAutorizado && derechosData && (
+              <Line
+                type="monotone"
+                dataKey="caudal_autorizado"
+                stroke="#16a34a"
+                strokeDasharray="5 3"
+                dot={false}
+                name="Autorizado"
+              />
+            )}
           </LineChart>
         </ResponsiveContainer>
       </div>
