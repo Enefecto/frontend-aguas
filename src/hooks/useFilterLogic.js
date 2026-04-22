@@ -16,6 +16,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   const [limiteSolicitado, setLimiteSolicitado] = useState();
   const [queryCompleted, setQueryCompleted] = useState(false);
   const [limitMaxFromQuery, setLimitMaxFromQuery] = useState(null);
+  const [shacsDisponibles, setShacsDisponibles] = useState([]);
 
   // Opciones filtradas para los selects
   const filteredOptions = useMemo(() =>
@@ -66,6 +67,30 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
     }
   }, [limitMax, isLoaded, filtros.region, filtros.cuenca, filtros.subcuenca]);
 
+  // Re-fetch SHACs when geographic filters change
+  useEffect(() => {
+    if (!apiService) return;
+    const region = filtros.region ? parseInt(filtros.region) : undefined;
+    const cuencaData = filtros.cuenca
+      ? datosOriginales.find(d => d.nom_cuenca === filtros.cuenca)
+      : null;
+    const cod_cuenca = cuencaData?.cod_cuenca;
+    const subcuencaData = filtros.subcuenca && filtros.subcuenca !== 'No registrada' && cuencaData
+      ? datosOriginales.find(d => d.nom_cuenca === filtros.cuenca && d.nom_subcuenca === filtros.subcuenca)
+      : null;
+    const cod_subcuenca = subcuencaData?.cod_subcuenca;
+
+    apiService.getShacs({ region, cod_cuenca, cod_subcuenca })
+      .then(data => {
+        const opciones = (data?.shacs || []).map(s => ({
+          value: s.cod_sector_sha,
+          label: s.sector_sha || `SHAC ${s.cod_sector_sha}`
+        }));
+        setShacsDisponibles(opciones);
+      })
+      .catch(err => console.error('Error cargando SHACs:', err));
+  }, [filtros.region, filtros.cuenca, filtros.subcuenca, apiService, datosOriginales]);
+
   // Limpiar puntos y totales reales cuando cambien filtros para evitar cache
   useEffect(() => {
     setPuntos([]);
@@ -80,9 +105,11 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
     const { name, value } = e.target;
 
     if (name === 'region') {
-      setFiltros(prev => ({ ...prev, region: value, cuenca: '', subcuenca: '' }));
+      setFiltros(prev => ({ ...prev, region: value, cuenca: '', subcuenca: '', shac: '' }));
     } else if (name === 'cuenca') {
-      setFiltros(prev => ({ ...prev, cuenca: value, subcuenca: '' }));
+      setFiltros(prev => ({ ...prev, cuenca: value, subcuenca: '', shac: '' }));
+    } else if (name === 'subcuenca') {
+      setFiltros(prev => ({ ...prev, subcuenca: value, shac: '' }));
     } else if (name === 'tipoPunto') {
       setFiltros(prev => ({ ...prev, tipoPunto: value }));
     } else if (name === 'limit') {
@@ -163,6 +190,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
 
     // Datos calculados
     filteredOptions,
+    shacsDisponibles,
     limitMax,
     min,
     max,

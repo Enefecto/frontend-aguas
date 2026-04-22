@@ -205,8 +205,13 @@ class ApiService {
   }
 
   // Métodos para SHAC
-  async getShacs() {
-    return this.request(API_ENDPOINTS.SHACS);
+  async getShacs({ region, cod_cuenca, cod_subcuenca } = {}) {
+    const params = new URLSearchParams();
+    if (region != null) params.append('region', region);
+    if (cod_cuenca != null) params.append('cod_cuenca', cod_cuenca);
+    if (cod_subcuenca != null) params.append('cod_subcuenca', cod_subcuenca);
+    const qs = params.toString();
+    return this.request(qs ? `${API_ENDPOINTS.SHACS}?${qs}` : API_ENDPOINTS.SHACS);
   }
 
   async getJuntas() {

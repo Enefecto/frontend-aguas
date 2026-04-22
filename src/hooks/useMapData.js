@@ -6,7 +6,6 @@ export const useMapData = (apiUrl) => {
   const [minMaxDatosOriginales, setMinMaxDatosOriginales] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(null);
-  const [shacsDisponibles, setShacsDisponibles] = useState([]);
   const [juntasDisponibles, setJuntasDisponibles] = useState([]);
 
   const apiService = useMemo(() => new ApiService(apiUrl), [apiUrl]);
@@ -49,16 +48,6 @@ export const useMapData = (apiUrl) => {
     };
 
     const loadShacJuntaData = async () => {
-      apiService.getShacs()
-        .then(data => {
-          const opciones = (data?.shacs || []).map(s => ({
-            value: s.cod_sector_sha,
-            label: s.sector_sha || `SHAC ${s.cod_sector_sha}`
-          }));
-          setShacsDisponibles(opciones);
-        })
-        .catch(err => console.error("Error cargando SHACs:", err));
-
       apiService.getJuntas()
         .then(data => {
           const opciones = (data?.juntas || []).map(j => ({
@@ -82,7 +71,6 @@ export const useMapData = (apiUrl) => {
     isLoaded,
     error,
     apiService,
-    shacsDisponibles,
     juntasDisponibles
   };
 };
