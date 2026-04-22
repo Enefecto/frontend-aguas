@@ -235,6 +235,7 @@ export default function SidebarSubcuenca({
             {graphicsSubcuencasLoading.caudal === 2 && (
               graficosData.caudal?.mensual?.length > 0 ? (
                 <TimeSeriesChartPair
+                  key={`caudal-${subcuencaAnalysis?.codigoSubcuenca}`}
                   dataMensual={graficosData.caudal.mensual}
                   dataDiario={graficosData.caudal.diario}
                   titulo="Caudal"
