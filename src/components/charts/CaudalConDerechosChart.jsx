@@ -1,4 +1,3 @@
-// frontend-aguas/src/components/charts/CaudalConDerechosChart.jsx
 import { useState, useEffect, useMemo, memo, useCallback } from 'react';
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis,
@@ -17,6 +16,7 @@ const CaudalConDerechosChart = memo(function CaudalConDerechosChart({
   caudalMensual = null,
   titulo = "Caudal medido vs autorizado",
   unidad = "L/s",
+  dataKey = "caudal",
 }) {
   const [periodoSeleccionado, setPeriodoSeleccionado] = useState('todos');
   const [dataFiltrada, setDataFiltrada] = useState([]);
@@ -36,8 +36,8 @@ const CaudalConDerechosChart = memo(function CaudalConDerechosChart({
   }, [dataOptimizada, caudalMensual]);
 
   const opcionesPeriodo = useMemo(() => {
-    if (dataMerged.length === 0) return [];
-    const fechas = dataMerged.map(d => new Date(d.fecha_medicion));
+    if (dataOptimizada.length === 0) return [];
+    const fechas = dataOptimizada.map(d => new Date(d.fecha_medicion));
     const diffYears = (Math.max(...fechas) - Math.min(...fechas)) / (1000 * 60 * 60 * 24 * 365.25);
     const opciones = [];
     for (let i = 1; i <= 5; i++) {
@@ -45,7 +45,7 @@ const CaudalConDerechosChart = memo(function CaudalConDerechosChart({
     }
     opciones.push({ valor: 'todos', etiqueta: 'Todos' });
     return opciones;
-  }, [dataMerged]);
+  }, [dataOptimizada]);
 
   useEffect(() => {
     if (dataMerged.length === 0) return;
@@ -77,7 +77,7 @@ const CaudalConDerechosChart = memo(function CaudalConDerechosChart({
     );
   }, [unidad]);
 
-  if (dataFiltrada.length === 0) {
+  if (data.length === 0) {
     return <p className="text-sm text-gray-500">Sin datos de caudal medido.</p>;
   }
 
@@ -122,7 +122,7 @@ const CaudalConDerechosChart = memo(function CaudalConDerechosChart({
           <Legend wrapperStyle={{ fontSize: 11 }} />
           <Line
             type="monotone"
-            dataKey="caudal"
+            dataKey={dataKey}
             stroke="#2563eb"
             dot={false}
             name="Medido"

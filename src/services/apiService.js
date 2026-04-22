@@ -201,7 +201,7 @@ class ApiService {
   }
 
   async getSubcuencaDerechos(codCuenca, codSubcuenca) {
-    return this.request(`${API_ENDPOINTS.SUBCUENCAS_DERECHOS}?cod_cuenca=${codCuenca}&cod_subcuenca=${codSubcuenca}`);
+    return this.request(`${API_ENDPOINTS.SUBCUENCAS_DERECHOS}?cod_cuenca=${encodeURIComponent(codCuenca)}&cod_subcuenca=${encodeURIComponent(codSubcuenca)}`);
   }
 
   // Métodos para SHAC
