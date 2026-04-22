@@ -24,6 +24,7 @@ export default function SidebarCuenca({
   const [filtroTipoExtraccion, setFiltroTipoExtraccion] = useState(null);
   const [derechosCuenca, setDerechosCuenca] = useState(null);
   const isInitialMount = useRef(true);
+  const derechosFetched = useRef(false);
 
   // Recargar gráficos si cambia el filtro y ya estaban cargados/cargándose
   useEffect(() => {
@@ -44,14 +45,19 @@ export default function SidebarCuenca({
   }, []);
 
   const handleRequestDerechos = useCallback(() => {
-    if (!cuencaAnalysis?.codigoCuenca || !apiService || derechosCuenca) return;
+    if (!cuencaAnalysis?.codigoCuenca || !apiService || derechosFetched.current) return;
+    derechosFetched.current = true;
     apiService.getCuencaDerechos(cuencaAnalysis.codigoCuenca)
       .then(data => setDerechosCuenca(data))
-      .catch(() => setDerechosCuenca(null));
-  }, [cuencaAnalysis?.codigoCuenca, apiService, derechosCuenca]);
+      .catch(() => {
+        derechosFetched.current = false;
+        setDerechosCuenca(null);
+      });
+  }, [cuencaAnalysis?.codigoCuenca, apiService]);
 
   useEffect(() => {
     setDerechosCuenca(null);
+    derechosFetched.current = false;
   }, [cuencaAnalysis?.codigoCuenca]);
 
   // Cargar informantes cuando se soliciten los gráficos
