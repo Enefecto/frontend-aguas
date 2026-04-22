@@ -3,7 +3,7 @@ import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
 import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import TimeSeriesChartPair from '../charts/TimeSeriesChartPair';
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import ApiService from '../../services/apiService';
 import { API_ENDPOINTS } from '../../constants/apiEndpoints';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -22,6 +22,7 @@ export default function SidebarCuenca({
   const [topInformantes, setTopInformantes] = useState([]);
   const [loadingInformantes, setLoadingInformantes] = useState(false);
   const [filtroTipoExtraccion, setFiltroTipoExtraccion] = useState(null);
+  const [derechosCuenca, setDerechosCuenca] = useState(null);
   const isInitialMount = useRef(true);
 
   // Recargar gráficos si cambia el filtro y ya estaban cargados/cargándose
@@ -41,6 +42,17 @@ export default function SidebarCuenca({
       setIsOpen(true);
     }, 100);
   }, []);
+
+  const handleRequestDerechos = useCallback(() => {
+    if (!cuencaAnalysis?.codigoCuenca || !apiService || derechosCuenca) return;
+    apiService.getCuencaDerechos(cuencaAnalysis.codigoCuenca)
+      .then(data => setDerechosCuenca(data))
+      .catch(() => setDerechosCuenca(null));
+  }, [cuencaAnalysis?.codigoCuenca, apiService, derechosCuenca]);
+
+  useEffect(() => {
+    setDerechosCuenca(null);
+  }, [cuencaAnalysis?.codigoCuenca]);
 
   // Cargar informantes cuando se soliciten los gráficos
   useEffect(() => {
@@ -125,6 +137,20 @@ export default function SidebarCuenca({
             <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={cuencaAnalysis.caudal_maximo} />
             <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (L/s)" value={cuencaAnalysis.desviacion_estandar_caudal} />
           </div>
+          {derechosCuenca && derechosCuenca.puntos_con_derechos > 0 && (
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                <p className="text-xs text-green-700 font-semibold mb-1">Puntos con derechos</p>
+                <p className="text-base font-bold text-green-900">{derechosCuenca.puntos_con_derechos}</p>
+              </div>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                <p className="text-xs text-green-700 font-semibold mb-1">Volumen anual total</p>
+                <p className="text-base font-bold text-green-900">
+                  {new Intl.NumberFormat('es-CL').format(derechosCuenca.volumen_anual_total)} m³
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="space-y-2 mt-16 mx-auto flex justify-center">
@@ -202,6 +228,8 @@ export default function SidebarCuenca({
                   titulo="Caudal"
                   unidad="L/s"
                   valueKey="caudal"
+                  derechosData={derechosCuenca}
+                  onRequestDerechos={handleRequestDerechos}
                 />
               ) : (
                 <div className="w-full p-6 bg-gray-50 rounded-lg border border-gray-200">
