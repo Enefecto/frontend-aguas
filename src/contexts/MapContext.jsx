@@ -22,7 +22,6 @@ export const MapProvider = ({ children, apiUrl }) => {
     isLoaded,
     error,
     apiService,
-    shacsDisponibles,
     juntasDisponibles
   } = useMapData(apiUrl);
 
@@ -42,7 +41,6 @@ export const MapProvider = ({ children, apiUrl }) => {
     isLoaded,
     error,
     apiService,
-    shacsDisponibles,
     juntasDisponibles,
 
     // Lógica de filtros

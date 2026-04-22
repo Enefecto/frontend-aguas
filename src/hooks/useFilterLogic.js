@@ -91,9 +91,8 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
       .catch(err => console.error('Error cargando SHACs:', err));
   }, [filtros.region, filtros.cuenca, filtros.subcuenca, apiService, datosOriginales]);
 
-  // Limpiar puntos y totales reales cuando cambien filtros para evitar cache
+  // Reset query state when filters change so UI shows pending indicator
   useEffect(() => {
-    setPuntos([]);
     setQueryCompleted(false);
     setLimitMaxFromQuery(null);
   }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.tipoPunto,
