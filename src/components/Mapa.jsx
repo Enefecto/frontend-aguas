@@ -104,10 +104,17 @@ const MapaContent = () => {
   } = useMapContext();
 
   const [agrupar, setAgrupar] = useState(false);
+  const [initialPointsLoaded, setInitialPointsLoaded] = useState(false);
 
   useEffect(() => {
     if (isLeafletLoaded) setAgrupar(true);
   }, [isLeafletLoaded]);
+
+  useEffect(() => {
+    if (queryCompleted && !initialPointsLoaded) {
+      setInitialPointsLoaded(true);
+    }
+  }, [queryCompleted]);
 
   const handleShowSidebarCuencas = React.useCallback((nomCuenca, codCuenca) => {
     openCuencaSidebar();
@@ -178,6 +185,14 @@ const MapaContent = () => {
 
   return (
     <div className="relative overflow-hidden">
+      {!initialPointsLoaded && (
+        <div className="absolute inset-0 z-[20000] flex items-center justify-center bg-white/80 backdrop-blur-sm">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-cyan-600 mx-auto mb-4"></div>
+            <p className="text-gray-700 text-lg font-medium">Recolectando datos...</p>
+          </div>
+        </div>
+      )}
       <MapContainer
         puntos={puntos}
         agrupar={agrupar}
