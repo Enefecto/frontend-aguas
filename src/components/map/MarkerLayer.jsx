@@ -19,11 +19,14 @@ export const MarkerLayer = React.memo(({
   const clusterGroupRef = useRef(null);
 
   const handleMarkerClick = useCallback((punto) => {
-    map.panTo([punto.lat, punto.lon]);
     if (isSelectingPointForComparison) {
       onPointClickForComparison(punto);
     }
-  }, [isSelectingPointForComparison, onPointClickForComparison, map]);
+  }, [isSelectingPointForComparison, onPointClickForComparison]);
+
+  const handlePopupOpen = useCallback((punto) => {
+    map.panTo([punto.lat, punto.lon]);
+  }, [map]);
 
   // Función para verificar si un punto está seleccionado para comparación
   // Retorna el índice (1 o 2) si está seleccionado, o null si no lo está
@@ -57,11 +60,12 @@ export const MarkerLayer = React.memo(({
             position={[punto.lat, punto.lon]}
             icon={customIcon}
             eventHandlers={{
-              click: () => handleMarkerClick(punto)
+              click: () => handleMarkerClick(punto),
+              popupopen: () => handlePopupOpen(punto)
             }}
           >
             {!isSelectingPointForComparison && (
-              <Popup>
+              <Popup autoPan={false}>
                 <PopupPunto
                   punto={punto}
                   handleShowSidebarCuencas={handleShowSidebarCuencas}
@@ -75,7 +79,7 @@ export const MarkerLayer = React.memo(({
         );
       })
       .filter(Boolean) // Filtrar elementos null
-  ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService, isSelectingPointForComparison, handleMarkerClick, getComparisonIndex]);
+  ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService, isSelectingPointForComparison, handleMarkerClick, handlePopupOpen, getComparisonIndex]);
 
   // Hook para refrescar clusters después de zoom automático
   useEffect(() => {
