@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
-import { MapContainer as LeafletMapContainer, TileLayer, ZoomControl } from 'react-leaflet';
+import React, { useState, useEffect } from 'react';
+import { MapContainer as LeafletMapContainer, TileLayer, ZoomControl, useMap } from 'react-leaflet';
 import { MAP_CONFIG } from '../../constants/mapConfig.js';
 import { Legend } from '../UI/Leyend.jsx';
 import { ToolsEditControl } from '../tools/ToolsEditControl.jsx';
 import { MarkerLayer } from './MarkerLayer.jsx';
 import { LayerSelector } from './LayerSelector.jsx';
+
+function MapPanner({ punto }) {
+  const map = useMap();
+  useEffect(() => {
+    if (punto?.lat && punto?.lon) {
+      map.panTo([punto.lat, punto.lon]);
+    }
+  }, [punto?.lat, punto?.lon]);
+  return null;
+}
 
 export const MapContainer = React.memo(({
   puntos,
@@ -16,7 +26,8 @@ export const MapContainer = React.memo(({
   handleShowSidebarPunto,
   isSelectingPointForComparison,
   onPointClickForComparison,
-  selectedPointsForComparison
+  selectedPointsForComparison,
+  selectedPunto
 }) => {
   const [currentLayer, setCurrentLayer] = useState(MAP_CONFIG.DEFAULT_TILE_LAYER);
 
@@ -58,6 +69,8 @@ export const MapContainer = React.memo(({
         apiUrl={apiUrl}
         puntos={puntos}
       />
+
+      <MapPanner punto={selectedPunto} />
 
       <MarkerLayer
         puntos={puntos}
