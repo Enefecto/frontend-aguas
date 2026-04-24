@@ -15,6 +15,8 @@ export default function DerechosTab({
   apiService,
   caudalData,
   graficosListos,
+  graphicsPuntosLoading,
+  loadPuntosGraphics,
 }) {
   const [derechos, setDerechos] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -140,10 +142,18 @@ export default function DerechosTab({
             unidad="L/s"
           />
         </div>
+      ) : graphicsPuntosLoading === 1 ? (
+        <div className="flex justify-center p-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+        </div>
       ) : (
-        <p className="text-sm text-gray-500 italic">
-          Carga los gráficos en la pestaña Mediciones para ver la serie temporal.
-        </p>
+        <button
+          onClick={() => loadPuntosGraphics(punto.utm_norte, punto.utm_este)}
+          disabled={!punto.utm_norte || !punto.utm_este}
+          className="block w-full mt-2 font-semibold px-4 py-2 rounded transition bg-green-700 text-white cursor-pointer hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          Cargar Gráficos
+        </button>
       )}
     </div>
   );

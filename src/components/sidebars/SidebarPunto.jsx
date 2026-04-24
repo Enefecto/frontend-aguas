@@ -452,6 +452,8 @@ export default function SidebarPunto({
           apiService={apiService}
           caudalData={graficosPuntosData?.caudal_por_tiempo || []}
           graficosListos={graphicsPuntosLoading === 2}
+          graphicsPuntosLoading={graphicsPuntosLoading}
+          loadPuntosGraphics={loadPuntosGraphics}
         />
       )}
 
