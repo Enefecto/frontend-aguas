@@ -24,9 +24,6 @@ export const MarkerLayer = React.memo(({
     }
   }, [isSelectingPointForComparison, onPointClickForComparison]);
 
-  const handlePopupOpen = useCallback((punto) => {
-    map.panTo([punto.lat, punto.lon]);
-  }, [map]);
 
   // Función para verificar si un punto está seleccionado para comparación
   // Retorna el índice (1 o 2) si está seleccionado, o null si no lo está
@@ -60,8 +57,7 @@ export const MarkerLayer = React.memo(({
             position={[punto.lat, punto.lon]}
             icon={customIcon}
             eventHandlers={{
-              click: () => handleMarkerClick(punto),
-              popupopen: () => handlePopupOpen(punto)
+              click: () => handleMarkerClick(punto)
             }}
           >
             {!isSelectingPointForComparison && (
@@ -79,7 +75,35 @@ export const MarkerLayer = React.memo(({
         );
       })
       .filter(Boolean) // Filtrar elementos null
-  ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService, isSelectingPointForComparison, handleMarkerClick, handlePopupOpen, getComparisonIndex]);
+  ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService, isSelectingPointForComparison, handleMarkerClick, getComparisonIndex]);
+
+  // Pan to marker when popup opens; re-pan after async content loads via ResizeObserver
+  useEffect(() => {
+    const onPopupOpen = (e) => {
+      const source = e.popup?._source;
+      if (!source?.getLatLng) return;
+      const latlng = source.getLatLng();
+      map.panTo(latlng);
+
+      const container = e.popup._container;
+      if (!container) return;
+
+      let timeout;
+      const observer = new ResizeObserver(() => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => map.panTo(latlng), 80);
+      });
+      observer.observe(container);
+
+      map.once('popupclose', () => {
+        observer.disconnect();
+        clearTimeout(timeout);
+      });
+    };
+
+    map.on('popupopen', onPopupOpen);
+    return () => map.off('popupopen', onPopupOpen);
+  }, [map]);
 
   // Hook para refrescar clusters después de zoom automático
   useEffect(() => {
