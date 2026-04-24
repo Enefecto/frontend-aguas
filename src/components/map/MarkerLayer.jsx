@@ -19,10 +19,11 @@ export const MarkerLayer = React.memo(({
   const clusterGroupRef = useRef(null);
 
   const handleMarkerClick = useCallback((punto) => {
+    map.panTo([punto.lat, punto.lon]);
     if (isSelectingPointForComparison) {
       onPointClickForComparison(punto);
     }
-  }, [isSelectingPointForComparison, onPointClickForComparison]);
+  }, [isSelectingPointForComparison, onPointClickForComparison, map]);
 
   // Función para verificar si un punto está seleccionado para comparación
   // Retorna el índice (1 o 2) si está seleccionado, o null si no lo está

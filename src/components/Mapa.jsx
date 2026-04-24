@@ -12,7 +12,6 @@ import { ComparePointsModal } from './modals/ComparePointsModal.jsx';
 
 const MapaContent = () => {
   const [isLeafletLoaded, setIsLeafletLoaded] = useState(false);
-  const [selectedPunto, setSelectedPunto] = useState(null);
   const [selectedPointsForComparison, setSelectedPointsForComparison] = useState([null, null]);
   const [isSelectingPoint, setIsSelectingPoint] = useState(null); // null, 0, o 1
   const [showCompareModal, setShowCompareModal] = useState(false);
@@ -130,7 +129,6 @@ const MapaContent = () => {
   const handleShowSidebarPunto = React.useCallback((punto) => {
     openPuntoSidebar();
     loadPuntoAnalysis(punto);
-    setSelectedPunto(punto);
   }, [openPuntoSidebar, loadPuntoAnalysis]);
 
   // Funciones para comparación de puntos
@@ -206,7 +204,6 @@ const MapaContent = () => {
         isSelectingPointForComparison={isSelectingPoint !== null}
         onPointClickForComparison={handlePointClickForComparison}
         selectedPointsForComparison={stableSelectedPoints}
-        selectedPunto={selectedPunto}
       />
 
       <ComparePointsSelector
