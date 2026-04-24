@@ -58,6 +58,7 @@ export default function DerechosTab({
 
   const valores = MESES.map(m => derechos.caudal_mensual[m] ?? 0);
   const maxValor = Math.max(...valores, 0.001);
+  const caudalAnualTotal = valores.reduce((acc, v) => acc + v, 0);
 
   return (
     <div className="space-y-4 pt-2">
@@ -69,9 +70,9 @@ export default function DerechosTab({
           <p className="text-base font-bold text-green-900">{derechos.tipo_derecho_label}</p>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-          <p className="text-xs text-green-700 font-semibold mb-1">Volumen anual</p>
+          <p className="text-xs text-green-700 font-semibold mb-1">Caudal anual permitido</p>
           <p className="text-base font-bold text-green-900">
-            {NUM_ES.format(derechos.volumen_anual)} m³
+            {NUM_ES.format(Math.round(caudalAnualTotal * 10) / 10)} L/s
           </p>
         </div>
       </div>
@@ -96,16 +97,24 @@ export default function DerechosTab({
           )}
 
           {/* Bars */}
-          <div className="flex items-end gap-1 h-14">
+          <div className="flex items-end gap-1" style={{ height: '80px' }}>
             {valores.map((val, i) => {
               const height = Math.round((val / maxValor) * 48);
               return (
                 <div
                   key={MESES[i]}
-                  className="flex-1 flex flex-col items-center gap-1 cursor-pointer"
+                  className="flex-1 flex flex-col items-end justify-end cursor-pointer"
                   onMouseEnter={() => setTooltipMes(i)}
                   onMouseLeave={() => setTooltipMes(null)}
                 >
+                  {val > 0 && (
+                    <span
+                      className="text-[7px] text-green-800 font-semibold leading-none mb-0.5 w-full text-center"
+                      style={{ fontSize: '6px' }}
+                    >
+                      {val % 1 === 0 ? val : val.toFixed(1)}
+                    </span>
+                  )}
                   <div
                     className="w-full rounded-t transition-colors"
                     style={{
@@ -113,7 +122,7 @@ export default function DerechosTab({
                       backgroundColor: tooltipMes === i ? '#16a34a' : '#4ade80',
                     }}
                   />
-                  <span className="text-[9px] text-gray-500">{MESES_ABREV[i]}</span>
+                  <span className="text-[9px] text-gray-500 w-full text-center">{MESES_ABREV[i]}</span>
                 </div>
               );
             })}
