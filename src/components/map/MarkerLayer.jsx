@@ -77,21 +77,29 @@ export const MarkerLayer = React.memo(({
       .filter(Boolean) // Filtrar elementos null
   ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService, isSelectingPointForComparison, handleMarkerClick, getComparisonIndex]);
 
-  // Pan to marker when popup opens; re-pan after async content loads via ResizeObserver
+  // Pan so popup is centered: offset up by half popup height
   useEffect(() => {
+    const panForPopup = (latlng, container) => {
+      const h = container.offsetHeight;
+      const zoom = map.getZoom();
+      const markerPx = map.project(latlng, zoom);
+      const adjustedPx = markerPx.subtract([0, h / 2]);
+      map.panTo(map.unproject(adjustedPx, zoom));
+    };
+
     const onPopupOpen = (e) => {
       const source = e.popup?._source;
       if (!source?.getLatLng) return;
       const latlng = source.getLatLng();
-      map.panTo(latlng);
-
       const container = e.popup._container;
       if (!container) return;
+
+      panForPopup(latlng, container);
 
       let timeout;
       const observer = new ResizeObserver(() => {
         clearTimeout(timeout);
-        timeout = setTimeout(() => map.panTo(latlng), 80);
+        timeout = setTimeout(() => panForPopup(latlng, container), 80);
       });
       observer.observe(container);
 
