@@ -115,13 +115,21 @@ export const createClusterIcon = (cluster) => {
   });
 };
 
-// Límites geográficos de Chile continental (con margen)
-const CHILE_BOUNDS = {
-  latMin: -56.0,  // Sur de Cabo de Hornos
-  latMax: -17.0,  // Norte de Arica
-  lonMin: -76.0,  // Margen oceánico Pacífico
-  lonMax: -66.0   // Frontera con Argentina/Bolivia
-};
+// Longitud máxima al oeste (costa) según la latitud en Chile.
+// Chile es angosto y la costa varía significativamente de norte a sur.
+// Puntos más al oeste de estos límites están en el océano Pacífico.
+const CHILE_COAST_LIMITS = [
+  { latFrom: -17, latTo: -27, westLon: -71.8 },   // Norte Grande (Arica → Atacama)
+  { latFrom: -27, latTo: -33, westLon: -72.0 },    // Norte Chico (Atacama → Valparaíso)
+  { latFrom: -33, latTo: -36, westLon: -72.5 },    // Central (Valparaíso → Maule)
+  { latFrom: -36, latTo: -39, westLon: -73.8 },    // Sur (Biobío → Araucanía)
+  { latFrom: -39, latTo: -42, westLon: -74.0 },    // Los Lagos
+  { latFrom: -42, latTo: -44, westLon: -74.5 },    // Chiloé
+  { latFrom: -44, latTo: -56, westLon: -76.0 },    // Aysén / Magallanes
+];
+
+// Límite este: frontera con Argentina/Bolivia
+const CHILE_EAST_LON = -66.0;
 
 export const isValidCoordinate = (punto) => {
   // Debe tener lat/lon convertidos y finitos
@@ -129,9 +137,19 @@ export const isValidCoordinate = (punto) => {
     return false;
   }
 
-  // Validar que las coordenadas estén dentro de Chile continental
-  return punto.lat >= CHILE_BOUNDS.latMin && punto.lat <= CHILE_BOUNDS.latMax &&
-         punto.lon >= CHILE_BOUNDS.lonMin && punto.lon <= CHILE_BOUNDS.lonMax;
+  // Límites generales de Chile continental
+  if (punto.lat < -56.0 || punto.lat > -17.0 || punto.lon > CHILE_EAST_LON) {
+    return false;
+  }
+
+  // Validar contra la costa según la latitud (evitar puntos en el océano)
+  for (const band of CHILE_COAST_LIMITS) {
+    if (punto.lat >= band.latTo && punto.lat < band.latFrom) {
+      return punto.lon >= band.westLon;
+    }
+  }
+
+  return true;
 };
 
 export const getPuntoTypeLabel = (punto) => {
