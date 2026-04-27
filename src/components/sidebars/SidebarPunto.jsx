@@ -413,6 +413,7 @@ export default function SidebarPunto({
                   unidad="m"
                   dataKey="nivel_freatico"
                   color="#0891b2"
+                  allowYAxisInvert={true}
                 />
               ) : (
                 <p className="text-sm text-gray-500">No hay datos disponibles</p>

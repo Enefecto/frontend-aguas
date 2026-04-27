@@ -30,6 +30,9 @@ export const MapContainer = React.memo(({
     <LeafletMapContainer
       center={MAP_CONFIG.DEFAULT_CENTER}
       zoom={MAP_CONFIG.DEFAULT_ZOOM}
+      maxBounds={MAP_CONFIG.MAX_BOUNDS}
+      maxBoundsViscosity={0.8}
+      minZoom={MAP_CONFIG.MIN_ZOOM}
       className="map-altura w-full"
       zoomControl={false}
     >

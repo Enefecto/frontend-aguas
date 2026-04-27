@@ -3,6 +3,13 @@ export const MAP_CONFIG = {
   DEFAULT_CENTER: [-33.45, -70.66], // Santiago
   DEFAULT_ZOOM: 6,
 
+  // Límites del mapa (Chile continental con margen)
+  MAX_BOUNDS: [
+    [-58.0, -80.0],  // Suroeste (más allá de Cabo de Hornos)
+    [-15.0, -63.0]   // Noreste (más allá de Arica)
+  ],
+  MIN_ZOOM: 4,
+
   // Colores de marcadores
   MARKER_COLORS: {
     SURFACE_EXTRACTION: '#FF5722', // Naranja para extracción superficial (altura limnimétrica)

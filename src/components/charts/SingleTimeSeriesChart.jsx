@@ -17,10 +17,12 @@ const SingleTimeSeriesChart = memo(function SingleTimeSeriesChart({
   titulo = "Serie de Tiempo",
   unidad = "",
   dataKey = "valor",
-  color = "#0ea5e9"
+  color = "#0ea5e9",
+  allowYAxisInvert = false
 }) {
   const [periodoSeleccionado, setPeriodoSeleccionado] = useState('todos'); // Default: Todos
   const [dataFiltrada, setDataFiltrada] = useState([]);
+  const [yAxisInvertido, setYAxisInvertido] = useState(false);
 
   // Optimizar datos con downsampling (memoizado)
   const dataOptimizada = useMemo(() => {
@@ -147,8 +149,27 @@ const SingleTimeSeriesChart = memo(function SingleTimeSeriesChart({
         </div>
       )}
 
-      {/* Título */}
-      <h4 className="text-sm font-semibold mb-1 text-gray-700">{titulo}</h4>
+      {/* Título + botón invertir eje Y */}
+      <div className="flex items-center justify-between mb-1">
+        <h4 className="text-sm font-semibold text-gray-700">{titulo}</h4>
+        {allowYAxisInvert && (
+          <button
+            onClick={() => setYAxisInvertido(v => !v)}
+            title="Invertir eje Y"
+            className={`flex items-center gap-1 px-2 py-1 text-xs rounded border transition-all ${
+              yAxisInvertido
+                ? 'bg-cyan-500 text-white border-cyan-500'
+                : 'bg-white text-gray-600 border-gray-300 hover:border-cyan-400 hover:text-cyan-600'
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
+              <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+            </svg>
+            Invertir Y
+          </button>
+        )}
+      </div>
       {rangoFechas && (
         <p className="text-xs text-gray-500 mb-2">
           Periodo: {rangoFechas}
@@ -177,6 +198,7 @@ const SingleTimeSeriesChart = memo(function SingleTimeSeriesChart({
           />
           <YAxis
             domain={[0, (dataMax) => (dataMax ?? 0) * 1.05]}
+            reversed={yAxisInvertido}
             width={64}
             tick={{ fontSize: 10 }}
             tickFormatter={(v) => formatNumberCL(v)}

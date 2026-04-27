@@ -115,13 +115,23 @@ export const createClusterIcon = (cluster) => {
   });
 };
 
+// Límites geográficos de Chile continental (con margen)
+const CHILE_BOUNDS = {
+  latMin: -56.0,  // Sur de Cabo de Hornos
+  latMax: -17.0,  // Norte de Arica
+  lonMin: -76.0,  // Margen oceánico Pacífico
+  lonMax: -66.0   // Frontera con Argentina/Bolivia
+};
+
 export const isValidCoordinate = (punto) => {
-  // Verificar primero si ya tiene lat/lon (convertido)
-  if (Number.isFinite(punto.lat) && Number.isFinite(punto.lon)) {
-    return true;
+  // Debe tener lat/lon convertidos y finitos
+  if (!Number.isFinite(punto.lat) || !Number.isFinite(punto.lon)) {
+    return false;
   }
-  // Si no, verificar que tenga coordenadas UTM válidas
-  return Number.isFinite(punto.utm_norte) && Number.isFinite(punto.utm_este);
+
+  // Validar que las coordenadas estén dentro de Chile continental
+  return punto.lat >= CHILE_BOUNDS.latMin && punto.lat <= CHILE_BOUNDS.latMax &&
+         punto.lon >= CHILE_BOUNDS.lonMin && punto.lon <= CHILE_BOUNDS.lonMax;
 };
 
 export const getPuntoTypeLabel = (punto) => {
