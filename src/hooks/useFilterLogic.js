@@ -17,6 +17,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   const [queryCompleted, setQueryCompleted] = useState(false);
   const [limitMaxFromQuery, setLimitMaxFromQuery] = useState(null);
   const [shacsDisponibles, setShacsDisponibles] = useState([]);
+  const [juntasDisponibles, setJuntasDisponibles] = useState([]);
 
   // Opciones filtradas para los selects
   const filteredOptions = useMemo(() =>
@@ -91,6 +92,30 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
       .catch(err => console.error('Error cargando SHACs:', err));
   }, [filtros.region, filtros.cuenca, filtros.subcuenca, apiService, datosOriginales]);
 
+  // Re-fetch Juntas when geographic filters change
+  useEffect(() => {
+    if (!apiService) return;
+    const region = filtros.region ? parseInt(filtros.region) : undefined;
+    const cuencaData = filtros.cuenca
+      ? datosOriginales.find(d => d.nom_cuenca === filtros.cuenca)
+      : null;
+    const cod_cuenca = cuencaData?.cod_cuenca;
+    const subcuencaData = filtros.subcuenca && filtros.subcuenca !== 'No registrada' && cuencaData
+      ? datosOriginales.find(d => d.nom_cuenca === filtros.cuenca && d.nom_subcuenca === filtros.subcuenca)
+      : null;
+    const cod_subcuenca = subcuencaData?.cod_subcuenca;
+
+    apiService.getJuntas({ region, cod_cuenca, cod_subcuenca })
+      .then(data => {
+        const opciones = (data?.juntas || []).map(j => ({
+          value: j.id_junta,
+          label: `Junta ${j.id_junta}`
+        }));
+        setJuntasDisponibles(opciones);
+      })
+      .catch(err => console.error('Error cargando Juntas:', err));
+  }, [filtros.region, filtros.cuenca, filtros.subcuenca, apiService, datosOriginales]);
+
   // Reset query state when filters change so UI shows pending indicator
   useEffect(() => {
     setQueryCompleted(false);
@@ -104,11 +129,11 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
     const { name, value } = e.target;
 
     if (name === 'region') {
-      setFiltros(prev => ({ ...prev, region: value, cuenca: '', subcuenca: '', shac: '' }));
+      setFiltros(prev => ({ ...prev, region: value, cuenca: '', subcuenca: '', shac: '', id_junta: '' }));
     } else if (name === 'cuenca') {
-      setFiltros(prev => ({ ...prev, cuenca: value, subcuenca: '', shac: '' }));
+      setFiltros(prev => ({ ...prev, cuenca: value, subcuenca: '', shac: '', id_junta: '' }));
     } else if (name === 'subcuenca') {
-      setFiltros(prev => ({ ...prev, subcuenca: value, shac: '' }));
+      setFiltros(prev => ({ ...prev, subcuenca: value, shac: '', id_junta: '' }));
     } else if (name === 'tipoPunto') {
       setFiltros(prev => ({ ...prev, tipoPunto: value }));
     } else if (name === 'limit') {
@@ -190,6 +215,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
     // Datos calculados
     filteredOptions,
     shacsDisponibles,
+    juntasDisponibles,
     limitMax,
     min,
     max,

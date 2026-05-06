@@ -234,11 +234,15 @@ export const calculateLimitMax = (filtros, minMaxDatosOriginales, isLoaded) => {
     if (matchCuenca) return matchCuenca.total_puntos || FILTER_CONFIG.DEFAULT_LIMIT_MAX;
   }
 
-  // Sumar total_puntos de todas las cuencas nombradas (excluyendo puntos sin cuenca)
+  // Sin filtros geográficos: usar el total global (incluye puntos sin cuenca asignada)
+  const totalGlobal = caudal_global.total_puntos_unicos ?? caudal_global.total_puntos ?? caudal_global.count;
+  if (totalGlobal > 0) return totalGlobal;
+
+  // Fallback: sumar total_puntos de todas las cuencas nombradas
   const totalDesdeCuencas = caudal_por_cuenca
     ?.filter(c => c.nom_cuenca !== null)
     .reduce((acc, c) => acc + (c.total_puntos || 0), 0);
   if (totalDesdeCuencas > 0) return totalDesdeCuencas;
 
-  return caudal_global.total_puntos_unicos ?? caudal_global.total_puntos ?? caudal_global.count ?? FILTER_CONFIG.DEFAULT_LIMIT_MAX;
+  return FILTER_CONFIG.DEFAULT_LIMIT_MAX;
 };

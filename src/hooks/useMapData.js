@@ -6,8 +6,6 @@ export const useMapData = (apiUrl) => {
   const [minMaxDatosOriginales, setMinMaxDatosOriginales] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(null);
-  const [juntasDisponibles, setJuntasDisponibles] = useState([]);
-
   const apiService = useMemo(() => new ApiService(apiUrl), [apiUrl]);
 
   useEffect(() => {
@@ -47,21 +45,8 @@ export const useMapData = (apiUrl) => {
       }
     };
 
-    const loadShacJuntaData = async () => {
-      apiService.getJuntas()
-        .then(data => {
-          const opciones = (data?.juntas || []).map(j => ({
-            value: j.id_junta,
-            label: `Junta ${j.id_junta}`
-          }));
-          setJuntasDisponibles(opciones);
-        })
-        .catch(err => console.error("Error cargando Juntas:", err));
-    };
-
     if (apiUrl) {
       loadInitialData();
-      loadShacJuntaData();
     }
   }, [apiUrl]);
 
@@ -70,7 +55,6 @@ export const useMapData = (apiUrl) => {
     minMaxDatosOriginales,
     isLoaded,
     error,
-    apiService,
-    juntasDisponibles
+    apiService
   };
 };

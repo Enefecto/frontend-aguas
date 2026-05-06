@@ -22,7 +22,7 @@ const SingleTimeSeriesChart = memo(function SingleTimeSeriesChart({
 }) {
   const [periodoSeleccionado, setPeriodoSeleccionado] = useState('todos'); // Default: Todos
   const [dataFiltrada, setDataFiltrada] = useState([]);
-  const [yAxisInvertido, setYAxisInvertido] = useState(false);
+  const [yAxisInvertido, setYAxisInvertido] = useState(allowYAxisInvert);
 
   // Optimizar datos con downsampling (memoizado)
   const dataOptimizada = useMemo(() => {

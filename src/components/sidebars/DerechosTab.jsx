@@ -60,7 +60,12 @@ export default function DerechosTab({
 
   const valores = MESES.map(m => derechos.caudal_mensual[m] ?? 0);
   const maxValor = Math.max(...valores, 0.001);
-  const caudalAnualTotal = valores.reduce((acc, v) => acc + v, 0);
+  const todosIguales = valores.length > 0 && valores.every(v => v === valores[0]);
+  const volumenCalculado = derechos.volumen_anual == null;
+  const volumenFallback = (volumenCalculado && todosIguales)
+    ? (valores[0] / 1000) * 31557600
+    : null;
+  const volumenDisplay = derechos.volumen_anual ?? volumenFallback;
 
   return (
     <div className="space-y-4 pt-2">
@@ -72,10 +77,17 @@ export default function DerechosTab({
           <p className="text-base font-bold text-green-900">{derechos.tipo_derecho_label}</p>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-          <p className="text-xs text-green-700 font-semibold mb-1">Caudal anual permitido</p>
+          <p className="text-xs text-green-700 font-semibold mb-1">Volumen anual permitido</p>
           <p className="text-base font-bold text-green-900">
-            {NUM_ES.format(Math.round(caudalAnualTotal * 10) / 10)} L/s
+            {volumenDisplay != null
+              ? <>{NUM_ES.format(Math.round(volumenDisplay * 10) / 10)} m³{volumenCalculado && <span className="text-yellow-600">*</span>}</>
+              : '—'}
           </p>
+          {volumenCalculado && volumenDisplay != null && (
+            <p className="text-[10px] text-yellow-600 mt-1">
+              * Dato calculado a partir del caudal mensual, no proviene de datos oficiales DGA.
+            </p>
+          )}
         </div>
       </div>
 

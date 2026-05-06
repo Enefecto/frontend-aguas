@@ -214,8 +214,13 @@ class ApiService {
     return this.request(qs ? `${API_ENDPOINTS.SHACS}?${qs}` : API_ENDPOINTS.SHACS);
   }
 
-  async getJuntas() {
-    return this.request(API_ENDPOINTS.JUNTAS);
+  async getJuntas({ region, cod_cuenca, cod_subcuenca } = {}) {
+    const params = new URLSearchParams();
+    if (region != null) params.append('region', region);
+    if (cod_cuenca != null) params.append('cod_cuenca', cod_cuenca);
+    if (cod_subcuenca != null) params.append('cod_subcuenca', cod_subcuenca);
+    const qs = params.toString();
+    return this.request(qs ? `${API_ENDPOINTS.JUNTAS}?${qs}` : API_ENDPOINTS.JUNTAS);
   }
 
   async getShacSeriesTiempoCaudal(shacIdentificador, pozo = null) {
