@@ -71,6 +71,10 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   // Re-fetch SHACs when geographic filters change
   useEffect(() => {
     if (!apiService) return;
+
+    setShacsDisponibles([]);
+    let cancelled = false;
+
     const region = filtros.region ? parseInt(filtros.region) : undefined;
     const cuencaData = filtros.cuenca
       ? datosOriginales.find(d => d.nom_cuenca === filtros.cuenca)
@@ -83,18 +87,29 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
 
     apiService.getShacs({ region, cod_cuenca, cod_subcuenca })
       .then(data => {
+        if (cancelled) return;
         const opciones = (data?.shacs || []).map(s => ({
           value: s.cod_sector_sha,
           label: s.sector_sha || `SHAC ${s.cod_sector_sha}`
         }));
         setShacsDisponibles(opciones);
       })
-      .catch(err => console.error('Error cargando SHACs:', err));
+      .catch(err => {
+        if (cancelled) return;
+        console.error('Error cargando SHACs:', err);
+        setShacsDisponibles([]);
+      });
+
+    return () => { cancelled = true; };
   }, [filtros.region, filtros.cuenca, filtros.subcuenca, apiService, datosOriginales]);
 
   // Re-fetch Juntas when geographic filters change
   useEffect(() => {
     if (!apiService) return;
+
+    setJuntasDisponibles([]);
+    let cancelled = false;
+
     const region = filtros.region ? parseInt(filtros.region) : undefined;
     const cuencaData = filtros.cuenca
       ? datosOriginales.find(d => d.nom_cuenca === filtros.cuenca)
@@ -107,13 +122,20 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
 
     apiService.getJuntas({ region, cod_cuenca, cod_subcuenca })
       .then(data => {
+        if (cancelled) return;
         const opciones = (data?.juntas || []).map(j => ({
           value: j.id_junta,
           label: `Junta ${j.id_junta}`
         }));
         setJuntasDisponibles(opciones);
       })
-      .catch(err => console.error('Error cargando Juntas:', err));
+      .catch(err => {
+        if (cancelled) return;
+        console.error('Error cargando Juntas:', err);
+        setJuntasDisponibles([]);
+      });
+
+    return () => { cancelled = true; };
   }, [filtros.region, filtros.cuenca, filtros.subcuenca, apiService, datosOriginales]);
 
   // Reset query state when filters change so UI shows pending indicator
