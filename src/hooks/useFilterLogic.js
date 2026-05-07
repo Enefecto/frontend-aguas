@@ -54,19 +54,17 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
     }
   }, [filtros.cuenca, filtros.subcuenca, isLoaded, minMaxDatosOriginales]);
 
-  // Actualizar límite cuando cambie limitMax o cuando cambien los filtros geográficos
+  // Reset limit to max whenever filters change
   useEffect(() => {
     if (isLoaded && limitMax) {
-      // Si el límite actual es el valor por defecto (10), establecerlo al máximo
-      // O si el límite supera el máximo permitido, ajustarlo
-      if (filtros.limit === FILTER_CONFIG.DEFAULT_FILTERS.limit || filtros.limit > limitMax) {
-        setFiltros(prev => ({
-          ...prev,
-          limit: limitMax
-        }));
-      }
+      setFiltros(prev => ({
+        ...prev,
+        limit: limitMax
+      }));
     }
-  }, [limitMax, isLoaded, filtros.region, filtros.cuenca, filtros.subcuenca]);
+  }, [limitMax, isLoaded, filtros.region, filtros.cuenca, filtros.subcuenca,
+      filtros.tipoPunto, filtros.shac, filtros.apr, filtros.id_junta,
+      filtros.fechaInicio, filtros.fechaFin, filtros.fechaPredefinida]);
 
   // Re-fetch SHACs when geographic filters change
   useEffect(() => {
