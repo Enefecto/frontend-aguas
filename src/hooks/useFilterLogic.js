@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { FILTER_CONFIG } from '../constants/apiEndpoints.js';
 import {
   buildQueryParams,
@@ -166,7 +166,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
   };
 
   // Función para obtener coordenadas únicas
-  const handleCoordenadasUnicas = async (overrideLimit = null) => {
+  const handleCoordenadasUnicas = useCallback(async (overrideLimit = null) => {
     try {
       setQueryCompleted(false); // Reset del estado de consulta
 
@@ -188,7 +188,10 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
         // Si retornó menos que el límite, sabemos el total real de puntos para estos filtros
         if (totalReal < limiteUsado) {
           setLimitMaxFromQuery(totalReal);
-          setFiltros(prev => ({ ...prev, limit: totalReal }));
+          // Guard: avoid setFiltros loop when value already correct
+          if (filtros.limit !== totalReal) {
+            setFiltros(prev => (prev.limit === totalReal ? prev : { ...prev, limit: totalReal }));
+          }
         }
         // Solo mostrar advertencia si la API retornó exactamente el límite (puede haber más)
         setLimiteSolicitado(totalReal >= limiteUsado ? limiteUsado : totalReal);
@@ -217,7 +220,7 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
       setLimiteSolicitado();
       setQueryCompleted(true); // ✅ Marcar como completado incluso en caso de error
     }
-  };
+  }, [filtros, filtroCaudal, ordenCaudal, datosOriginales, limitMax, apiService]);
 
   return {
     // Estados

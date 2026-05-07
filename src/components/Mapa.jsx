@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -16,11 +16,7 @@ const MapaContent = () => {
   const [isSelectingPoint, setIsSelectingPoint] = useState(null); // null, 0, o 1
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showDuplicateError, setShowDuplicateError] = useState(false);
-  const stableSelectedPoints = useMemo(
-    () => selectedPointsForComparison,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedPointsForComparison[0], selectedPointsForComparison[1]]
-  );
+  const stableSelectedPoints = selectedPointsForComparison;
 
   // Cargar leaflet-draw solo después de que leaflet esté disponible
   useEffect(() => {

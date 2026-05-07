@@ -158,10 +158,14 @@ export const ToolsEditControl = ({apiUrl,puntos}) => {
 
       // Ejecutar reemplazo inicial y con delays
       replaceTexts();
-      setTimeout(replaceTexts, 100);
-      setTimeout(replaceTexts, 500);
+      const t1 = setTimeout(replaceTexts, 100);
+      const t2 = setTimeout(replaceTexts, 500);
 
-      return () => observer.disconnect();
+      return () => {
+        observer.disconnect();
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     }
   }, [isReady]);
 

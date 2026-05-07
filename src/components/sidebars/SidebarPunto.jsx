@@ -40,9 +40,8 @@ export default function SidebarPunto({
   const [puntoInfo, setPuntoInfo] = useState(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      setIsOpen(true);
-    }, 100);
+    const id = setTimeout(() => setIsOpen(true), 100);
+    return () => clearTimeout(id);
   }, [])
 
   // Cargar datos de nivel freático si existe
