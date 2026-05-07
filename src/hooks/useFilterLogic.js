@@ -63,8 +63,9 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
       }));
     }
   }, [limitMax, isLoaded, filtros.region, filtros.cuenca, filtros.subcuenca,
-      filtros.tipoPunto, filtros.shac, filtros.apr, filtros.id_junta,
-      filtros.fechaInicio, filtros.fechaFin, filtros.fechaPredefinida]);
+      filtros.tipoPunto, filtros.pozo, filtros.shac, filtros.apr, filtros.id_junta,
+      filtros.fechaInicio, filtros.fechaFin, filtros.fechaPredefinida,
+      filtros.codigo_obra]);
 
   // Re-fetch SHACs when geographic filters change
   useEffect(() => {
@@ -141,8 +142,9 @@ export const useFilterLogic = (datosOriginales, minMaxDatosOriginales, isLoaded,
     setQueryCompleted(false);
     setLimitMaxFromQuery(null);
   }, [filtros.region, filtros.cuenca, filtros.subcuenca, filtros.tipoPunto,
-      filtros.shac, filtros.apr, filtros.id_junta,
-      filtros.fechaInicio, filtros.fechaFin, filtros.fechaPredefinida]);
+      filtros.pozo, filtros.shac, filtros.apr, filtros.id_junta,
+      filtros.fechaInicio, filtros.fechaFin, filtros.fechaPredefinida,
+      filtros.codigo_obra]);
 
   // Función para manejar cambios en filtros
   const handleFiltroChange = (e) => {

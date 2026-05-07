@@ -122,92 +122,86 @@ const SingleTimeSeriesChart = memo(function SingleTimeSeriesChart({
   }, [titulo, unidad]);
 
   return (
-    <>
-      {/* Selector de período */}
-      {opcionesPeriodo.length > 1 && (
-        <div className="flex items-center gap-3 mb-4">
-          <label className="text-sm font-semibold text-gray-700">Período:</label>
-          <select
-            value={periodoSeleccionado}
-            onChange={(e) => {
-              const valor = e.target.value === 'todos' ? 'todos' : Number(e.target.value);
-              setPeriodoSeleccionado(valor);
-            }}
-            className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all cursor-pointer shadow-sm"
-          >
-            {opcionesPeriodo.map(opcion => (
-              <option key={opcion.valor} value={opcion.valor}>
-                {opcion.etiqueta}
-              </option>
-            ))}
-          </select>
-          {rangoFechas && (
-            <span className="text-xs text-gray-500">
-              Mostrando: {rangoFechas}
-            </span>
+    <div className="bg-white border border-blue-200 rounded-lg p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <h4 className="text-sm font-semibold text-blue-700">{titulo}</h4>
+        <div className="flex items-center gap-2">
+          {opcionesPeriodo.length > 1 && (
+            <>
+              <label className="text-xs font-semibold text-gray-700">Período:</label>
+              <select
+                value={periodoSeleccionado}
+                onChange={(e) => {
+                  const valor = e.target.value === 'todos' ? 'todos' : Number(e.target.value);
+                  setPeriodoSeleccionado(valor);
+                }}
+                className="px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+              >
+                {opcionesPeriodo.map(opcion => (
+                  <option key={opcion.valor} value={opcion.valor}>
+                    {opcion.etiqueta}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+          {allowYAxisInvert && (
+            <button
+              onClick={() => setYAxisInvertido(v => !v)}
+              title="Invertir eje Y"
+              className={`flex items-center gap-1 px-2 py-1 text-xs rounded border transition-all ${
+                yAxisInvertido
+                  ? 'bg-blue-500 text-white border-blue-500'
+                  : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
+                <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+              </svg>
+              Invertir Y
+            </button>
           )}
         </div>
-      )}
-
-      {/* Título + botón invertir eje Y */}
-      <div className="flex items-center justify-between mb-1">
-        <h4 className="text-sm font-semibold text-gray-700">{titulo}</h4>
-        {allowYAxisInvert && (
-          <button
-            onClick={() => setYAxisInvertido(v => !v)}
-            title="Invertir eje Y"
-            className={`flex items-center gap-1 px-2 py-1 text-xs rounded border transition-all ${
-              yAxisInvertido
-                ? 'bg-cyan-500 text-white border-cyan-500'
-                : 'bg-white text-gray-600 border-gray-300 hover:border-cyan-400 hover:text-cyan-600'
-            }`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
-              <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
-            </svg>
-            Invertir Y
-          </button>
-        )}
       </div>
+
       {rangoFechas && (
-        <p className="text-xs text-gray-500 mb-2">
-          Periodo: {rangoFechas}
-        </p>
+        <p className="text-xs text-gray-500 mb-2">Periodo: {rangoFechas}</p>
       )}
 
-      {/* Gráfico */}
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={dataFiltrada}
-          margin={{ top: 8, right: 10, left: 5, bottom: 24 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="fecha_medicion"
-            tickFormatter={(str) =>
-              new Date(str).toLocaleDateString('es-CL', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-              }).replace('.', '')
-            }
-            minTickGap={30}
-            tickMargin={8}
-            tick={{ fontSize: 10 }}
-          />
-          <YAxis
-            domain={[0, (dataMax) => (dataMax ?? 0) * 1.05]}
-            reversed={yAxisInvertido}
-            width={64}
-            tick={{ fontSize: 10 }}
-            tickFormatter={(v) => formatNumberCL(v)}
-          />
-          <Tooltip content={CustomTooltip} />
-          <Line type="monotone" dataKey={dataKey} stroke={color} dot={false} />
-        </LineChart>
-      </ResponsiveContainer>
-    </>
+      <div className="w-full h-[260px] md:h-72">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={dataFiltrada}
+            margin={{ top: 8, right: 10, left: 5, bottom: 24 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="fecha_medicion"
+              tickFormatter={(str) =>
+                new Date(str).toLocaleDateString('es-CL', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                }).replace('.', '')
+              }
+              minTickGap={30}
+              tickMargin={8}
+              tick={{ fontSize: 10 }}
+            />
+            <YAxis
+              domain={[0, (dataMax) => (dataMax ?? 0) * 1.05]}
+              reversed={yAxisInvertido}
+              width={64}
+              tick={{ fontSize: 10 }}
+              tickFormatter={(v) => formatNumberCL(v)}
+            />
+            <Tooltip content={CustomTooltip} />
+            <Line type="monotone" dataKey={dataKey} stroke={color} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 });
 

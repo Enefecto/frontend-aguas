@@ -82,24 +82,26 @@ const CaudalConDerechosChart = memo(function CaudalConDerechosChart({
   }
 
   return (
-    <>
-      {opcionesPeriodo.length > 1 && (
-        <div className="flex items-center gap-3 mb-4">
-          <label className="text-sm font-semibold text-gray-700">Período:</label>
-          <select
-            value={periodoSeleccionado}
-            onChange={e => setPeriodoSeleccionado(e.target.value === 'todos' ? 'todos' : Number(e.target.value))}
-            className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all cursor-pointer shadow-sm"
-          >
-            {opcionesPeriodo.map(o => (
-              <option key={o.valor} value={o.valor}>{o.etiqueta}</option>
-            ))}
-          </select>
-        </div>
-      )}
+    <div className="bg-white border border-green-200 rounded-lg p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <h4 className="text-sm font-semibold text-green-700">{titulo}</h4>
+        {opcionesPeriodo.length > 1 && (
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-semibold text-gray-700">Período:</label>
+            <select
+              value={periodoSeleccionado}
+              onChange={e => setPeriodoSeleccionado(e.target.value === 'todos' ? 'todos' : Number(e.target.value))}
+              className="px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
+            >
+              {opcionesPeriodo.map(o => (
+                <option key={o.valor} value={o.valor}>{o.etiqueta}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
 
-      <h4 className="text-sm font-semibold mb-2 text-gray-700">{titulo}</h4>
-
+      <div className="w-full h-[260px] md:h-72">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={dataFiltrada} margin={{ top: 8, right: 10, left: 5, bottom: 24 }}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -139,7 +141,8 @@ const CaudalConDerechosChart = memo(function CaudalConDerechosChart({
           )}
         </LineChart>
       </ResponsiveContainer>
-    </>
+      </div>
+    </div>
   );
 });
 

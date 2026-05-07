@@ -292,7 +292,7 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
   }, [unidad, agrupacion]);
 
   return (
-    <div className="space-y-4">
+    <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-4">
       {/* Controles del gráfico */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
         <div className="flex flex-wrap items-center gap-4">
@@ -392,9 +392,9 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
       )}
 
       {/* Gráfico Principal */}
-      <div className="w-full h-[260px] md:h-80 lg:h-96 mt-4">
+      <div className="mt-4">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1 gap-2">
-          <h4 className="text-sm font-semibold text-gray-700">
+          <h4 className="text-sm font-semibold text-blue-700">
             {titulo} {agrupacion === 'mes' ? 'mensual' : 'anual'}
           </h4>
           <p className="text-xs text-gray-500">
@@ -402,7 +402,7 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
           </p>
         </div>
         {selectedPeriodo && (
-          <p className="text-xs text-cyan-600 mb-2">
+          <p className="text-xs text-blue-600 mb-2">
             <strong>{agrupacion === 'mes' ? 'Mes' : 'Año'} seleccionado:</strong> {selectedPeriodo}
           </p>
         )}
@@ -430,6 +430,7 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
             )}
           </div>
         )}
+        <div className="w-full h-[260px] md:h-80 lg:h-96">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={dataPrincipal}
@@ -462,16 +463,17 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
             )}
           </LineChart>
         </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Gráfico Secundario */}
       {selectedPeriodo && dataSecundaria && dataSecundaria.length > 0 && (
-        <div className="w-full h-[260px] md:h-80 lg:h-96 mt-12 pt-8 border-t border-gray-100">
+        <div className="mt-8 pt-6 border-t border-gray-100">
           <div className="flex justify-between items-center mb-1">
-            <h4 className="text-sm font-semibold text-gray-700">
+            <h4 className="text-sm font-semibold text-blue-700">
               {titulo} {agrupacion === 'mes' ? 'diario' : 'mensual'} para {selectedPeriodo}
             </h4>
-            <button 
+            <button
               onClick={() => setSelectedPeriodo(null)}
               className="text-gray-400 hover:text-gray-600 focus:outline-none p-1 rounded-full hover:bg-gray-100 transition-colors"
               title="Cerrar detalle"
@@ -482,6 +484,7 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
               </svg>
             </button>
           </div>
+          <div className="w-full h-[260px] md:h-80 lg:h-96">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={dataSecundaria}
@@ -502,6 +505,7 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
               {lineasVisibles.totalizador && hasTotalizadorData && <Line yAxisId="right" type="monotone" dataKey="totalizador_max" stroke="#9333ea" name="Totalizador máx" dot={false} strokeWidth={1.5} strokeDasharray="6 3" />}
             </LineChart>
           </ResponsiveContainer>
+          </div>
         </div>
       )}
     </div>

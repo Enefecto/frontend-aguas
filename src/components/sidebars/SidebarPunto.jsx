@@ -388,7 +388,7 @@ export default function SidebarPunto({
           <h3 className="text-lg font-semibold">Gráficos</h3>
 
           {/* Gráfico de Caudal */}
-          <div className="w-full h-[260px] md:h-80 lg:h-96">
+          <div className="w-full">
             <SingleTimeSeriesChart
               data={graficosPuntosData.caudal_por_tiempo || []}
               titulo="Caudal por tiempo"
@@ -400,7 +400,7 @@ export default function SidebarPunto({
 
           {/* Gráfico de Nivel Freático */}
           {nivelFreatico && (
-            <div className="w-full h-[260px] md:h-80 lg:h-96">
+            <div className="w-full">
               {loadingNivelFreatico ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
@@ -422,7 +422,7 @@ export default function SidebarPunto({
 
           {/* Gráfico de Altura Limnimétrica */}
           {alturaLimnimetrica && (
-            <div className="w-full h-[260px] md:h-80 lg:h-96">
+            <div className="w-full">
               {loadingAlturaLimnimetrica ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>

@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
 import CaudalConDerechosChart from '../charts/CaudalConDerechosChart';
-
-const MESES = [
-  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
-];
+import ExtraccionesVsPermitidoChart from '../charts/ExtraccionesVsPermitidoChart';
+import { MESES, SEGUNDOS_POR_MES } from '../../utils/timeConstants';
 
 const MESES_ABREV = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 
@@ -60,10 +57,13 @@ export default function DerechosTab({
 
   const valores = MESES.map(m => derechos.caudal_mensual[m] ?? 0);
   const maxValor = Math.max(...valores, 0.001);
-  const todosIguales = valores.length > 0 && valores.every(v => v === valores[0]);
   const volumenCalculado = derechos.volumen_anual == null;
-  const volumenFallback = (volumenCalculado && todosIguales)
-    ? (valores[0] / 1000) * 31557600
+  const volumenFallback = volumenCalculado
+    ? MESES.reduce((sum, mes) => {
+        const caudal = derechos.caudal_mensual[mes];
+        if (caudal == null || caudal === 0) return sum;
+        return sum + (caudal / 1000) * SEGUNDOS_POR_MES[mes];
+      }, 0) || null
     : null;
   const volumenDisplay = derechos.volumen_anual ?? volumenFallback;
 
@@ -85,7 +85,7 @@ export default function DerechosTab({
           </p>
           {volumenCalculado && volumenDisplay != null && (
             <p className="text-[10px] text-yellow-600 mt-1">
-              * Dato calculado a partir del caudal mensual, no proviene de datos oficiales DGA.
+              * Dato calculado a partir del caudal instantáneo autorizado.
             </p>
           )}
         </div>
@@ -93,7 +93,7 @@ export default function DerechosTab({
 
       {/* Bar chart — caudal mensual autorizado */}
       <div className="bg-white border border-green-200 rounded-lg p-3">
-        <p className="text-xs font-semibold text-green-700 mb-3">Caudal autorizado por mes (L/s)</p>
+        <p className="text-xs font-semibold text-green-700 mb-3">Caudal instantáneo autorizado (L/s)</p>
         <div className="relative">
           {/* Tooltip */}
           {tooltipMes !== null && (
@@ -146,14 +146,19 @@ export default function DerechosTab({
 
       {/* Time series */}
       {graficosListos ? (
-        <div className="w-full h-[260px] md:h-80">
+        <>
           <CaudalConDerechosChart
             data={caudalData}
             caudalMensual={derechos.caudal_mensual}
             titulo="Caudal medido vs autorizado"
             unidad="L/s"
           />
-        </div>
+          <ExtraccionesVsPermitidoChart
+            caudalData={caudalData}
+            caudalMensual={derechos.caudal_mensual}
+            volumenAnual={derechos.volumen_anual}
+          />
+        </>
       ) : graphicsPuntosLoading === 1 ? (
         <div className="flex justify-center p-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />

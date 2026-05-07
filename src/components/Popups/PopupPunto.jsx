@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { formatNumberCL } from "../../utils/formatNumberCL";
-import { getPuntoTypeLabel } from "../../utils/mapUtils";
+import { getPuntoTypeLabel, getMarkerColor } from "../../utils/mapUtils";
 import { sanitizeText, safeFormatNumber } from "../../utils/sanitize";
 
 // Caché global para evitar peticiones duplicadas
@@ -62,46 +61,93 @@ export const PopupPunto = ({ punto, handleShowSidebarCuencas, handleShowSidebarS
     );
   }
 
-  // Determinar si la subcuenca tiene registro o no
   const subcuencaNombre = sanitizeText(puntoInfo.nombre_subcuenca) || 'Sin registro';
   const subcuencaCodigo = puntoInfo.cod_subcuenca || 'sin_registro';
 
-  // Sanitizar y validar datos antes de renderizar
   const safeCuencaNombre = sanitizeText(puntoInfo.nombre_cuenca);
   const safeTipo = sanitizeText(getPuntoTypeLabel(puntoInfo));
+  const safeCodigo = sanitizeText(puntoInfo.codigo) || 'Sin código';
+  const esSuperficial = puntoInfo.es_pozo_subterraneo === false;
+  const geoLabel = esSuperficial ? 'Subsubcuenca' : 'Sector SHAC';
+  const geoValue = esSuperficial
+    ? (sanitizeText(puntoInfo.nombre_subsubcuenca) || '—')
+    : (sanitizeText(puntoInfo.sector_sha) || '—');
   const safeCaudalPromedio = safeFormatNumber(puntoInfo.caudal_promedio, 'es-CL', 'N/A');
   const safeMediciones = safeFormatNumber(puntoInfo.n_mediciones, 'es-CL', '0');
 
+  const accentColor = getMarkerColor(puntoInfo);
+
+  const showJunta = puntoInfo.parte_junta === true && puntoInfo.id_junta != null;
+  const showCanal = puntoInfo.canal_transmision != null && String(puntoInfo.canal_transmision).trim() !== '';
+  const safeCanal = showCanal ? sanitizeText(puntoInfo.canal_transmision) : null;
+
   return (
-    <div className="text-sm flex flex-col justify-between items-start gap-2" style={{ minWidth: '280px' }}>
-      <p className='flex gap-2 flex-wrap'>
-        <strong>Cuenca:</strong> {safeCuencaNombre}
+    <div
+      className="text-sm bg-white rounded-md overflow-hidden border-l-4 px-3 py-2"
+      style={{ minWidth: '280px', borderLeftColor: accentColor }}
+    >
+      <div className="mb-2">
+        <p className="text-sm font-semibold text-gray-900 leading-tight">{safeTipo}</p>
+        <p className="text-xs font-mono font-bold text-gray-900">{safeCodigo}</p>
+      </div>
+
+      <hr className="border-gray-200 mb-2" />
+
+      <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 items-baseline">
+        <span className="text-xs font-semibold text-gray-500">Cuenca</span>
         <span
           onClick={() => handleShowSidebarCuencas(puntoInfo.nombre_cuenca, puntoInfo.cod_cuenca)}
-          className='cuenca-analizar'
+          className="font-medium underline underline-offset-2 cursor-pointer hover:opacity-70 transition-opacity"
+          style={{ color: accentColor }}
         >
-          (Ver Detalles)
+          {safeCuencaNombre}
         </span>
-      </p>
-      <p className='flex gap-2 flex-wrap'>
-        <strong>Subcuenca:</strong> {subcuencaNombre}
+
+        <span className="text-xs font-semibold text-gray-500">Subcuenca</span>
         <span
           onClick={() => handleShowSidebarSubcuencas(subcuencaNombre, subcuencaCodigo, puntoInfo.cod_cuenca, puntoInfo.nombre_cuenca)}
-          className='subcuenca-analizar'
+          className="font-medium underline underline-offset-2 cursor-pointer hover:opacity-70 transition-opacity"
+          style={{ color: accentColor }}
         >
-          (Ver Detalles)
+          {subcuencaNombre}
         </span>
-      </p>
-      <p><strong>Código de obra:</strong> {puntoInfo.codigo || 'Sin registro'}</p>
-      <p><strong>Tipo:</strong> {safeTipo}</p>
-      <p><strong>Caudal promedio:</strong> {safeCaudalPromedio} (L/s)</p>
-      <p><strong>Nº de Mediciones:</strong> {safeMediciones}</p>
+
+        <span className="text-xs font-semibold text-gray-500">{geoLabel}</span>
+        <span className="text-gray-900">{geoValue}</span>
+
+        {showJunta && (
+          <>
+            <span className="text-xs font-semibold text-gray-500">Junta vigil.</span>
+            <span className="text-gray-900">
+              Junta {puntoInfo.id_junta}
+              {puntoInfo.representa_junta === true && (
+                <span className="ml-1 text-xs text-cyan-700">(Representante)</span>
+              )}
+            </span>
+          </>
+        )}
+
+        {showCanal && (
+          <>
+            <span className="text-xs font-semibold text-gray-500">Canal</span>
+            <span className="text-gray-900">{safeCanal}</span>
+          </>
+        )}
+
+        <span className="text-xs font-semibold text-gray-500">Caudal prom.</span>
+        <span className="text-gray-900">{safeCaudalPromedio} L/s</span>
+
+        <span className="text-xs font-semibold text-gray-500">Nº mediciones</span>
+        <span className="text-gray-900">{safeMediciones}</span>
+      </div>
+
       <button
-        className='bg-cyan-800 text-white p-2 cursor-pointer hover:bg-cyan-600 w-full mt-2'
+        className="w-full mt-3 px-3 py-2 text-sm font-semibold text-white rounded cursor-pointer transition-opacity hover:opacity-90"
+        style={{ backgroundColor: accentColor }}
         onClick={() => handleShowSidebarPunto({ ...punto, ...puntoInfo })}
       >
         Analizar Punto
       </button>
     </div>
-  )
+  );
 }
