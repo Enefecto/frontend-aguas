@@ -6,6 +6,7 @@ import { ModalDetalles } from '../UI/ModalDetalles';
 import { useState, useEffect } from 'react';
 import SingleTimeSeriesChart from '../charts/SingleTimeSeriesChart';
 import DerechosTab from './DerechosTab';
+import { filterByMinYear } from '../../utils/timeConstants';
 
 export default function SidebarPunto({
   analisisPuntoSeleccionado,
@@ -52,9 +53,9 @@ export default function SidebarPunto({
         .then(data => {
           // Ordenar los datos por fecha ascendente
           if (data?.nivel_por_tiempo) {
-            data.nivel_por_tiempo = data.nivel_por_tiempo.sort((a, b) => {
-              return new Date(a.fecha_medicion) - new Date(b.fecha_medicion);
-            });
+            // TEMP: drop pre-2014 readings until DB filters handle it.
+            data.nivel_por_tiempo = filterByMinYear(data.nivel_por_tiempo)
+              .sort((a, b) => new Date(a.fecha_medicion) - new Date(b.fecha_medicion));
           }
           setDatosNivelFreatico(data);
         })
@@ -76,9 +77,9 @@ export default function SidebarPunto({
         .then(data => {
           // Ordenar los datos por fecha ascendente
           if (data?.altura_por_tiempo) {
-            data.altura_por_tiempo = data.altura_por_tiempo.sort((a, b) => {
-              return new Date(a.fecha_medicion) - new Date(b.fecha_medicion);
-            });
+            // TEMP: drop pre-2014 readings until DB filters handle it.
+            data.altura_por_tiempo = filterByMinYear(data.altura_por_tiempo)
+              .sort((a, b) => new Date(a.fecha_medicion) - new Date(b.fecha_medicion));
           }
           setDatosAlturaLimnimetrica(data);
         })

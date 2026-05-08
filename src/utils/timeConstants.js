@@ -25,3 +25,15 @@ export const esBisiesto = (año) =>
   (año % 4 === 0 && año % 100 !== 0) || año % 400 === 0;
 
 export const segundosFebrero = (año) => esBisiesto(año) ? 2_505_600 : 2_419_200;
+
+// TEMP: client-side cutoff for chart data. Drops measurements before this year.
+// Remove once the DB-side filters reject pre-2014 records at the source.
+export const MIN_YEAR_GRAFICOS = 2014;
+
+export const filterByMinYear = (rows, dateKey = 'fecha_medicion') => {
+  if (!Array.isArray(rows)) return rows;
+  return rows.filter(r => {
+    const d = new Date(r?.[dateKey]);
+    return Number.isFinite(d.getTime()) && d.getUTCFullYear() >= MIN_YEAR_GRAFICOS;
+  });
+};

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { UI_CONFIG } from '../constants/uiConfig.js';
+import { filterByMinYear } from '../utils/timeConstants.js';
 
 /**
  * Función auxiliar genérica para procesar datos de series de tiempo
@@ -8,6 +9,9 @@ import { UI_CONFIG } from '../constants/uiConfig.js';
  * @returns {Object} - Objeto con arrays mensual y diario procesados
  */
 const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
+  // TEMP: drop pre-2014 readings until DB filters handle it. See timeConstants.MIN_YEAR_GRAFICOS.
+  seriesData = filterByMinYear(seriesData);
+
   // Agrupar por mes (año-mes) para el gráfico mensual
   const mensualMap = {};
   const diarioMap = {};
@@ -330,9 +334,9 @@ export const useAnalysisData = (apiService) => {
 
       // Ordenar los datos por fecha ascendente (de más antigua a más reciente)
       if (data?.caudal_por_tiempo) {
-        data.caudal_por_tiempo = data.caudal_por_tiempo.sort((a, b) => {
-          return new Date(a.fecha_medicion) - new Date(b.fecha_medicion);
-        });
+        // TEMP: drop pre-2014 readings until DB filters handle it.
+        data.caudal_por_tiempo = filterByMinYear(data.caudal_por_tiempo)
+          .sort((a, b) => new Date(a.fecha_medicion) - new Date(b.fecha_medicion));
       }
 
       setGraficosPuntosData(data);
