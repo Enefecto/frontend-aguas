@@ -41,7 +41,9 @@ export default function SidebarFiltros({
   handleFiltroChange,
   queryCompleted,
   shacsDisponibles = [],
-  juntasDisponibles = []
+  juntasDisponibles = [],
+  showShacLayer = false,
+  setShowShacLayer = () => {}
 }) {
   const {
     consultandoPuntos,
@@ -98,6 +100,8 @@ export default function SidebarFiltros({
           filtros={filtros}
           handleFiltroChange={handleFiltroChange}
           shacsDisponibles={shacsDisponibles}
+          showShacLayer={showShacLayer}
+          onToggleShacLayer={() => setShowShacLayer(v => !v)}
         />
 
         <AprFilter

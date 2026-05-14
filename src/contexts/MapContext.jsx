@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { useMapData } from '../hooks/useMapData.js';
 import { useFilterLogic } from '../hooks/useFilterLogic.js';
 import { useSidebarState } from '../hooks/useSidebarState.js';
@@ -33,6 +33,9 @@ export const MapProvider = ({ children, apiUrl }) => {
   // Hook de datos de análisis
   const analysisData = useAnalysisData(apiService);
 
+  // Toggle visibilidad de capa SHAC en el mapa
+  const [showShacLayer, setShowShacLayer] = useState(false);
+
   const value = {
     // Datos base
     datosOriginales,
@@ -49,6 +52,10 @@ export const MapProvider = ({ children, apiUrl }) => {
 
     // Datos de análisis
     ...analysisData,
+
+    // Capa SHAC
+    showShacLayer,
+    setShowShacLayer,
 
     // API URL
     apiUrl

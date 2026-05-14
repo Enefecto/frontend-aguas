@@ -5,6 +5,7 @@ import { Legend } from '../UI/Leyend.jsx';
 import { ToolsEditControl } from '../tools/ToolsEditControl.jsx';
 import { MarkerLayer } from './MarkerLayer.jsx';
 import { LayerSelector } from './LayerSelector.jsx';
+import { ShacLayer } from './ShacLayer.jsx';
 
 export const MapContainer = React.memo(({
   puntos,
@@ -16,7 +17,8 @@ export const MapContainer = React.memo(({
   handleShowSidebarPunto,
   isSelectingPointForComparison,
   onPointClickForComparison,
-  selectedPointsForComparison
+  selectedPointsForComparison,
+  showShacLayer
 }) => {
   const [currentLayer, setCurrentLayer] = useState(MAP_CONFIG.DEFAULT_TILE_LAYER);
 
@@ -61,6 +63,8 @@ export const MapContainer = React.memo(({
         apiUrl={apiUrl}
         puntos={puntos}
       />
+
+      {showShacLayer && <ShacLayer />}
 
       <MarkerLayer
         puntos={puntos}

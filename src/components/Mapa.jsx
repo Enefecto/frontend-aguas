@@ -96,7 +96,11 @@ const MapaContent = () => {
 
     // Listas para filtros
     shacsDisponibles,
-    juntasDisponibles
+    juntasDisponibles,
+
+    // Capa SHAC
+    showShacLayer,
+    setShowShacLayer
   } = useMapContext();
 
   const [agrupar, setAgrupar] = useState(false);
@@ -200,6 +204,7 @@ const MapaContent = () => {
         isSelectingPointForComparison={isSelectingPoint !== null}
         onPointClickForComparison={handlePointClickForComparison}
         selectedPointsForComparison={stableSelectedPoints}
+        showShacLayer={showShacLayer}
       />
 
       <ComparePointsSelector
@@ -261,6 +266,8 @@ const MapaContent = () => {
         queryCompleted={queryCompleted}
         shacsDisponibles={shacsDisponibles}
         juntasDisponibles={juntasDisponibles}
+        showShacLayer={showShacLayer}
+        setShowShacLayer={setShowShacLayer}
 
         // Props para SidebarCuenca
         cuencaAnalysis={cuencaAnalysis}

@@ -37,6 +37,8 @@ export const SidebarManager = ({
   queryCompleted,
   shacsDisponibles,
   juntasDisponibles,
+  showShacLayer,
+  setShowShacLayer,
 
   // Props para SidebarCuenca
   cuencaAnalysis,
@@ -87,6 +89,8 @@ export const SidebarManager = ({
           queryCompleted={queryCompleted}
           shacsDisponibles={shacsDisponibles}
           juntasDisponibles={juntasDisponibles}
+          showShacLayer={showShacLayer}
+          setShowShacLayer={setShowShacLayer}
         />
       )}
 
