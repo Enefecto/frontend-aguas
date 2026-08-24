@@ -80,6 +80,7 @@ export default function SidebarCuenca({
           // Formatear datos para el gráfico
           const chartData = (data || []).map(inf => ({
             nombre: inf.nombre_completo || 'Desconocido',
+            obras: inf.cantidad_obras || 0,
             reportes: inf.cantidad_reportes || 0
           })).sort((a, b) => b.reportes - a.reportes); // Ordenar de mayor a menor
 
@@ -328,9 +329,12 @@ export default function SidebarCuenca({
                         <Tooltip
                           cursor={{ fill: '#f3f4f6' }}
                           contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '0.875rem' }}
-                          formatter={(value) => [value, 'Reportes']}
+                          formatter={(value, _n, item) => [
+                            `${value} obras · ${(item?.payload?.reportes ?? 0).toLocaleString('es-CL')} reportes`,
+                            'Usuario'
+                          ]}
                         />
-                        <Bar dataKey="reportes" radius={[0, 4, 4, 0]} barSize={20} fill="#0ea5e9">
+                        <Bar dataKey="obras" radius={[0, 4, 4, 0]} barSize={20} fill="#0ea5e9">
                           {topInformantes.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill="#0ea5e9" />
                           ))}
