@@ -69,8 +69,12 @@ export default function SidebarFiltros({
         gridTemplateRows: '1fr auto'
       }}
     >
-      {/* Contenido scrolleable */}
-      <div className="overflow-y-auto overflow-x-hidden pt-8 px-4 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm pb-4">
+      {/* Contenido scrolleable.
+          mt-12 = 48px: alto del botón de cerrar (h-11) más su top-1. El margen
+          baja el contenedor entero, así la barra de scroll empieza debajo del
+          botón en vez de pasarle por detrás. Si cambia el alto del botón en
+          ButtonOpenCloseSidebar, este margen lo sigue. */}
+      <div className="overflow-y-auto overflow-x-hidden mt-12 px-4 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm pb-4">
         <ButtonOpenCloseSidebar
           toggleSidebar={setSidebarAbierto}
           isFiltrosSidebar={true}
