@@ -96,27 +96,19 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
     if (!mensualMap[mesClave]) {
       mensualMap[mesClave] = {
         mes: mesClave,
-        valores: [],
-        totalizador_vals: []
+        valores: []
       };
     }
     mensualMap[mesClave].valores.push(valor);
-    if (item.totalizador_max != null) {
-      mensualMap[mesClave].totalizador_vals.push(Number(item.totalizador_max) || 0);
-    }
 
     // Agrupar por día
     if (!diarioMap[diaClave]) {
       diarioMap[diaClave] = {
         fecha: diaClave,
-        valores: [],
-        totalizador_vals: []
+        valores: []
       };
     }
     diarioMap[diaClave].valores.push(valor);
-    if (item.totalizador_max != null) {
-      diarioMap[diaClave].totalizador_vals.push(Number(item.totalizador_max) || 0);
-    }
   });
 
   // Calcular estadísticas para datos mensuales
@@ -139,11 +131,6 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
       [`max_${valueKey}`]: redondear(max_valor)
     };
 
-    if (item.totalizador_vals.length > 0) {
-      result.totalizador_max = Number(
-        Math.max(...item.totalizador_vals).toFixed(2)
-      );
-    }
 
     return result;
   }).sort((a, b) => a.mes.localeCompare(b.mes));
@@ -168,11 +155,6 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
       [`max_${valueKey}`]: redondear(max_valor)
     };
 
-    if (item.totalizador_vals.length > 0) {
-      result.totalizador_max = Number(
-        Math.max(...item.totalizador_vals).toFixed(2)
-      );
-    }
 
     return result;
   }).sort((a, b) => a.fecha.localeCompare(b.fecha));

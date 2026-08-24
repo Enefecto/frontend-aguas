@@ -20,7 +20,9 @@ export default function SidebarSubcuenca({
   const [isOpen, setIsOpen] = useState(false);
   const [topInformantes, setTopInformantes] = useState([]);
   const [loadingInformantes, setLoadingInformantes] = useState(false);
-  const [filtroTipoExtraccion, setFiltroTipoExtraccion] = useState(null);
+  // Sin opción "Todos": mezclar extracción superficial y subterránea en una
+  // misma serie no tiene sentido físico. Se arranca en superficial.
+  const [filtroTipoExtraccion, setFiltroTipoExtraccion] = useState(false);
   const isInitialMount = useRef(true);
   const [derechosSubcuenca, setDerechosSubcuenca] = useState(null);
   const derechosFetched = useRef(false);
@@ -175,12 +177,6 @@ export default function SidebarSubcuenca({
       <div className="mt-8 mb-2">
         <h3 className="text-sm font-semibold text-gray-700 mb-2">Tipo de Extracción a graficar:</h3>
         <div className="flex bg-gray-100 p-1 rounded-lg w-fit">
-          <button
-            onClick={() => setFiltroTipoExtraccion(null)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${filtroTipoExtraccion === null ? 'bg-white shadow-sm text-cyan-800' : 'text-gray-600 hover:text-gray-900'}`}
-          >
-            Todos
-          </button>
           <button
             onClick={() => setFiltroTipoExtraccion(false)}
             className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${filtroTipoExtraccion === false ? 'bg-white shadow-sm text-cyan-800' : 'text-gray-600 hover:text-gray-900'}`}
