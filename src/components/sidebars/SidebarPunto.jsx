@@ -8,6 +8,7 @@ import SingleTimeSeriesChart from '../charts/SingleTimeSeriesChart';
 import DerechosTab from './DerechosTab';
 import { filterByMinYear } from '../../utils/timeConstants';
 import { getTiposTransmision, TIPO_TRANSMISION_LABEL } from '../../constants/tipoTransmision';
+import { getUTMParaMostrar, formatUTM } from '../../utils/utmConverter.js';
 
 export default function SidebarPunto({
   analisisPuntoSeleccionado,
@@ -25,6 +26,9 @@ export default function SidebarPunto({
   const caudal = analisis?.caudal || {};
   const nivelFreatico = analisis?.nivel_freatico;
   const alturaLimnimetrica = analisis?.altura_limnimetrica;
+
+  // El punto ya viene con zone_used desde convertPuntoUTMtoLatLon (useFilterLogic)
+  const utmPunto = formatUTM(getUTMParaMostrar(punto));
 
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('mediciones');
@@ -148,6 +152,11 @@ export default function SidebarPunto({
           {punto.lat?.toFixed(5)} / {punto.lon?.toFixed(5)}
         </span>
       </h3>
+      {utmPunto && (
+        <p className="text-sm text-gray-600 mt-1">
+          <strong>UTM (WGS84):</strong> {utmPunto}
+        </p>
+      )}
       {punto.codigo && (
         <p className="text-base text-gray-700 mt-1">
           <strong>Código de obra:</strong> {punto.codigo}
