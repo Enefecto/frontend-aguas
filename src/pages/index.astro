@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import Mapa from "../components/Mapa.jsx";
+import WaterNavbar from "../components/navigation/WaterNavbar.astro";
 
 // Validación de seguridad para PUBLIC_API_URL
 const apiUrl = import.meta.env.PUBLIC_API_URL;
@@ -50,8 +51,9 @@ try {
     <title>Aguas Transparentes</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
-  <body class="bg-white m-0 p-0 h-screen w-screen overflow-hidden">
-    <div class="w-full h-full">
+  <body class="bg-white m-0 p-0 h-screen w-screen overflow-hidden flex flex-col">
+    <WaterNavbar />
+    <div class="w-full flex-1 min-h-0">
       <Mapa client:only="react" apiUrl={apiUrl} />
     </div>
   </body>

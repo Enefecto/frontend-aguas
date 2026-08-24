@@ -1,88 +1,87 @@
 ---
-// Componente de navegación con animación de río
+// Encabezado del visualizador: identidad, instituciones y texto explicativo.
+// Sin animaciones: el encabezado debe ser sobrio y no competir con el mapa.
 ---
 
-<nav class="relative flex items-center justify-center bg-gradient-to-b from-cyan-700 to-cyan-900 h-16 text-white overflow-hidden">
-  <!-- Efecto de río con burbujas y vida -->
-  <div class="absolute inset-0">
-    <!-- Ondas principales más animadas -->
-    <div class="absolute inset-0 opacity-20 bg-gradient-to-r from-transparent via-cyan-300 to-transparent animate-bigwave"></div>
-    <div class="absolute inset-0 opacity-15 bg-gradient-to-r from-transparent via-blue-200 to-transparent animate-medwave"></div>
-
-    <!-- Burbujas de agua -->
-    <div class="absolute w-2 h-2 bg-white rounded-full opacity-40 animate-bubble1"></div>
-    <div class="absolute w-1 h-1 bg-cyan-200 rounded-full opacity-60 animate-bubble2"></div>
-    <div class="absolute w-1.5 h-1.5 bg-white rounded-full opacity-30 animate-bubble3"></div>
-    <div class="absolute w-1 h-1 bg-cyan-100 rounded-full opacity-50 animate-bubble4"></div>
-    <div class="absolute w-2 h-2 bg-cyan-200 rounded-full opacity-35 animate-bubble5"></div>
-
-    <!-- Pequeño pez sutil -->
-    <div class="absolute animate-fish opacity-25">
-      <div class="w-4 h-2 bg-gradient-to-r from-cyan-300 to-cyan-500 rounded-full relative">
-        <div class="absolute -right-1 top-0 w-2 h-2 bg-cyan-400 transform rotate-45 rounded-sm"></div>
-      </div>
-    </div>
+<header
+  class="relative z-[10001] h-16 shrink-0 bg-gradient-to-b from-cyan-700 to-cyan-900 text-white flex items-center justify-between gap-3 px-4 sm:px-6 shadow-md"
+>
+  <div class="leading-tight min-w-0">
+    <h1 class="text-lg sm:text-xl font-bold truncate">Aguas Transparentes</h1>
+    <p class="text-[11px] sm:text-xs text-cyan-100 truncate">
+      Visualizador de Extracciones Efectivas
+    </p>
   </div>
 
-  <h1 class="text-2xl font-bold text-center relative z-10 drop-shadow-md">Aguas Transparentes</h1>
-</nav>
+  <div class="flex items-center gap-3 shrink-0">
+    <!--
+      Logos institucionales. Los archivos viven en public/logos/.
+      Usar versiones monocromas claras: el encabezado es de fondo oscuro.
+      Si un archivo falta, el navegador muestra el texto alternativo.
+    -->
+    <div class="hidden sm:flex items-center gap-4">
+      <img
+        src="/logos/dga.svg"
+        alt="Dirección General de Aguas (DGA)"
+        class="h-9 w-auto max-w-[9rem] object-contain"
+        loading="eager"
+      />
+      <span class="w-px h-8 bg-white/25" aria-hidden="true"></span>
+      <img
+        src="/logos/duoc.svg"
+        alt="Duoc UC"
+        class="h-9 w-auto max-w-[9rem] object-contain"
+        loading="eager"
+      />
+    </div>
 
-<style>
-  @keyframes bigwave {
-    0% { transform: translateX(-120%) scaleX(0.8) scaleY(1.1); }
-    50% { transform: translateX(50vw) scaleX(1.4) scaleY(0.9); }
-    100% { transform: translateX(calc(100vw + 200px)) scaleX(1) scaleY(1.2); }
-  }
-  @keyframes medwave {
-    0% { transform: translateX(-80%) scaleX(1.2) scaleY(0.8); }
-    60% { transform: translateX(70vw) scaleX(0.9) scaleY(1.3); }
-    100% { transform: translateX(calc(100vw + 150px)) scaleX(1.1) scaleY(1); }
-  }
+    <!-- Texto explicativo: origen del dato y responsabilidad de los titulares -->
+    <details class="relative group">
+      <summary
+        class="list-none cursor-pointer w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 border border-white/30 flex items-center justify-center transition-colors"
+        aria-label="Información sobre el visualizador y el origen de los datos"
+        title="Información sobre el visualizador y el origen de los datos"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </summary>
+      <div
+        class="absolute right-0 mt-2 w-[min(92vw,26rem)] bg-white text-gray-700 text-xs leading-relaxed rounded-lg shadow-xl border border-gray-200 p-4 space-y-2"
+      >
+        <p>
+          Los datos publicados provienen de las <strong>declaraciones de extracciones efectivas</strong>
+          que los titulares de derechos de aprovechamiento de aguas informan a la
+          <strong>Dirección General de Aguas (DGA)</strong>.
+        </p>
+        <p>
+          La <strong>veracidad y oportunidad</strong> de la información declarada es
+          <strong>responsabilidad de cada titular</strong>. La DGA la publica con fines
+          informativos y de transparencia, sin que ello implique validación de su contenido.
+        </p>
+        <p class="pt-1 border-t border-gray-100 text-gray-500">
+          Visualizador desarrollado por <strong>Duoc UC</strong> en conjunto con la
+          <strong>Dirección General de Aguas</strong>.
+        </p>
+        <p class="md:hidden text-gray-500">DGA · Duoc UC</p>
+      </div>
+    </details>
+  </div>
+</header>
 
-  @keyframes bubble1 {
-    0% { transform: translate(-50px, 60px) scale(0); opacity: 0; }
-    10% { transform: translate(-30px, 50px) scale(0.3); opacity: 0.2; }
-    20% { opacity: 0.4; transform: translate(-10px, 40px) scale(1); }
-    80% { opacity: 0.4; }
-    100% { transform: translate(100vw, -10px) scale(0.5); opacity: 0; }
-  }
-  @keyframes bubble2 {
-    0% { transform: translate(-40px, 50px) scale(0); opacity: 0; }
-    15% { transform: translate(-20px, 45px) scale(0.4); opacity: 0.3; }
-    30% { opacity: 0.6; transform: translate(0px, 35px) scale(1); }
-    100% { transform: translate(100vw, -5px) scale(0.3); opacity: 0; }
-  }
-  @keyframes bubble3 {
-    0% { transform: translate(-60px, 45px) scale(0); opacity: 0; }
-    12% { transform: translate(-35px, 40px) scale(0.2); opacity: 0.1; }
-    25% { opacity: 0.3; transform: translate(-10px, 30px) scale(1); }
-    100% { transform: translate(100vw, 0px) scale(0.4); opacity: 0; }
-  }
-  @keyframes bubble4 {
-    0% { transform: translate(-45px, 55px) scale(0); opacity: 0; }
-    20% { transform: translate(-25px, 50px) scale(0.3); opacity: 0.2; }
-    40% { opacity: 0.5; transform: translate(-5px, 40px) scale(1); }
-    100% { transform: translate(100vw, -8px) scale(0.2); opacity: 0; }
-  }
-  @keyframes bubble5 {
-    0% { transform: translate(-55px, 40px) scale(0); opacity: 0; }
-    18% { transform: translate(-30px, 38px) scale(0.4); opacity: 0.15; }
-    35% { opacity: 0.35; transform: translate(-8px, 32px) scale(1); }
-    100% { transform: translate(100vw, -12px) scale(0.6); opacity: 0; }
-  }
+<script>
+  // Mientras no estén los archivos en public/logos/, mostrar el nombre de la
+  // institución en vez del ícono de imagen rota.
+  const aTexto = (img) => {
+    const texto = document.createElement('span');
+    texto.className = 'text-[11px] sm:text-xs text-cyan-100 leading-tight whitespace-nowrap';
+    texto.textContent = img.getAttribute('alt') ?? '';
+    img.replaceWith(texto);
+  };
 
-  @keyframes fish {
-    0% { transform: translate(-50px, 25px) scaleX(1); }
-    50% { transform: translate(50vw, 20px) scaleX(1); }
-    100% { transform: translate(calc(100vw + 50px), 30px) scaleX(1); }
-  }
-
-  .animate-bigwave { animation: bigwave 14s ease-in-out infinite; }
-  .animate-medwave { animation: medwave 11s ease-in-out infinite 3s; }
-  .animate-bubble1 { animation: bubble1 20s linear infinite -15s; }
-  .animate-bubble2 { animation: bubble2 25s linear infinite -8s; }
-  .animate-bubble3 { animation: bubble3 18s linear infinite -12s; }
-  .animate-bubble4 { animation: bubble4 22s linear infinite -6s; }
-  .animate-bubble5 { animation: bubble5 16s linear infinite -10s; }
-  .animate-fish { animation: fish 30s linear infinite -20s; }
-</style>
+  document.querySelectorAll('header img[alt]').forEach((img) => {
+    img.addEventListener('error', () => aTexto(img));
+    // La imagen puede haber fallado antes de que este script corriera
+    if (img.complete && img.naturalWidth === 0) aTexto(img);
+  });
+</script>

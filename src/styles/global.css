@@ -69,8 +69,13 @@
   }
 }
 
+/* Alto del encabezado (WaterNavbar). El mapa ocupa el resto del viewport. */
+:root {
+  --header-h: 4rem;
+}
+
 .map-altura {
-  height: 100vh;
+  height: calc(100vh - var(--header-h));
 }
 
 /* Asegurar que el sidebar de filtros contenga todo el contenido correctamente */
