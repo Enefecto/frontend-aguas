@@ -157,8 +157,10 @@ export const ShacFilter = ({
 }) => (
   <FilterGroup label="SHAC:">
     <div className="flex items-center gap-2">
+      {/* min-w-0: sin esto el select no baja de su ancho de contenido (el nombre
+          de SHAC más largo) y empuja el botón fuera del panel, que lo recorta. */}
       <select
-        className="flex-1 p-2 border rounded"
+        className="flex-1 min-w-0 p-2 border rounded"
         name="shac"
         value={filtros.shac ?? ""}
         onChange={handleFiltroChange}
@@ -177,7 +179,7 @@ export const ShacFilter = ({
           aria-pressed={showShacLayer}
           aria-label={showShacLayer ? 'Ocultar capa SHAC en el mapa' : 'Mostrar capa SHAC en el mapa'}
           title={showShacLayer ? 'Ocultar capa SHAC en el mapa' : 'Mostrar capa SHAC en el mapa'}
-          className={`p-2 rounded border transition-colors cursor-pointer flex items-center justify-center ${
+          className={`shrink-0 p-2 rounded border transition-colors cursor-pointer flex items-center justify-center ${
             showShacLayer
               ? 'bg-cyan-600 border-cyan-700 text-white hover:bg-cyan-700'
               : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-100'
