@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, useRef, useEffect } from 'react';
 import { Marker, Popup, LayerGroup, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
-import { createDropIcon, getMarkerColor, createClusterIcon, isValidCoordinate } from '../../utils/mapUtils.js';
+import { createDropIcon, getMarkerColor, createClusterIcon, isValidCoordinate, getSidebarOcclusion } from '../../utils/mapUtils.js';
 import { PopupPunto } from '../Popups/PopupPunto.jsx';
 
 export const MarkerLayer = React.memo(({
@@ -77,13 +77,24 @@ export const MarkerLayer = React.memo(({
       .filter(Boolean) // Filtrar elementos null
   ), [puntos, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService, isSelectingPointForComparison, handleMarkerClick, getComparisonIndex]);
 
-  // Pan so popup is centered: offset up by half popup height
+  // Centrado del punto al abrir su popup.
+  //
+  // Solo se centra al apretar un punto: fuera de eso el mapa queda libre.
+  // El centro se calcula sobre el área visible del mapa, descontando las
+  // sidebars abiertas, para que el punto no quede tapado por ellas.
   useEffect(() => {
     const panForPopup = (latlng, container) => {
+      const mapContainer = map.getContainer();
+      const { left, right } = getSidebarOcclusion(mapContainer);
+
+      const anchoMapa = mapContainer.clientWidth;
+      const centroContenedorX = anchoMapa / 2;
+      const centroVisibleX = (left + (anchoMapa - right)) / 2;
+
       const h = container.offsetHeight;
       const zoom = map.getZoom();
       const markerPx = map.project(latlng, zoom);
-      const adjustedPx = markerPx.subtract([0, h / 2]);
+      const adjustedPx = markerPx.subtract([centroVisibleX - centroContenedorX, h / 2]);
       map.panTo(map.unproject(adjustedPx, zoom));
     };
 
@@ -96,6 +107,7 @@ export const MarkerLayer = React.memo(({
 
       panForPopup(latlng, container);
 
+      // El popup carga su contenido async y crece: se reajusta mientras eso pasa.
       let timeout;
       const observer = new ResizeObserver(() => {
         clearTimeout(timeout);
@@ -103,10 +115,16 @@ export const MarkerLayer = React.memo(({
       });
       observer.observe(container);
 
-      map.once('popupclose', () => {
+      const detener = () => {
         observer.disconnect();
         clearTimeout(timeout);
-      });
+      };
+
+      // En cuanto el usuario mueve el mapa, deja de reajustarse:
+      // el centrado no debe pelear contra el arrastre.
+      map.once('dragstart', detener);
+      map.once('zoomstart', detener);
+      map.once('popupclose', detener);
     };
 
     map.on('popupopen', onPopupOpen);

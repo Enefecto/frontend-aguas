@@ -173,3 +173,45 @@ export const getPuntoTypeValue = (punto) => {
     return 'sin_clasificar';
   }
 };
+/**
+ * Mide cuántos píxeles del mapa quedan tapados por las sidebars abiertas.
+ *
+ * Las sidebars se marcan con `data-sidebar="left" | "right"` y se ocultan
+ * con `translate-x`, no con `display:none`, así que se mide la intersección
+ * real con el contenedor del mapa: una sidebar cerrada (fuera de pantalla)
+ * da 0 y una en plena animación da su valor intermedio.
+ *
+ * @param {HTMLElement} mapContainer - Contenedor del mapa Leaflet
+ * @returns {{ left: number, right: number }} Píxeles tapados a cada lado
+ */
+export const getSidebarOcclusion = (mapContainer) => {
+  const vacio = { left: 0, right: 0 };
+  if (!mapContainer || typeof document === 'undefined') return vacio;
+
+  const mapRect = mapContainer.getBoundingClientRect();
+  if (mapRect.width === 0) return vacio;
+
+  let left = 0;
+  let right = 0;
+
+  document.querySelectorAll('[data-sidebar]').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    // Ancho realmente superpuesto al mapa
+    const overlap = Math.min(rect.right, mapRect.right) - Math.max(rect.left, mapRect.left);
+    if (overlap <= 0) return;
+
+    if (el.dataset.sidebar === 'right') {
+      right = Math.max(right, overlap);
+    } else {
+      left = Math.max(left, overlap);
+    }
+  });
+
+  // Si las sidebars tapan casi todo (móvil: ocupan la pantalla completa),
+  // no tiene sentido descentrar: se ignora la corrección.
+  if (left + right >= mapRect.width * 0.9) return vacio;
+
+  return { left, right };
+};
