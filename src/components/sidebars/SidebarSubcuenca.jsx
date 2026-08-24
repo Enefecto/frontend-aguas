@@ -33,7 +33,7 @@ export default function SidebarSubcuenca({
       isInitialMount.current = false;
       return;
     }
-    if (graphicsSubcuencasLoading.caudal !== 0 || graphicsSubcuencasLoading.altura_linimetrica !== 0 || graphicsSubcuencasLoading.nivel_freatico !== 0) {
+    if (graphicsSubcuencasLoading.caudal !== 0 || graphicsSubcuencasLoading.nivel_freatico !== 0) {
       loadSubcuencasGraphics(filtroTipoExtraccion);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,7 +92,11 @@ export default function SidebarSubcuenca({
   useEffect(() => {
     setDerechosSubcuenca(null);
     derechosFetched.current = false;
-  }, [subcuencaAnalysis?.codigoSubcuenca]);
+    // El botón de "caudal autorizado" del gráfico era lo único que pedía los
+    // derechos, y se fue con Cat 3.5. Las tarjetas del encabezado siguen
+    // necesitándolos, así que se cargan al abrir el panel.
+    handleRequestDerechos();
+  }, [subcuencaAnalysis?.codigoSubcuenca, handleRequestDerechos]);
 
   return (
     <div
@@ -194,7 +198,6 @@ export default function SidebarSubcuenca({
 
       {/* Botón cargar gráficos */}
       {graphicsSubcuencasLoading.caudal === 0 &&
-        graphicsSubcuencasLoading.altura_linimetrica === 0 &&
         graphicsSubcuencasLoading.nivel_freatico === 0 && (
           <button
             onClick={() => loadSubcuencasGraphics(filtroTipoExtraccion)}
@@ -210,7 +213,6 @@ export default function SidebarSubcuenca({
 
       {/* Mostrar loader o gráficos según el estado de cada uno */}
       {(graphicsSubcuencasLoading.caudal !== 0 ||
-        graphicsSubcuencasLoading.altura_linimetrica !== 0 ||
         graphicsSubcuencasLoading.nivel_freatico !== 0) && (
           <div className="space-y-10 mt-6 border-t pt-6">
             <h3 className="text-lg font-semibold">Gráficos de Series de Tiempo</h3>
@@ -238,8 +240,6 @@ export default function SidebarSubcuenca({
                   titulo="Caudal"
                   unidad="L/s"
                   valueKey="caudal"
-                  derechosData={derechosSubcuenca}
-                  onRequestDerechos={handleRequestDerechos}
                 />
               ) : (
                 <div className="w-full p-6 bg-gray-50 rounded-lg border border-gray-200">
@@ -257,47 +257,9 @@ export default function SidebarSubcuenca({
               </div>
             )}
 
-            {/* Gráficos de Altura Limnimétrica */}
-            {graphicsSubcuencasLoading.altura_linimetrica === 1 && (
-              <div className="space-y-10">
-                <div className="w-full h-[260px] md:h-80 lg:h-96 animate-pulse">
-                  <div className="h-4 bg-gray-300 rounded w-48 mb-1"></div>
-                  <div className="w-full h-full bg-gray-100 rounded-lg border flex items-center justify-center">
-                    <div className="flex items-center space-x-2 text-gray-500">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
-                      <span className="text-sm font-medium">Cargando Altura Limnimétrica...</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            {graphicsSubcuencasLoading.altura_linimetrica === 2 && (
-              graficosData.altura_linimetrica?.mensual?.length > 0 ? (
-                <TimeSeriesChartPair
-                  dataMensual={graficosData.altura_linimetrica.mensual}
-                  dataDiario={graficosData.altura_linimetrica.diario}
-                  titulo="Altura Limnimétrica"
-                  unidad="m"
-                  valueKey="altura_linimetrica"
-                />
-              ) : (
-                <div className="w-full p-6 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm text-gray-600 text-center">
-                    No hay datos de altura limnimétrica disponibles para esta subcuenca en el período especificado.
-                  </p>
-                </div>
-              )
-            )}
-            {graphicsSubcuencasLoading.altura_linimetrica === 3 && (
-              <div className="w-full p-6 bg-red-50 rounded-lg border border-red-200">
-                <p className="text-sm text-red-600 text-center">
-                  No se encontraron datos de altura limnimétrica para esta subcuenca.
-                </p>
-              </div>
-            )}
-
-            {/* Gráficos de Nivel Freático */}
-            {graphicsSubcuencasLoading.nivel_freatico === 1 && (
+            {/* Gráficos de Nivel Freático — solo para extracción subterránea:
+                el nivel freático es una medida de acuífero, no de cauce. */}
+            {filtroTipoExtraccion === true && graphicsSubcuencasLoading.nivel_freatico === 1 && (
               <div className="space-y-10">
                 <div className="w-full h-[260px] md:h-80 lg:h-96 animate-pulse">
                   <div className="h-4 bg-gray-300 rounded w-40 mb-1"></div>
@@ -310,7 +272,7 @@ export default function SidebarSubcuenca({
                 </div>
               </div>
             )}
-            {graphicsSubcuencasLoading.nivel_freatico === 2 && (
+            {filtroTipoExtraccion === true && graphicsSubcuencasLoading.nivel_freatico === 2 && (
               graficosData.nivel_freatico?.mensual?.length > 0 ? (
                 <TimeSeriesChartPair
                   dataMensual={graficosData.nivel_freatico.mensual}
@@ -327,7 +289,7 @@ export default function SidebarSubcuenca({
                 </div>
               )
             )}
-            {graphicsSubcuencasLoading.nivel_freatico === 3 && (
+            {filtroTipoExtraccion === true && graphicsSubcuencasLoading.nivel_freatico === 3 && (
               <div className="w-full p-6 bg-red-50 rounded-lg border border-red-200">
                 <p className="text-sm text-red-600 text-center">
                   No se encontraron datos de nivel freático para esta subcuenca.

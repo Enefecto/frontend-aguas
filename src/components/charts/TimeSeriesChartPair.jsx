@@ -21,8 +21,6 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
   titulo = "Serie de Tiempo",
   unidad = "",
   valueKey = "valor",
-  derechosData = null,       // { caudal_mensual_suma: { enero: N, ... } } | null
-  onRequestDerechos = null,  // () => void — called when toggle first enabled
 }) {
   const [lineasVisibles, setLineasVisibles] = useState({
     avg: true,
@@ -35,8 +33,6 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
   const [periodoSeleccionado, setPeriodoSeleccionado] = useState(2); // Default: 2 años
   const [dataMensualFiltrado, setDataMensualFiltrado] = useState([]);
   const [dataDiarioFiltradoPorPeriodo, setDataDiarioFiltradoPorPeriodo] = useState([]);
-  const [mostrarAutorizado, setMostrarAutorizado] = useState(false);
-  const derechosRequested = useRef(false);
 
   // Calcular opciones de período disponibles basadas en los datos (memoizado)
   const opcionesPeriodo = useMemo(() => {
@@ -77,15 +73,7 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
     'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
   ];
 
-  const dataMensualConAutorizado = useMemo(() => {
-    if (!derechosData?.caudal_mensual_suma || !mostrarAutorizado) return dataMensualFiltrado;
-    return dataMensualFiltrado.map(point => {
-      const monthIndex = new Date(point.mes + '-01').getMonth();
-      const mesKey = MONTH_KEYS[monthIndex];
-      return { ...point, caudal_autorizado: derechosData.caudal_mensual_suma[mesKey] ?? null };
-    });
-  }, [dataMensualFiltrado, derechosData, mostrarAutorizado]);
-
+  
   // Optimizar datos diarios con downsampling usando useMemo
   const dataDiarioOptimizado = useMemo(() => {
     if (!dataDiario || dataDiario.length === 0) return [];
@@ -166,12 +154,12 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
 
   const dataPrincipal = useMemo(() => {
     if (agrupacion === 'mes') {
-      const source = mostrarAutorizado ? dataMensualConAutorizado : dataMensualFiltrado;
+      const source = dataMensualFiltrado;
       return source.map(d => ({ ...d, periodo: d.mes }));
     } else {
       return dataAnualFiltrado;
     }
-  }, [agrupacion, dataMensualFiltrado, dataMensualConAutorizado, mostrarAutorizado, dataAnualFiltrado]);
+  }, [agrupacion, dataMensualFiltrado, dataAnualFiltrado]);
 
   // Al cambiar datos o filtro, deseleccionar si el periodo actual ya no existe
   useEffect(() => {
@@ -362,30 +350,6 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
             <strong>{agrupacion === 'mes' ? 'Mes' : 'Año'} seleccionado:</strong> {selectedPeriodo}
           </p>
         )}
-        {onRequestDerechos && (
-          <div className="flex items-center gap-2 mb-2">
-            <button
-              onClick={() => {
-                const newVal = !mostrarAutorizado;
-                setMostrarAutorizado(newVal);
-                if (newVal && !derechosRequested.current && onRequestDerechos) {
-                  derechosRequested.current = true;
-                  onRequestDerechos();
-                }
-              }}
-              className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                mostrarAutorizado
-                  ? 'bg-green-100 border-green-400 text-green-700'
-                  : 'bg-gray-100 border-gray-300 text-gray-500 hover:border-green-300'
-              }`}
-            >
-              {mostrarAutorizado ? '✓ Ocultar caudal autorizado' : 'Mostrar caudal autorizado'}
-            </button>
-            {mostrarAutorizado && !derechosData && (
-              <span className="text-xs text-gray-400">Cargando...</span>
-            )}
-          </div>
-        )}
         <div className="w-full h-[260px] md:h-80 lg:h-96">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -402,16 +366,6 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
             {lineasVisibles.avg && <Line yAxisId="left" type="monotone" dataKey={`avg_${valueKey}`} stroke="#0ea5e9" name="Promedio" dot={false} strokeWidth={2} />}
             {lineasVisibles.min && <Line yAxisId="left" type="monotone" dataKey={`min_${valueKey}`} stroke="#f97316" name="Mínimo" dot={false} strokeWidth={1.5} />}
             {lineasVisibles.max && <Line yAxisId="left" type="monotone" dataKey={`max_${valueKey}`} stroke="#2563eb" name="Máximo" dot={false} strokeWidth={1.5} />}
-            {mostrarAutorizado && derechosData && (
-              <Line
-                type="monotone"
-                dataKey="caudal_autorizado"
-                stroke="#16a34a"
-                strokeDasharray="5 3"
-                dot={false}
-                name="Autorizado"
-              />
-            )}
           </LineChart>
         </ResponsiveContainer>
         </div>
