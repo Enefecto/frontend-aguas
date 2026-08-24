@@ -74,7 +74,7 @@ export default function SidebarFiltros({
           baja el contenedor entero, así la barra de scroll empieza debajo del
           botón en vez de pasarle por detrás. Si cambia el alto del botón en
           ButtonOpenCloseSidebar, este margen lo sigue. */}
-      <div className="overflow-y-auto overflow-x-hidden mt-12 px-4 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm pb-4">
+      <div className="overflow-y-auto overflow-x-hidden scrollbar-delgada mt-12 px-4 sm:px-0 sm:pr-16 sm:pl-10 space-y-4 text-sm pb-4">
         <ButtonOpenCloseSidebar
           toggleSidebar={setSidebarAbierto}
           isFiltrosSidebar={true}

@@ -353,3 +353,27 @@
   animation: fadeInScale 0.2s ease-out forwards;
 }
 
+
+/* Barra de scroll delgada para los paneles laterales.
+   scrollbar-width cubre Firefox; ::-webkit-scrollbar, Chrome y Safari. */
+.scrollbar-delgada {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.scrollbar-delgada::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-delgada::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-delgada::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.scrollbar-delgada::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
