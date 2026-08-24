@@ -213,7 +213,7 @@ export const useAnalysisData = (apiService) => {
         caudal_promedio: data.caudal_promedio,
         caudal_minimo: data.caudal_minimo,
         caudal_maximo: data.caudal_maximo,
-        desviacion_estandar_caudal: data.caudal_desviacion_estandar || 0,
+        desviacion_estandar_caudal: data.caudal_desviacion_estandar ?? null,
         primera_fecha_medicion: null, // Este endpoint no devuelve fechas
         ultima_fecha_medicion: null
       }));
@@ -383,7 +383,7 @@ export const useAnalysisData = (apiService) => {
         caudal_promedio: data.caudal_promedio,
         caudal_minimo: data.caudal_minimo,
         caudal_maximo: data.caudal_maximo,
-        desviacion_estandar_caudal: data.caudal_desviacion_estandar || 0,
+        desviacion_estandar_caudal: data.caudal_desviacion_estandar ?? null,
         primera_fecha_medicion: null, // Este endpoint no devuelve fechas
         ultima_fecha_medicion: null
       }));

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { getPuntoTypeLabel, getMarkerColor } from "../../utils/mapUtils";
 import { sanitizeText, safeFormatNumber } from "../../utils/sanitize";
+import { getTiposTransmision, TIPO_TRANSMISION_LABEL } from "../../constants/tipoTransmision";
 
 // Caché global para evitar peticiones duplicadas
 const puntoInfoCache = new Map();
@@ -68,7 +69,7 @@ export const PopupPunto = ({ punto, handleShowSidebarCuencas, handleShowSidebarS
   const safeTipo = sanitizeText(getPuntoTypeLabel(puntoInfo));
   const safeCodigo = sanitizeText(puntoInfo.codigo) || 'Sin código';
   const esSuperficial = puntoInfo.es_pozo_subterraneo === false;
-  const geoLabel = esSuperficial ? 'Subsubcuenca' : 'Sector SHAC';
+  const geoLabel = esSuperficial ? 'Subsubcuenca' : 'SHAC';
   const geoValue = esSuperficial
     ? (sanitizeText(puntoInfo.nombre_subsubcuenca) || '—')
     : (sanitizeText(puntoInfo.sector_sha) || '—');
@@ -78,8 +79,11 @@ export const PopupPunto = ({ punto, handleShowSidebarCuencas, handleShowSidebarS
   const accentColor = getMarkerColor(puntoInfo);
 
   const showJunta = puntoInfo.parte_junta === true && puntoInfo.id_junta != null;
-  const showCanal = puntoInfo.canal_transmision != null && String(puntoInfo.canal_transmision).trim() !== '';
-  const safeCanal = showCanal ? sanitizeText(puntoInfo.canal_transmision) : null;
+  const showCanal = (puntoInfo.canales_transmision?.length > 0)
+    || (puntoInfo.canal_transmision != null && String(puntoInfo.canal_transmision).trim() !== '');
+  const safeCanal = showCanal
+    ? sanitizeText(getTiposTransmision(puntoInfo.canales_transmision, puntoInfo.canal_transmision))
+    : null;
 
   return (
     <div
@@ -120,24 +124,21 @@ export const PopupPunto = ({ punto, handleShowSidebarCuencas, handleShowSidebarS
             <span className="text-xs font-semibold text-gray-500">Junta vigil.</span>
             <span className="text-gray-900">
               Junta {puntoInfo.id_junta}
-              {puntoInfo.representa_junta === true && (
-                <span className="ml-1 text-xs text-cyan-700">(Representante)</span>
-              )}
             </span>
           </>
         )}
 
         {showCanal && (
           <>
-            <span className="text-xs font-semibold text-gray-500">Canal</span>
+            <span className="text-xs font-semibold text-gray-500">{TIPO_TRANSMISION_LABEL}</span>
             <span className="text-gray-900">{safeCanal}</span>
           </>
         )}
 
-        <span className="text-xs font-semibold text-gray-500">Caudal prom.</span>
+        <span className="text-xs font-semibold text-gray-500">Caudal prom. histórico</span>
         <span className="text-gray-900">{safeCaudalPromedio} L/s</span>
 
-        <span className="text-xs font-semibold text-gray-500">Nº mediciones</span>
+        <span className="text-xs font-semibold text-gray-500">Nº mediciones históricas</span>
         <span className="text-gray-900">{safeMediciones}</span>
       </div>
 

@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import SingleTimeSeriesChart from '../charts/SingleTimeSeriesChart';
 import DerechosTab from './DerechosTab';
 import { filterByMinYear } from '../../utils/timeConstants';
+import { getTiposTransmision, TIPO_TRANSMISION_LABEL } from '../../constants/tipoTransmision';
 
 export default function SidebarPunto({
   analisisPuntoSeleccionado,
@@ -32,10 +33,6 @@ export default function SidebarPunto({
   const [datosAlturaLimnimetrica, setDatosAlturaLimnimetrica] = useState(null);
   const [loadingNivelFreatico, setLoadingNivelFreatico] = useState(false);
   const [loadingAlturaLimnimetrica, setLoadingAlturaLimnimetrica] = useState(false);
-
-  // Informante state
-  const [ultimoInformante, setUltimoInformante] = useState(null);
-  const [loadingInformante, setLoadingInformante] = useState(false);
 
   // Punto info detallado (sector_sha, canal, junta, subsubcuenca)
   const [puntoInfo, setPuntoInfo] = useState(null);
@@ -102,34 +99,9 @@ export default function SidebarPunto({
     }
   }, [punto.utm_norte, punto.utm_este, apiService]);
 
-  // Cargar informante si existe el punto
-  useEffect(() => {
-    if (punto.utm_norte && punto.utm_este && apiService && !analisisPuntoSeleccionadoLoading) {
-      setLoadingInformante(true);
-      apiService.getInformantes({
-        utm_norte: punto.utm_norte,
-        utm_este: punto.utm_este,
-        limit: 1
-      })
-        .then(data => {
-          if (data && data.length > 0) {
-            setUltimoInformante(data[0]);
-          } else {
-            setUltimoInformante(null);
-          }
-        })
-        .catch(err => {
-          console.error("Error al cargar último informante:", err);
-          setUltimoInformante(null);
-        })
-        .finally(() => {
-          setLoadingInformante(false);
-        });
-    }
-  }, [punto.utm_norte, punto.utm_este, apiService, analisisPuntoSeleccionadoLoading]);
-
   return (
     <div
+      data-sidebar="right"
       className={`
         fixed inset-0 z-[1000] bg-white text-sm overflow-y-auto
         p-4 space-y-6
@@ -172,7 +144,7 @@ export default function SidebarPunto({
       {activeTab === 'mediciones' && (
         <>
       <h3 className="text-lg font-semibold">
-        Punto: <span className="text-cyan-800 font-bold">
+        Coordenadas: <span className="text-cyan-800 font-bold">
           {punto.lat?.toFixed(5)} / {punto.lon?.toFixed(5)}
         </span>
       </h3>
@@ -184,7 +156,7 @@ export default function SidebarPunto({
 
       {(puntoInfo?.sector_sha || punto.sector_sha) && (
         <p className="text-sm text-gray-600 mt-1">
-          <strong>Sector SHAC:</strong> {puntoInfo?.sector_sha || punto.sector_sha}
+          <strong>SHAC:</strong> {puntoInfo?.sector_sha || punto.sector_sha}
         </p>
       )}
 
@@ -200,15 +172,13 @@ export default function SidebarPunto({
           {puntoInfo?.parte_junta !== null && puntoInfo?.parte_junta !== undefined && (
             <span> | Participa: {puntoInfo.parte_junta ? 'Sí' : 'No'}</span>
           )}
-          {puntoInfo?.representa_junta !== null && puntoInfo?.representa_junta !== undefined && (
-            <span> | Representa: {puntoInfo.representa_junta ? 'Sí' : 'No'}</span>
-          )}
         </p>
       )}
 
-      {puntoInfo?.canal_transmision !== null && puntoInfo?.canal_transmision !== undefined && (
+      {(puntoInfo?.canales_transmision?.length > 0 || puntoInfo?.canal_transmision != null) && (
         <p className="text-sm text-gray-600 mt-1">
-          <strong>Canal de Transmisión:</strong> {puntoInfo.canal_transmision}
+          <strong>{TIPO_TRANSMISION_LABEL}:</strong>{' '}
+          {getTiposTransmision(puntoInfo.canales_transmision, puntoInfo.canal_transmision)}
         </p>
       )}
 
@@ -322,45 +292,13 @@ export default function SidebarPunto({
             <EstadisticBox boxcolor="green" label="Caudal promedio (L/s)" value={caudal.promedio} />
             <EstadisticBox boxcolor="yellow" label="Caudal mínimo (L/s)" value={caudal.minimo} />
             <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={caudal.maximo} />
-            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (L/s)" value={caudal.caudal_desviacion_estandar} />
+            {/* /puntos/estadisticas devuelve `desviacion_estandar`, no `caudal_desviacion_estandar` */}
+            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (L/s)" value={caudal.desviacion_estandar} />
           </div>
         </div>
       ) : (
         <div className="space-y-2 mt-16 mx-auto flex justify-center">
           <TrophySpin color="#155e75" size="large" text="Cargando..." textColor="#000000" />
-        </div>
-      )}
-
-      {/* Tarjeta de Último Informante */}
-      {(ultimoInformante || loadingInformante) && (
-        <div className="mt-4 pt-4 border-t">
-          <h3 className="text-base font-semibold text-gray-700 mb-2 border-b pb-1">Último Informante</h3>
-          {loadingInformante ? (
-            <div className="flex justify-center p-4"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div></div>
-          ) : ultimoInformante ? (
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 shadow-sm flex items-start gap-3">
-              <div className="bg-white p-2 rounded-full border border-slate-200 text-slate-500 mt-1 shrink-0">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div>
-                <p className="font-semibold text-slate-800 leading-tight">
-                  {ultimoInformante.nombre_completo || 'Desconocido'}
-                </p>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Reportes registrados: <span className="font-medium text-slate-700">{ultimoInformante.cantidad_reportes}</span>
-                </p>
-                {ultimoInformante.ultima_fecha_medicion && (
-                  <p className="text-xs text-slate-500 mt-0.5" title="Última fecha de medición registrada">
-                    Última medición: <span className="font-medium text-slate-700">
-                      {new Date(ultimoInformante.ultima_fecha_medicion).toLocaleDateString('es-CL')}
-                    </span>
-                  </p>
-                )}
-              </div>
-            </div>
-          ) : null}
         </div>
       )}
 
