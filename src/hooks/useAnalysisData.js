@@ -3,6 +3,71 @@ import { UI_CONFIG } from '../constants/uiConfig.js';
 import { filterByMinYear } from '../utils/timeConstants.js';
 
 /**
+ * Descompone la fecha de una medición en sus partes de calendario.
+ *
+ * `new Date('2024-01-10')` se interpreta como medianoche UTC, y leerla después
+ * con getDate()/getMonth() la devuelve en hora local: en Chile (UTC-3/-4) eso
+ * corre cada medición al día anterior, y las del día 1 al mes anterior. Como el
+ * dato es una fecha de calendario y no un instante, se parte el texto tal cual.
+ *
+ * @param {string} valor - "YYYY-MM-DD" o "YYYY-MM-DD HH:MM:SS"
+ * @returns {{mesClave: string, diaClave: string}|null}
+ */
+const partesFecha = (valor) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(valor ?? ''));
+  if (!m) return null;
+  const [, anio, mes, dia] = m;
+  return { mesClave: `${anio}-${mes}`, diaClave: `${anio}-${mes}-${dia}` };
+};
+
+/**
+ * Redondea a dos decimales conservando el null: sin medición no es cero.
+ * @param {number|null} v
+ * @returns {number|null}
+ */
+const redondear = (v) => (v == null ? null : Number(v.toFixed(2)));
+
+/**
+ * Completa los días sin medición dentro del rango cubierto.
+ *
+ * El arreglo diario solo traía las fechas que tenían dato, así que la línea del
+ * gráfico cruzaba los huecos y no se distinguía "sin medición" de "medición
+ * continua". Rellenando con null, Recharts corta la línea en el hueco.
+ *
+ * @param {Array} diario - Días con dato, ordenados ascendente, clave `fecha` YYYY-MM-DD
+ * @param {string} valueKey
+ * @returns {Array} - Todos los días del rango, con null donde no hubo medición
+ */
+const completarDias = (diario, valueKey) => {
+  if (diario.length < 2) return diario;
+
+  const porFecha = new Map(diario.map(d => [d.fecha, d]));
+  const completo = [];
+
+  const aFecha = (s) => {
+    const [a, m, d] = s.split('-').map(Number);
+    return new Date(Date.UTC(a, m - 1, d));
+  };
+  const aClave = (f) => f.toISOString().slice(0, 10);
+
+  const cursor = aFecha(diario[0].fecha);
+  const fin = aFecha(diario[diario.length - 1].fecha);
+
+  while (cursor <= fin) {
+    const clave = aClave(cursor);
+    completo.push(porFecha.get(clave) ?? {
+      fecha: clave,
+      [`min_${valueKey}`]: null,
+      [`avg_${valueKey}`]: null,
+      [`max_${valueKey}`]: null
+    });
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  return completo;
+};
+
+/**
  * Función auxiliar genérica para procesar datos de series de tiempo
  * @param {Array} seriesData - Array de objetos con fecha_medicion y un valor
  * @param {string} valueKey - Nombre de la clave del valor (ej: 'caudal', 'altura_linimetrica', 'nivel_freatico')
@@ -17,28 +82,25 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
   const diarioMap = {};
 
   seriesData.forEach(item => {
-    const fecha = new Date(item.fecha_medicion);
-    const año = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    const mesClave = `${año}-${mes}`;
-    const diaClave = `${año}-${mes}-${dia}`;
+    const partes = partesFecha(item.fecha_medicion);
+    if (!partes) return;
+    const { mesClave, diaClave } = partes;
 
-    const valor = Number(item[valueKey]) || 0;
+    // Sin `|| 0`: una medición ausente no es un caudal de cero. Ojo que
+    // Number(null) da 0, así que la ausencia se descarta antes de convertir.
+    const crudo = item[valueKey];
+    const bruto = crudo == null || crudo === '' ? NaN : Number(crudo);
+    const valor = Number.isFinite(bruto) ? bruto : null;
 
     // Agrupar por mes
     if (!mensualMap[mesClave]) {
       mensualMap[mesClave] = {
         mes: mesClave,
         valores: [],
-        valores_sumados: [],
         totalizador_vals: []
       };
     }
     mensualMap[mesClave].valores.push(valor);
-    if (item.caudal_sumado != null) {
-      mensualMap[mesClave].valores_sumados.push(Number(item.caudal_sumado) || 0);
-    }
     if (item.totalizador_max != null) {
       mensualMap[mesClave].totalizador_vals.push(Number(item.totalizador_max) || 0);
     }
@@ -48,14 +110,10 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
       diarioMap[diaClave] = {
         fecha: diaClave,
         valores: [],
-        valores_sumados: [],
         totalizador_vals: []
       };
     }
     diarioMap[diaClave].valores.push(valor);
-    if (item.caudal_sumado != null) {
-      diarioMap[diaClave].valores_sumados.push(Number(item.caudal_sumado) || 0);
-    }
     if (item.totalizador_max != null) {
       diarioMap[diaClave].totalizador_vals.push(Number(item.totalizador_max) || 0);
     }
@@ -63,25 +121,24 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
 
   // Calcular estadísticas para datos mensuales
   const mensualArray = Object.values(mensualMap).map(item => {
-    const valores = item.valores.filter(v => v > 0);
-    const min_valor = valores.length > 0 ? Math.min(...valores) : 0;
-    const max_valor = valores.length > 0 ? Math.max(...valores) : 0;
-    const avg_valor = valores.length > 0
+    // `v > 0` descartaba las mediciones en cero: el mínimo nunca podía dar 0
+    // aunque la obra no extrajera nada, y el promedio quedaba inflado.
+    // Un caudal de cero es un dato; lo que se descarta es la ausencia de dato.
+    const valores = item.valores.filter(v => v != null);
+    const hayDatos = valores.length > 0;
+    const min_valor = hayDatos ? Math.min(...valores) : null;
+    const max_valor = hayDatos ? Math.max(...valores) : null;
+    const avg_valor = hayDatos
       ? valores.reduce((sum, v) => sum + v, 0) / valores.length
-      : 0;
+      : null;
 
     const result = {
       mes: item.mes,
-      [`min_${valueKey}`]: Number(min_valor.toFixed(2)),
-      [`avg_${valueKey}`]: Number(avg_valor.toFixed(2)),
-      [`max_${valueKey}`]: Number(max_valor.toFixed(2))
+      [`min_${valueKey}`]: redondear(min_valor),
+      [`avg_${valueKey}`]: redondear(avg_valor),
+      [`max_${valueKey}`]: redondear(max_valor)
     };
 
-    if (item.valores_sumados.length > 0) {
-      result[`sum_${valueKey}`] = Number(
-        item.valores_sumados.reduce((a, b) => a + b, 0).toFixed(2)
-      );
-    }
     if (item.totalizador_vals.length > 0) {
       result.totalizador_max = Number(
         Math.max(...item.totalizador_vals).toFixed(2)
@@ -93,25 +150,24 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
 
   // Calcular estadísticas para datos diarios
   const diarioArray = Object.values(diarioMap).map(item => {
-    const valores = item.valores.filter(v => v > 0);
-    const min_valor = valores.length > 0 ? Math.min(...valores) : 0;
-    const max_valor = valores.length > 0 ? Math.max(...valores) : 0;
-    const avg_valor = valores.length > 0
+    // `v > 0` descartaba las mediciones en cero: el mínimo nunca podía dar 0
+    // aunque la obra no extrajera nada, y el promedio quedaba inflado.
+    // Un caudal de cero es un dato; lo que se descarta es la ausencia de dato.
+    const valores = item.valores.filter(v => v != null);
+    const hayDatos = valores.length > 0;
+    const min_valor = hayDatos ? Math.min(...valores) : null;
+    const max_valor = hayDatos ? Math.max(...valores) : null;
+    const avg_valor = hayDatos
       ? valores.reduce((sum, v) => sum + v, 0) / valores.length
-      : 0;
+      : null;
 
     const result = {
       fecha: item.fecha,
-      [`min_${valueKey}`]: Number(min_valor.toFixed(2)),
-      [`avg_${valueKey}`]: Number(avg_valor.toFixed(2)),
-      [`max_${valueKey}`]: Number(max_valor.toFixed(2))
+      [`min_${valueKey}`]: redondear(min_valor),
+      [`avg_${valueKey}`]: redondear(avg_valor),
+      [`max_${valueKey}`]: redondear(max_valor)
     };
 
-    if (item.valores_sumados.length > 0) {
-      result[`sum_${valueKey}`] = Number(
-        item.valores_sumados.reduce((a, b) => a + b, 0).toFixed(2)
-      );
-    }
     if (item.totalizador_vals.length > 0) {
       result.totalizador_max = Number(
         Math.max(...item.totalizador_vals).toFixed(2)
@@ -123,7 +179,7 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
 
   return {
     mensual: mensualArray,
-    diario: diarioArray
+    diario: completarDias(diarioArray, valueKey)
   };
 };
 

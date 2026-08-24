@@ -28,15 +28,10 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
     avg: true,
     min: true,
     max: true,
-    sum: false,
     totalizador: false
   });
 
-  // Detectar si los datos tienen campos de suma/totalizador
-  const hasSumData = useMemo(() =>
-    dataMensual.length > 0 && `sum_${valueKey}` in dataMensual[0],
-    [dataMensual, valueKey]
-  );
+  // Detectar si los datos tienen totalizador
   const hasTotalizadorData = useMemo(() =>
     dataMensual.length > 0 && 'totalizador_max' in dataMensual[0],
     [dataMensual]
@@ -151,7 +146,6 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
           count_avg: 0,
           min: Infinity,
           max: -Infinity,
-          sum_sumado: null,
           max_totalizador: null
         };
       }
@@ -165,9 +159,6 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
       if (d[`max_${valueKey}`] != null) {
         agrupado[year].max = Math.max(agrupado[year].max, d[`max_${valueKey}`]);
       }
-      if (d[`sum_${valueKey}`] != null) {
-        agrupado[year].sum_sumado = (agrupado[year].sum_sumado ?? 0) + d[`sum_${valueKey}`];
-      }
       if (d.totalizador_max != null) {
         agrupado[year].max_totalizador = Math.max(agrupado[year].max_totalizador ?? -Infinity, d.totalizador_max);
       }
@@ -180,7 +171,6 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
         [`min_${valueKey}`]: d.min === Infinity ? null : d.min,
         [`max_${valueKey}`]: d.max === -Infinity ? null : d.max,
       };
-      if (d.sum_sumado != null) result[`sum_${valueKey}`] = Number(d.sum_sumado.toFixed(2));
       if (d.max_totalizador != null) result.totalizador_max = Number(d.max_totalizador.toFixed(2));
       return result;
     }).sort((a, b) => a.periodo.localeCompare(b.periodo));
@@ -360,17 +350,6 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
             />
             <span className="font-medium text-gray-700" style={{color: '#f97316'}}>Mínimo</span>
           </label>
-          {hasSumData && (
-            <label className="flex items-center gap-1.5 text-sm cursor-pointer hover:opacity-80 transition-opacity">
-              <input
-                type="checkbox"
-                checked={lineasVisibles.sum}
-                onChange={(e) => setLineasVisibles(prev => ({...prev, sum: e.target.checked}))}
-                className="w-4 h-4 rounded cursor-pointer"
-              />
-              <span className="font-medium text-gray-700" style={{color: '#16a34a'}}>Sumado</span>
-            </label>
-          )}
           {hasTotalizadorData && (
             <label className="flex items-center gap-1.5 text-sm cursor-pointer hover:opacity-80 transition-opacity">
               <input
@@ -449,7 +428,6 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
             {lineasVisibles.avg && <Line yAxisId="left" type="monotone" dataKey={`avg_${valueKey}`} stroke="#0ea5e9" name="Promedio" dot={false} strokeWidth={2} />}
             {lineasVisibles.min && <Line yAxisId="left" type="monotone" dataKey={`min_${valueKey}`} stroke="#f97316" name="Mínimo" dot={false} strokeWidth={1.5} />}
             {lineasVisibles.max && <Line yAxisId="left" type="monotone" dataKey={`max_${valueKey}`} stroke="#2563eb" name="Máximo" dot={false} strokeWidth={1.5} />}
-            {lineasVisibles.sum && hasSumData && <Line yAxisId="left" type="monotone" dataKey={`sum_${valueKey}`} stroke="#16a34a" name="Sumado" dot={false} strokeWidth={1.5} strokeDasharray="4 2" />}
             {lineasVisibles.totalizador && hasTotalizadorData && <Line yAxisId="right" type="monotone" dataKey="totalizador_max" stroke="#9333ea" name="Totalizador máx" dot={false} strokeWidth={1.5} strokeDasharray="6 3" />}
             {mostrarAutorizado && derechosData && (
               <Line
@@ -501,7 +479,6 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
               {lineasVisibles.avg && <Line yAxisId="left" type="monotone" dataKey={`avg_${valueKey}`} stroke="#0ea5e9" name="Promedio" dot={false} strokeWidth={2} />}
               {lineasVisibles.min && <Line yAxisId="left" type="monotone" dataKey={`min_${valueKey}`} stroke="#f97316" name="Mínimo" dot={false} strokeWidth={1.5} />}
               {lineasVisibles.max && <Line yAxisId="left" type="monotone" dataKey={`max_${valueKey}`} stroke="#2563eb" name="Máximo" dot={false} strokeWidth={1.5} />}
-              {lineasVisibles.sum && hasSumData && <Line yAxisId="left" type="monotone" dataKey={`sum_${valueKey}`} stroke="#16a34a" name="Sumado" dot={false} strokeWidth={1.5} strokeDasharray="4 2" />}
               {lineasVisibles.totalizador && hasTotalizadorData && <Line yAxisId="right" type="monotone" dataKey="totalizador_max" stroke="#9333ea" name="Totalizador máx" dot={false} strokeWidth={1.5} strokeDasharray="6 3" />}
             </LineChart>
           </ResponsiveContainer>
