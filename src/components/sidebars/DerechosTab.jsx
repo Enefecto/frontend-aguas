@@ -85,7 +85,7 @@ export default function DerechosTab({
           </p>
           {volumenCalculado && volumenDisplay != null && (
             <p className="text-[10px] text-yellow-600 mt-1">
-              * Dato calculado a partir del caudal instantáneo autorizado.
+              * Dato calculado a partir del CPA.
             </p>
           )}
         </div>
@@ -93,7 +93,8 @@ export default function DerechosTab({
 
       {/* Bar chart — caudal mensual autorizado */}
       <div className="bg-white border border-green-200 rounded-lg p-3">
-        <p className="text-xs font-semibold text-green-700 mb-3">Caudal instantáneo autorizado (L/s)</p>
+        {/* Rotulado como CPA a pedido de la DGA. El dato real de CPA depende de la entrega de DTI (cat. 7). */}
+        <p className="text-xs font-semibold text-green-700 mb-3">CPA (L/s)</p>
         <div className="relative">
           {/* Tooltip */}
           {tooltipMes !== null && (

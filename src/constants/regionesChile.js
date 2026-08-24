@@ -23,6 +23,43 @@ export const REGIONES_CHILE = {
 };
 
 /**
+ * Orden geográfico Norte → Sur de las regiones.
+ * El código de región NO sigue el orden geográfico (Arica y Parinacota es 15
+ * pero es la región más al norte; Metropolitana es 13 y está al norte de
+ * O'Higgins que es 6). Cualquier listado de regiones para el usuario debe
+ * ordenarse con este array, no por código.
+ */
+export const ORDEN_REGIONES_NS = [
+  15, // Arica y Parinacota
+  1,  // Tarapacá
+  2,  // Antofagasta
+  3,  // Atacama
+  4,  // Coquimbo
+  5,  // Valparaíso
+  13, // Metropolitana
+  6,  // O'Higgins
+  7,  // Maule
+  16, // Ñuble
+  8,  // Biobío
+  9,  // Araucanía
+  14, // Los Ríos
+  10, // Los Lagos
+  11, // Aysén
+  12  // Magallanes
+];
+
+/**
+ * Posición de una región en el orden Norte → Sur.
+ * Las regiones desconocidas quedan al final del listado.
+ * @param {number|string} codigoRegion - Código numérico de la región
+ * @returns {number} Índice de orden geográfico
+ */
+export const getOrdenRegion = (codigoRegion) => {
+  const indice = ORDEN_REGIONES_NS.indexOf(parseInt(codigoRegion));
+  return indice === -1 ? ORDEN_REGIONES_NS.length : indice;
+};
+
+/**
  * Función para obtener el nombre de una región por su código
  * @param {number|string} codigoRegion - Código numérico de la región
  * @returns {string} Nombre completo de la región o el código si no se encuentra

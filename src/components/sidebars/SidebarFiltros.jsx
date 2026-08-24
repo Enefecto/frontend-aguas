@@ -60,6 +60,7 @@ export default function SidebarFiltros({
 
   return (
     <div
+      data-sidebar="left"
       className={`absolute left-0 top-0 z-[1000] bg-white shadow-2xl h-full
         w-screen sm:w-100 max-w-full sm:max-w-none transform transition-transform duration-500 ease-in-out
         grid
@@ -77,6 +78,11 @@ export default function SidebarFiltros({
         />
 
         <h2 className="text-lg font-bold mb-4">Filtros</h2>
+
+        <CodigoObraFilter
+          filtros={filtros}
+          setFiltros={setFiltros}
+        />
 
         <RegionFilter
           filtros={filtros}
@@ -136,11 +142,6 @@ export default function SidebarFiltros({
         <TipoPuntoFilter
           filtros={filtros}
           handleFiltroChange={handleFiltroChange}
-        />
-
-        <CodigoObraFilter
-          filtros={filtros}
-          setFiltros={setFiltros}
         />
 
         <div className="mt-2 border-t pt-3">

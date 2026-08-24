@@ -136,7 +136,7 @@ export const OrdenCaudalFilter = ({ ordenCaudal, setOrdenCaudal }) => (
 
 export const TipoPuntoFilter = ({ filtros, handleFiltroChange }) => (
   <SelectFilter
-    label="Tipo de punto:"
+    label="Naturaleza de la obra:"
     name="pozo"
     value={filtros.pozo ?? ""}
     onChange={handleFiltroChange}
@@ -155,7 +155,7 @@ export const ShacFilter = ({
   showShacLayer = false,
   onToggleShacLayer
 }) => (
-  <FilterGroup label="Sector SHAC:">
+  <FilterGroup label="SHAC:">
     <div className="flex items-center gap-2">
       <select
         className="flex-1 p-2 border rounded"

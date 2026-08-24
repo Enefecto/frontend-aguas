@@ -94,6 +94,7 @@ export default function SidebarSubcuenca({
 
   return (
     <div
+      data-sidebar="right"
       className={`
         fixed inset-0 z-[1000] bg-white text-sm overflow-y-auto
         p-4 space-y-6
@@ -341,13 +342,13 @@ export default function SidebarSubcuenca({
             {/* Top Informantes */}
             {(topInformantes.length > 0 || loadingInformantes) && (
               <div className="mt-6 border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 text-gray-700">Top 10 Informantes en la Subcuenca</h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-700">Top 10 Usuarios en la Subcuenca</h3>
 
                 {loadingInformantes ? (
                   <div className="flex items-center justify-center w-full h-[260px] md:h-80 lg:h-96 bg-gray-100 rounded-lg border">
                     <div className="flex items-center space-x-2 text-gray-500">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
-                      <span className="text-sm font-medium">Cargando Informantes...</span>
+                      <span className="text-sm font-medium">Cargando Usuarios...</span>
                     </div>
                   </div>
                 ) : topInformantes.length > 0 ? (
