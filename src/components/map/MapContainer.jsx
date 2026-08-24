@@ -15,9 +15,6 @@ export const MapContainer = React.memo(({
   handleShowSidebarCuencas,
   handleShowSidebarSubcuencas,
   handleShowSidebarPunto,
-  isSelectingPointForComparison,
-  onPointClickForComparison,
-  selectedPointsForComparison,
   showShacLayer
 }) => {
   const [currentLayer, setCurrentLayer] = useState(MAP_CONFIG.DEFAULT_TILE_LAYER);
@@ -73,9 +70,6 @@ export const MapContainer = React.memo(({
         handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
         handleShowSidebarPunto={handleShowSidebarPunto}
         apiService={apiService}
-        isSelectingPointForComparison={isSelectingPointForComparison}
-        onPointClickForComparison={onPointClickForComparison}
-        selectedPointsForComparison={selectedPointsForComparison}
       />
     </LeafletMapContainer>
   );

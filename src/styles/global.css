@@ -143,16 +143,6 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-50%) rotate(-2deg); }
-  20%, 40%, 60%, 80% { transform: translateX(-50%) rotate(2deg); }
-}
-
-.animate-shake {
-  animation: shake 0.5s ease-in-out;
-}
-
 /* Sobrescribir estilos default de MarkerCluster */
 .marker-cluster-small,
 .marker-cluster-medium,
@@ -347,71 +337,7 @@
   filter: brightness(0) invert(1);
 }
 
-/* Animaciones para modal de comparación de puntos */
-
-/* Mobile: sin transform, solo opacity */
-@keyframes slideUpInMobile {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideDownOutMobile {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-/* Desktop: con transform centrado */
-@keyframes slideUpInDesktop {
-  from {
-    transform: translate(-50%, calc(-50% + 100vh));
-    opacity: 0;
-  }
-  to {
-    transform: translate(-50%, -50%);
-    opacity: 1;
-  }
-}
-
-@keyframes slideDownOutDesktop {
-  from {
-    transform: translate(-50%, -50%);
-    opacity: 1;
-  }
-  to {
-    transform: translate(-50%, calc(-50% + 100vh));
-    opacity: 0;
-  }
-}
-
-/* Aplicar animación mobile por defecto */
-.animate-slideUpIn {
-  animation: slideUpInMobile 0.3s ease-out forwards;
-}
-
-.animate-slideDownOut {
-  animation: slideDownOutMobile 0.3s ease-in forwards;
-}
-
-/* Aplicar animación desktop en pantallas medianas o mayores */
-@media (min-width: 768px) {
-  .animate-slideUpIn {
-    animation: slideUpInDesktop 0.3s ease-out forwards;
-  }
-
-  .animate-slideDownOut {
-    animation: slideDownOutDesktop 0.3s ease-in forwards;
-  }
-}
-
-/* Animación fadeInScale para paneles expandibles (LayerSelector, ComparePointsSelector) */
+/* Animación fadeInScale para paneles expandibles (LayerSelector) */
 @keyframes fadeInScale {
   from {
     opacity: 0;
@@ -425,21 +351,5 @@
 
 .animate-fadeInScale {
   animation: fadeInScale 0.2s ease-out forwards;
-}
-
-/* Posicionamiento del panel de comparación de puntos */
-.compare-panel-container {
-  top: 100%;
-  margin-top: 8px;
-}
-
-/* En pantallas con altura menor a 800px, abrir hacia arriba */
-@media (max-height: 800px) {
-  .compare-panel-container {
-    bottom: 100%;
-    top: auto;
-    margin-top: 0;
-    margin-bottom: 8px;
-  }
 }
 

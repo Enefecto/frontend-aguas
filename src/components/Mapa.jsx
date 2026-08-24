@@ -7,16 +7,9 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { MapProvider, useMapContext } from '../contexts/MapContext.jsx';
 import { MapContainer } from './map/MapContainer.jsx';
 import { SidebarManager } from './map/SidebarManager.jsx';
-import { ComparePointsSelector } from './map/ComparePointsSelector.jsx';
-import { ComparePointsModal } from './modals/ComparePointsModal.jsx';
 
 const MapaContent = () => {
   const [isLeafletLoaded, setIsLeafletLoaded] = useState(false);
-  const [selectedPointsForComparison, setSelectedPointsForComparison] = useState([null, null]);
-  const [isSelectingPoint, setIsSelectingPoint] = useState(null); // null, 0, o 1
-  const [showCompareModal, setShowCompareModal] = useState(false);
-  const [showDuplicateError, setShowDuplicateError] = useState(false);
-  const stableSelectedPoints = selectedPointsForComparison;
 
   // Cargar leaflet-draw solo después de que leaflet esté disponible
   useEffect(() => {
@@ -131,45 +124,6 @@ const MapaContent = () => {
     loadPuntoAnalysis(punto);
   }, [openPuntoSidebar, loadPuntoAnalysis]);
 
-  // Funciones para comparación de puntos
-  const handlePointSelect = (slotIndex, point = null) => {
-    if (point === null) {
-      // Remover punto
-      const newPoints = [...selectedPointsForComparison];
-      newPoints[slotIndex] = null;
-      setSelectedPointsForComparison(newPoints);
-      setIsSelectingPoint(null);
-    } else {
-      // Iniciar selección
-      setIsSelectingPoint(slotIndex);
-    }
-  };
-
-  const handlePointClickForComparison = React.useCallback((punto) => {
-    if (isSelectingPoint !== null) {
-      const otherSlotIndex = isSelectingPoint === 0 ? 1 : 0;
-      const otherPoint = stableSelectedPoints[otherSlotIndex];
-
-      if (otherPoint &&
-          otherPoint.lat === punto.lat &&
-          otherPoint.lon === punto.lon) {
-        setShowDuplicateError(true);
-        setTimeout(() => setShowDuplicateError(false), 2000);
-        return;
-      }
-
-      const newPoints = [...stableSelectedPoints];
-      newPoints[isSelectingPoint] = punto;
-      setSelectedPointsForComparison(newPoints);
-      setIsSelectingPoint(null);
-    }
-  }, [isSelectingPoint, stableSelectedPoints]);
-
-  const handleCompare = () => {
-    if (selectedPointsForComparison[0] && selectedPointsForComparison[1]) {
-      setShowCompareModal(true);
-    }
-  };
 
   // No renderizar hasta que Leaflet esté completamente cargado
   if (!isLeafletLoaded) {
@@ -201,38 +155,8 @@ const MapaContent = () => {
         handleShowSidebarCuencas={handleShowSidebarCuencas}
         handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
         handleShowSidebarPunto={handleShowSidebarPunto}
-        isSelectingPointForComparison={isSelectingPoint !== null}
-        onPointClickForComparison={handlePointClickForComparison}
-        selectedPointsForComparison={stableSelectedPoints}
         showShacLayer={showShacLayer}
       />
-
-      <ComparePointsSelector
-        selectedPoints={stableSelectedPoints}
-        onPointSelect={handlePointSelect}
-        onCompare={handleCompare}
-        isSelectingPoint={isSelectingPoint}
-      />
-
-      <ComparePointsModal
-        isOpen={showCompareModal}
-        onClose={() => setShowCompareModal(false)}
-        point1={stableSelectedPoints[0]}
-        point2={stableSelectedPoints[1]}
-        apiService={apiService}
-      />
-
-      {/* Mensaje de error para puntos duplicados */}
-      {showDuplicateError && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[10000] animate-shake">
-          <div className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            <span className="font-medium">No puedes seleccionar el mismo punto dos veces</span>
-          </div>
-        </div>
-      )}
 
       <SidebarManager
         // Estados de sidebars
