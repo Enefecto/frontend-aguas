@@ -4,7 +4,7 @@ import { EstadisticBox } from '../UI/EstadisticBox';
 import { EstadisticasPorTipo } from '../ui/EstadisticasPorTipo.jsx';
 import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import TimeSeriesChartPair from '../charts/TimeSeriesChartPair';
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import ApiService from '../../services/apiService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -27,8 +27,6 @@ export default function SidebarSubcuenca({
   // misma serie no tiene sentido físico. Se arranca en superficial.
   const [filtroTipoExtraccion, setFiltroTipoExtraccion] = useState(false);
   const isInitialMount = useRef(true);
-  const [derechosSubcuenca, setDerechosSubcuenca] = useState(null);
-  const derechosFetched = useRef(false);
 
   // Recargar gráficos si cambia el filtro y ya estaban cargados/cargándose
   useEffect(() => {
@@ -82,17 +80,6 @@ export default function SidebarSubcuenca({
     }
   }, [subcuencaAnalysis, graphicsSubcuencasLoading, apiService]);
 
-  const handleRequestDerechos = useCallback(() => {
-    if (!subcuencaAnalysis?.codigoSubcuenca || !subcuencaAnalysis?.codigoCuenca || !apiService || derechosFetched.current) return;
-    derechosFetched.current = true;
-    apiService.getSubcuencaDerechos(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca)
-      .then(data => setDerechosSubcuenca(data))
-      .catch(() => {
-        derechosFetched.current = false;
-        setDerechosSubcuenca(null);
-      });
-  }, [subcuencaAnalysis?.codigoSubcuenca, subcuencaAnalysis?.codigoCuenca, apiService]);
-
   // Estadísticas separadas por tipo de extracción (cat. 3.6 y 3.7)
   useEffect(() => {
     const codigo = subcuencaAnalysis?.codigoSubcuenca;
@@ -109,15 +96,6 @@ export default function SidebarSubcuenca({
     // Una respuesta vieja no debe pisar la de la cuenca que se está mirando
     return () => { vigente = false; };
   }, [subcuencaAnalysis?.codigoSubcuenca, apiService]);
-
-  useEffect(() => {
-    setDerechosSubcuenca(null);
-    derechosFetched.current = false;
-    // El botón de "caudal autorizado" del gráfico era lo único que pedía los
-    // derechos, y se fue con Cat 3.5. Las tarjetas del encabezado siguen
-    // necesitándolos, así que se cargan al abrir el panel.
-    handleRequestDerechos();
-  }, [subcuencaAnalysis?.codigoSubcuenca, handleRequestDerechos]);
 
   return (
     <div
@@ -183,21 +161,6 @@ export default function SidebarSubcuenca({
       ) : (
         <div className="space-y-2 mt-16 mx-auto flex justify-center">
           <TrophySpin color="#155e75" size="large" text="Cargando..." textColor="#000000" />
-        </div>
-      )}
-
-      {derechosSubcuenca && derechosSubcuenca.puntos_con_derechos > 0 && (
-        <div className="grid grid-cols-2 gap-3 mt-2">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-            <p className="text-xs text-green-700 font-semibold mb-1">Puntos con derechos</p>
-            <p className="text-base font-bold text-green-900">{derechosSubcuenca.puntos_con_derechos}</p>
-          </div>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-            <p className="text-xs text-green-700 font-semibold mb-1">Volumen anual total</p>
-            <p className="text-base font-bold text-green-900">
-              {new Intl.NumberFormat('es-CL').format(derechosSubcuenca.volumen_anual_total)} m³
-            </p>
-          </div>
         </div>
       )}
 

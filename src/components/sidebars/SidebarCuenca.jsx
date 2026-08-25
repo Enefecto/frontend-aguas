@@ -4,7 +4,7 @@ import { EstadisticBox } from '../UI/EstadisticBox';
 import { EstadisticasPorTipo } from '../ui/EstadisticasPorTipo.jsx';
 import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import TimeSeriesChartPair from '../charts/TimeSeriesChartPair';
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import ApiService from '../../services/apiService';
 import { API_ENDPOINTS } from '../../constants/apiEndpoints';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -27,9 +27,7 @@ export default function SidebarCuenca({
   // Sin opción "Todos": mezclar extracción superficial y subterránea en una
   // misma serie no tiene sentido físico. Se arranca en superficial.
   const [filtroTipoExtraccion, setFiltroTipoExtraccion] = useState(false);
-  const [derechosCuenca, setDerechosCuenca] = useState(null);
   const isInitialMount = useRef(true);
-  const derechosFetched = useRef(false);
 
   // Recargar gráficos si cambia el filtro y ya estaban cargados/cargándose
   useEffect(() => {
@@ -49,17 +47,6 @@ export default function SidebarCuenca({
     }, 100);
   }, []);
 
-  const handleRequestDerechos = useCallback(() => {
-    if (!cuencaAnalysis?.codigoCuenca || !apiService || derechosFetched.current) return;
-    derechosFetched.current = true;
-    apiService.getCuencaDerechos(cuencaAnalysis.codigoCuenca)
-      .then(data => setDerechosCuenca(data))
-      .catch(() => {
-        derechosFetched.current = false;
-        setDerechosCuenca(null);
-      });
-  }, [cuencaAnalysis?.codigoCuenca, apiService]);
-
   // Estadísticas separadas por tipo de extracción (cat. 3.6 y 3.7)
   useEffect(() => {
     const codigo = cuencaAnalysis?.codigoCuenca;
@@ -76,15 +63,6 @@ export default function SidebarCuenca({
     // Una respuesta vieja no debe pisar la de la cuenca que se está mirando
     return () => { vigente = false; };
   }, [cuencaAnalysis?.codigoCuenca, apiService]);
-
-  useEffect(() => {
-    setDerechosCuenca(null);
-    derechosFetched.current = false;
-    // El botón de "caudal autorizado" del gráfico era lo único que pedía los
-    // derechos, y se fue con Cat 3.5. Las tarjetas del encabezado siguen
-    // necesitándolos, así que se cargan al abrir el panel.
-    handleRequestDerechos();
-  }, [cuencaAnalysis?.codigoCuenca, handleRequestDerechos]);
 
   // Cargar informantes cuando se soliciten los gráficos
   useEffect(() => {
@@ -174,20 +152,6 @@ export default function SidebarCuenca({
 
           <h4 className="text-sm font-semibold text-gray-700 pt-2">Por tipo de extracción</h4>
           <EstadisticasPorTipo stats={statsPorTipo} loading={loadingStatsPorTipo} />
-          {derechosCuenca && derechosCuenca.puntos_con_derechos > 0 && (
-            <div className="grid grid-cols-2 gap-3 mt-2">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-                <p className="text-xs text-green-700 font-semibold mb-1">Puntos con derechos</p>
-                <p className="text-base font-bold text-green-900">{derechosCuenca.puntos_con_derechos}</p>
-              </div>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-                <p className="text-xs text-green-700 font-semibold mb-1">Volumen anual total</p>
-                <p className="text-base font-bold text-green-900">
-                  {new Intl.NumberFormat('es-CL').format(derechosCuenca.volumen_anual_total)} m³
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       ) : (
         <div className="space-y-2 mt-16 mx-auto flex justify-center">

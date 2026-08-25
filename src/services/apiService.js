@@ -209,14 +209,6 @@ class ApiService {
     return this.request(`${API_ENDPOINTS.PUNTOS_DERECHOS}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
   }
 
-  async getCuencaDerechos(codCuenca) {
-    return this.request(`${API_ENDPOINTS.CUENCAS_DERECHOS}?cod_cuenca=${codCuenca}`);
-  }
-
-  async getSubcuencaDerechos(codCuenca, codSubcuenca) {
-    return this.request(`${API_ENDPOINTS.SUBCUENCAS_DERECHOS}?cod_cuenca=${encodeURIComponent(codCuenca)}&cod_subcuenca=${encodeURIComponent(codSubcuenca)}`);
-  }
-
   // Métodos para SHAC
   async getShacs({ region, cod_cuenca, cod_subcuenca } = {}) {
     const params = new URLSearchParams();

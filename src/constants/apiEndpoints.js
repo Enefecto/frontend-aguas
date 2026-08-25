@@ -43,9 +43,7 @@ export const API_ENDPOINTS = {
   INFORMANTES: '/api/informantes',
 
   // Endpoints de derechos de agua
-  PUNTOS_DERECHOS: '/api/puntos/derechos',
-  CUENCAS_DERECHOS: '/api/cuencas/derechos',
-  SUBCUENCAS_DERECHOS: '/api/subcuencas/derechos'
+  PUNTOS_DERECHOS: '/api/puntos/derechos'
 };
 
 export const FILTER_CONFIG = {
