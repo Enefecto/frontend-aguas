@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, useCallback } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import {
   ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, ReferenceLine
@@ -19,9 +19,6 @@ const ExtraccionesVsPermitidoChart = memo(function ExtraccionesVsPermitidoChart(
   caudalMensual = null,
   volumenAnual = null,
 }) {
-  const [showSuma, setShowSuma] = useState(true);
-  const [showPromedio, setShowPromedio] = useState(true);
-
   const permitidoLitros = useMemo(() => {
     if (volumenAnual != null) return volumenAnual * 1000;
     if (!caudalMensual) return null;
@@ -62,20 +59,12 @@ const ExtraccionesVsPermitidoChart = memo(function ExtraccionesVsPermitidoChart(
           return arr.reduce((s, v) => s + v, 0) / arr.length;
         });
 
-        let sumaAnual = 0;
-        for (const mi of monthIdxs) {
-          const arr = byMonth[mi];
-          const avg = arr.reduce((s, v) => s + v, 0) / arr.length;
-          sumaAnual += avg * SEGUNDOS_POR_MES[MESES[mi]];
-        }
-
         const promMensual = monthAvgs.reduce((s, v) => s + v, 0) / monthAvgs.length;
         const segAño = esBisiesto(año) ? SEGUNDOS_POR_AÑO_BISIESTO : SEGUNDOS_POR_AÑO;
         const promedioAnual = promMensual * segAño;
 
         return {
           año,
-          suma: Math.round(sumaAnual),
           promedio: Math.round(promedioAnual),
         };
       });
@@ -111,24 +100,6 @@ const ExtraccionesVsPermitidoChart = memo(function ExtraccionesVsPermitidoChart(
           Extracciones anuales vs volumen permitido (L/año)
         </h4>
         <div className="flex items-center gap-3 text-xs">
-          <label className="flex items-center gap-1 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showSuma}
-              onChange={e => setShowSuma(e.target.checked)}
-              className="accent-sky-500"
-            />
-            <span>Suma</span>
-          </label>
-          <label className="flex items-center gap-1 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showPromedio}
-              onChange={e => setShowPromedio(e.target.checked)}
-              className="accent-violet-500"
-            />
-            <span>Promedio</span>
-          </label>
           <span className="flex items-center gap-1 text-green-700">
             <span className="inline-block w-3 border-t-2 border-dashed border-green-600" />
             Permitido
@@ -148,12 +119,7 @@ const ExtraccionesVsPermitidoChart = memo(function ExtraccionesVsPermitidoChart(
             />
             <Tooltip content={CustomTooltip} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            {showSuma && (
-              <Bar dataKey="suma" name="Suma anual" fill="#0ea5e9" />
-            )}
-            {showPromedio && (
-              <Bar dataKey="promedio" name="Promedio anual" fill="#a78bfa" />
-            )}
+            <Bar dataKey="promedio" name="Promedio anual" fill="#a78bfa" />
             {permitidoLitros != null && (
               <ReferenceLine
                 y={permitidoLitros}
