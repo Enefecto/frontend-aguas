@@ -1,6 +1,7 @@
 import { TrophySpin } from 'react-loading-indicators';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
+import { EstadisticasPorTipo } from '../ui/EstadisticasPorTipo.jsx';
 import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import TimeSeriesChartPair from '../charts/TimeSeriesChartPair';
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -20,6 +21,8 @@ export default function SidebarCuenca({
 
   const [isOpen, setIsOpen] = useState(false);
   const [topInformantes, setTopInformantes] = useState([]);
+  const [statsPorTipo, setStatsPorTipo] = useState(null);
+  const [loadingStatsPorTipo, setLoadingStatsPorTipo] = useState(false);
   const [loadingInformantes, setLoadingInformantes] = useState(false);
   // Sin opción "Todos": mezclar extracción superficial y subterránea en una
   // misma serie no tiene sentido físico. Se arranca en superficial.
@@ -55,6 +58,23 @@ export default function SidebarCuenca({
         derechosFetched.current = false;
         setDerechosCuenca(null);
       });
+  }, [cuencaAnalysis?.codigoCuenca, apiService]);
+
+  // Estadísticas separadas por tipo de extracción (cat. 3.6 y 3.7)
+  useEffect(() => {
+    const codigo = cuencaAnalysis?.codigoCuenca;
+    if (!codigo || !apiService) {
+      setStatsPorTipo(null);
+      return;
+    }
+    let vigente = true;
+    setLoadingStatsPorTipo(true);
+    apiService.getCuencasStatsPorTipo({ cod_cuenca: codigo })
+      .then(data => { if (vigente) setStatsPorTipo(data); })
+      .catch(() => { if (vigente) setStatsPorTipo(null); })
+      .finally(() => { if (vigente) setLoadingStatsPorTipo(false); });
+    // Una respuesta vieja no debe pisar la de la cuenca que se está mirando
+    return () => { vigente = false; };
   }, [cuencaAnalysis?.codigoCuenca, apiService]);
 
   useEffect(() => {
@@ -151,6 +171,9 @@ export default function SidebarCuenca({
             <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={cuencaAnalysis.caudal_maximo} />
             <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (L/s)" value={cuencaAnalysis.desviacion_estandar_caudal} />
           </div>
+
+          <h4 className="text-sm font-semibold text-gray-700 pt-2">Por tipo de extracción</h4>
+          <EstadisticasPorTipo stats={statsPorTipo} loading={loadingStatsPorTipo} />
           {derechosCuenca && derechosCuenca.puntos_con_derechos > 0 && (
             <div className="grid grid-cols-2 gap-3 mt-2">
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">

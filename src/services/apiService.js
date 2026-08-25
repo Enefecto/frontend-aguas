@@ -93,6 +93,19 @@ class ApiService {
     return this.request(`${API_ENDPOINTS.CUENCAS_STATS}${queryString ? '?' + queryString : ''}`);
   }
 
+  /**
+   * Estadísticas de caudal separadas en extracción superficial y subterránea.
+   * La desviación estándar no viene acá: se saca de getCuencasStats, que la
+   * entrega para la cuenca completa.
+   */
+  async getCuencasStatsPorTipo(params = {}) {
+    const queryParams = new URLSearchParams();
+    for (const clave of ['cod_cuenca', 'cod_subcuenca', 'cod_subsubcuenca']) {
+      if (params[clave] != null) queryParams.append(clave, params[clave]);
+    }
+    return this.request(`${API_ENDPOINTS.CUENCAS_STATS_POR_TIPO}?${queryParams.toString()}`);
+  }
+
   async getFiltrosReactivos() {
     return this.request(API_ENDPOINTS.FILTROS_REACTIVOS);
   }

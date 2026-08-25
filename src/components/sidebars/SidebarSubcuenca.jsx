@@ -1,6 +1,7 @@
 import { TrophySpin } from 'react-loading-indicators';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
+import { EstadisticasPorTipo } from '../ui/EstadisticasPorTipo.jsx';
 import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import TimeSeriesChartPair from '../charts/TimeSeriesChartPair';
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -19,6 +20,8 @@ export default function SidebarSubcuenca({
 
   const [isOpen, setIsOpen] = useState(false);
   const [topInformantes, setTopInformantes] = useState([]);
+  const [statsPorTipo, setStatsPorTipo] = useState(null);
+  const [loadingStatsPorTipo, setLoadingStatsPorTipo] = useState(false);
   const [loadingInformantes, setLoadingInformantes] = useState(false);
   // Sin opción "Todos": mezclar extracción superficial y subterránea en una
   // misma serie no tiene sentido físico. Se arranca en superficial.
@@ -90,6 +93,23 @@ export default function SidebarSubcuenca({
       });
   }, [subcuencaAnalysis?.codigoSubcuenca, subcuencaAnalysis?.codigoCuenca, apiService]);
 
+  // Estadísticas separadas por tipo de extracción (cat. 3.6 y 3.7)
+  useEffect(() => {
+    const codigo = subcuencaAnalysis?.codigoSubcuenca;
+    if (!codigo || !apiService) {
+      setStatsPorTipo(null);
+      return;
+    }
+    let vigente = true;
+    setLoadingStatsPorTipo(true);
+    apiService.getCuencasStatsPorTipo({ cod_subcuenca: codigo })
+      .then(data => { if (vigente) setStatsPorTipo(data); })
+      .catch(() => { if (vigente) setStatsPorTipo(null); })
+      .finally(() => { if (vigente) setLoadingStatsPorTipo(false); });
+    // Una respuesta vieja no debe pisar la de la cuenca que se está mirando
+    return () => { vigente = false; };
+  }, [subcuencaAnalysis?.codigoSubcuenca, apiService]);
+
   useEffect(() => {
     setDerechosSubcuenca(null);
     derechosFetched.current = false;
@@ -156,6 +176,9 @@ export default function SidebarSubcuenca({
             <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={subcuencaAnalysis.caudal_maximo} />
             <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (L/s)" value={subcuencaAnalysis.desviacion_estandar_caudal} />
           </div>
+
+          <h4 className="text-sm font-semibold text-gray-700 pt-2">Por tipo de extracción</h4>
+          <EstadisticasPorTipo stats={statsPorTipo} loading={loadingStatsPorTipo} />
         </div>
       ) : (
         <div className="space-y-2 mt-16 mx-auto flex justify-center">
