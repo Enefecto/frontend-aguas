@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { UI_CONFIG } from '../constants/uiConfig.js';
 import { filterByMinYear } from '../utils/timeConstants.js';
+import { agregarStatsCuenca } from '../utils/statsCuenca.js';
 
 /**
  * Descompone la fecha de una medición en sus partes de calendario.
@@ -233,7 +234,10 @@ export const useAnalysisData = (apiService) => {
 
     try {
       const response = await apiService.getCuencasStats({ cod_cuenca: codCuenca });
-      const data = response.estadisticas?.[0];
+      // La cuenca puede ocupar varias filas de dw.Cuenca_Stats, una por tramo y
+      // región. Antes se leía sólo la primera y el panel informaba ese tramo
+      // como si fuera la cuenca entera.
+      const data = agregarStatsCuenca(response.estadisticas);
 
       if (!data) {
         throw new Error('No se encontraron estadísticas para la cuenca');
@@ -377,7 +381,9 @@ export const useAnalysisData = (apiService) => {
 
     try {
       const response = await apiService.getCuencasStats(parametros);
-      const data = response.estadisticas?.[0];
+      // Seis subcuencas se reparten en dos filas porque cruzan un límite
+      // regional; el resto trae una sola y la agregación las deja igual.
+      const data = agregarStatsCuenca(response.estadisticas);
 
       if (!data) {
         throw new Error('No se encontraron estadísticas para la subcuenca');
