@@ -57,12 +57,14 @@ export default function SidebarSubcuenca({
         limit: 10
       })
         .then(data => {
-          // Formatear datos para el gráfico
+          // Formatear datos para el gráfico. No se reordena: la barra mide
+          // obras y la API ya entrega el Top 10 ordenado por obras (cat. 3.8).
+          // Reordenar acá por reportes dejaba barras cortas encima de largas.
           const chartData = (data || []).map(inf => ({
             nombre: inf.nombre_completo || 'Desconocido',
             obras: inf.cantidad_obras || 0,
             reportes: inf.cantidad_reportes || 0
-          })).sort((a, b) => b.reportes - a.reportes);
+          }));
 
           setTopInformantes(chartData);
         })
