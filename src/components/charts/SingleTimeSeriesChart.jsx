@@ -24,18 +24,11 @@ const SingleTimeSeriesChart = memo(function SingleTimeSeriesChart({
   const [dataFiltrada, setDataFiltrada] = useState([]);
   const [yAxisInvertido, setYAxisInvertido] = useState(allowYAxisInvert);
 
-  // Optimizar datos con downsampling (memoizado)
-  const dataOptimizada = useMemo(() => {
-    if (!data || data.length === 0) return [];
-    // Solo aplicar downsampling si hay más de 400 puntos
-    return data.length > 400 ? downsampleData(data, 400) : data;
-  }, [data]);
-
   // Calcular opciones de período disponibles basadas en los datos (memoizado)
   const opcionesPeriodo = useMemo(() => {
-    if (dataOptimizada.length === 0) return [];
+    if (!data || data.length === 0) return [];
 
-    const fechas = dataOptimizada.map(d => new Date(d.fecha_medicion));
+    const fechas = data.map(d => new Date(d.fecha_medicion));
     const fechaMin = new Date(Math.min(...fechas));
     const fechaMax = new Date(Math.max(...fechas));
 
@@ -56,31 +49,33 @@ const SingleTimeSeriesChart = memo(function SingleTimeSeriesChart({
     opciones.push({ valor: 'todos', etiqueta: 'Todos' });
 
     return opciones;
-  }, [dataOptimizada]);
+  }, [data]);
 
-  // Filtrar datos según el período seleccionado
+  // Primero recortar a la ventana visible, después reducir. Al revés, la
+  // reducción se aplicaba a toda la historia y la ventana se quedaba con las
+  // migajas de esa reducción.
   useEffect(() => {
-    if (dataOptimizada.length === 0) return;
+    if (!data || data.length === 0) return;
 
     if (periodoSeleccionado === 'todos') {
-      setDataFiltrada(dataOptimizada);
+      setDataFiltrada(downsampleData(data, 400, dataKey));
     } else {
       // Filtrar por años desde la fecha más reciente hacia atrás
-      const fechas = dataOptimizada.map(d => new Date(d.fecha_medicion));
+      const fechas = data.map(d => new Date(d.fecha_medicion));
       const fechaMax = new Date(Math.max(...fechas));
 
       // Calcular fecha límite
       const fechaLimite = new Date(fechaMax);
       fechaLimite.setFullYear(fechaMax.getFullYear() - periodoSeleccionado);
 
-      const filtrada = dataOptimizada.filter(d => {
+      const filtrada = downsampleData(data.filter(d => {
         const fecha = new Date(d.fecha_medicion);
         return fecha >= fechaLimite;
-      });
+      }), 400, dataKey);
 
       setDataFiltrada(filtrada);
     }
-  }, [dataOptimizada, periodoSeleccionado]);
+  }, [data, periodoSeleccionado, dataKey]);
 
   // Calcular rango de fechas (memoizado)
   const rangoFechas = useMemo(() => {

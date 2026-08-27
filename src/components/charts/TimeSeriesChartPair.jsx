@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, memo, useCallback, useRef } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts';
 import { formatNumberCL } from '../../utils/formatNumberCL';
-import { downsampleData } from '../../utils/dataOptimization';
+import { resumirEnvolvente } from '../../utils/dataOptimization';
 
 /**
  * Componente reutilizable para mostrar un par de gráficos de series de tiempo:
@@ -61,59 +61,38 @@ const TimeSeriesChartPair = memo(function TimeSeriesChartPair({
     return opciones;
   }, [dataMensual]);
 
-  // Optimizar datos mensuales con downsampling usando useMemo
-  const dataMensualOptimizado = useMemo(() => {
-    if (!dataMensual || dataMensual.length === 0) return [];
-    // Solo aplicar downsampling si hay más de 500 puntos
-    return dataMensual.length > 500 ? downsampleData(dataMensual, 500) : dataMensual;
-  }, [dataMensual]);
-
   const MONTH_KEYS = [
     'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
     'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
   ];
 
-  
-  // Optimizar datos diarios con downsampling usando useMemo
-  const dataDiarioOptimizado = useMemo(() => {
-    if (!dataDiario || dataDiario.length === 0) return [];
-    // Solo aplicar downsampling si hay más de 300 puntos
-    return dataDiario.length > 300 ? downsampleData(dataDiario, 300) : dataDiario;
-  }, [dataDiario]);
-
-  // Filtrar datos mensuales y diarios según el período seleccionado
+  // Primero recortar a la ventana visible, después reducir.
+  //
+  // Al revés —que era como estaba— la reducción se comía la historia completa y
+  // el recorte se quedaba con las migajas: la cuenca 60 tiene 9.583 días y la
+  // ventana por defecto es de dos años, así que el gráfico dibujaba 24 puntos
+  // para 730 días. Recortando primero, la ventana usa sus 300 puntos completos.
   useEffect(() => {
-    if (dataMensualOptimizado.length === 0) return;
+    if (!dataMensual || dataMensual.length === 0) return;
 
-    if (periodoSeleccionado === 'todos') {
-      // Mostrar todos los datos
-      setDataMensualFiltrado(dataMensualOptimizado);
-      setDataDiarioFiltradoPorPeriodo(dataDiarioOptimizado);
-    } else {
-      // Filtrar por años desde la fecha más reciente hacia atrás
-      const fechas = dataMensualOptimizado.map(d => new Date(d.mes + "-01"));
+    let mensual = dataMensual;
+    let diario = dataDiario || [];
+
+    if (periodoSeleccionado !== 'todos') {
+      const fechas = dataMensual.map(d => new Date(d.mes + "-01"));
       const fechaMax = new Date(Math.max(...fechas));
-
-      // Calcular fecha límite (años hacia atrás desde la fecha más reciente)
       const fechaLimite = new Date(fechaMax);
       fechaLimite.setFullYear(fechaMax.getFullYear() - periodoSeleccionado);
 
-      // Filtrar datos mensuales
-      const mensualFiltrado = dataMensualOptimizado.filter(d => {
-        const fecha = new Date(d.mes + "-01");
-        return fecha >= fechaLimite;
-      });
-
-      // Filtrar datos diarios
-      const diarioFiltrado = dataDiarioOptimizado.filter(d => {
-        const fecha = new Date(d.fecha);
-        return fecha >= fechaLimite;
-      });
-
-      setDataMensualFiltrado(mensualFiltrado);
-      setDataDiarioFiltradoPorPeriodo(diarioFiltrado);
+      mensual = mensual.filter(d => new Date(d.mes + "-01") >= fechaLimite);
+      diario = diario.filter(d => new Date(d.fecha) >= fechaLimite);
     }
-  }, [dataMensualOptimizado, dataDiarioOptimizado, periodoSeleccionado]);
+
+    // resumirEnvolvente en vez de elegir un punto por bloque: las tres líneas
+    // son mín/prom/máx, y quedarse con un representante angostaba la banda.
+    setDataMensualFiltrado(resumirEnvolvente(mensual, 500, valueKey));
+    setDataDiarioFiltradoPorPeriodo(resumirEnvolvente(diario, 300, valueKey));
+  }, [dataMensual, dataDiario, periodoSeleccionado, valueKey]);
 
   const dataAnualFiltrado = useMemo(() => {
     if (!dataMensualFiltrado || dataMensualFiltrado.length === 0) return [];

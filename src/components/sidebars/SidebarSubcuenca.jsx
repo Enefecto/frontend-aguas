@@ -6,6 +6,7 @@ import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import TimeSeriesChartPair from '../charts/TimeSeriesChartPair';
 import { useEffect, useState, useRef } from "react";
 import ApiService from '../../services/apiService';
+import { obtenerTopUsuarios } from '../../utils/topUsuarios.js';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function SidebarSubcuenca({
@@ -19,10 +20,10 @@ export default function SidebarSubcuenca({
 }) {
 
   const [isOpen, setIsOpen] = useState(false);
-  const [topInformantes, setTopInformantes] = useState([]);
+  const [topUsuarios, setTopUsuarios] = useState([]);
   const [statsPorTipo, setStatsPorTipo] = useState(null);
   const [loadingStatsPorTipo, setLoadingStatsPorTipo] = useState(false);
-  const [loadingInformantes, setLoadingInformantes] = useState(false);
+  const [loadingUsuarios, setLoadingUsuarios] = useState(false);
   // Sin opción "Todos": mezclar extracción superficial y subterránea en una
   // misma serie no tiene sentido físico. Se arranca en superficial.
   const [filtroTipoExtraccion, setFiltroTipoExtraccion] = useState(false);
@@ -46,39 +47,30 @@ export default function SidebarSubcuenca({
     }, 100);
   }, []);
 
-  // Cargar informantes cuando se soliciten los gráficos
+  // Cargar usuarios cuando se soliciten los gráficos
   useEffect(() => {
     // Si graphicsSubcuencasLoading.caudal no es 0, significa que se pulsó el botón "Cargar Gráficos"
-    if (subcuencaAnalysis && subcuencaAnalysis.codigoSubcuenca && apiService && graphicsSubcuencasLoading.caudal !== 0 && topInformantes.length === 0) {
-      setLoadingInformantes(true);
+    if (subcuencaAnalysis && subcuencaAnalysis.codigoSubcuenca && apiService && graphicsSubcuencasLoading.caudal !== 0 && topUsuarios.length === 0) {
+      setLoadingUsuarios(true);
 
-      apiService.getInformantes({
-        cod_subcuenca: subcuencaAnalysis.codigoSubcuenca,
-        limit: 10
-      })
+      // Usuarios, no informantes: el informante carga la medición, el usuario
+      // es el titular del derecho. Vienen de un archivo precalculado y ya
+      // ordenado por número de obras (cat. 3.8); no se reordena acá.
+      obtenerTopUsuarios('subcuenca', subcuencaAnalysis.codigoSubcuenca)
         .then(data => {
-          // Formatear datos para el gráfico. No se reordena: la barra mide
-          // obras y la API ya entrega el Top 10 ordenado por obras (cat. 3.8).
-          // Reordenar acá por reportes dejaba barras cortas encima de largas.
-          const chartData = (data || []).map(inf => ({
-            nombre: inf.nombre_completo || 'Desconocido',
-            obras: inf.cantidad_obras || 0,
-            reportes: inf.cantidad_reportes || 0
-          }));
-
-          setTopInformantes(chartData);
+          setTopUsuarios(data || []);
         })
         .catch(err => {
-          console.error("Error al cargar informantes:", err);
-          setTopInformantes([]);
+          console.error("Error al cargar usuarios:", err);
+          setTopUsuarios([]);
         })
         .finally(() => {
-          setLoadingInformantes(false);
+          setLoadingUsuarios(false);
         });
     }
-    // Limpiar gráficos de informantes si se cierra o cambia de subcuenca sin apretar el botón
+    // Limpiar el top de usuarios si se cierra o cambia de subcuenca sin apretar el botón
     if (graphicsSubcuencasLoading.caudal === 0) {
-      setTopInformantes([]);
+      setTopUsuarios([]);
     }
   }, [subcuencaAnalysis, graphicsSubcuencasLoading, apiService]);
 
@@ -286,23 +278,23 @@ export default function SidebarSubcuenca({
               </div>
             )}
 
-            {/* Top Informantes */}
-            {(topInformantes.length > 0 || loadingInformantes) && (
+            {/* Top Usuarios */}
+            {(topUsuarios.length > 0 || loadingUsuarios) && (
               <div className="mt-6 border-t pt-6">
                 <h3 className="text-lg font-semibold mb-4 text-gray-700">Top 10 Usuarios en la Subcuenca</h3>
 
-                {loadingInformantes ? (
+                {loadingUsuarios ? (
                   <div className="flex items-center justify-center w-full h-[260px] md:h-80 lg:h-96 bg-gray-100 rounded-lg border">
                     <div className="flex items-center space-x-2 text-gray-500">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
                       <span className="text-sm font-medium">Cargando Usuarios...</span>
                     </div>
                   </div>
-                ) : topInformantes.length > 0 ? (
+                ) : topUsuarios.length > 0 ? (
                   <div className="w-full h-[260px] md:h-80 lg:h-96">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
-                        data={topInformantes}
+                        data={topUsuarios}
                         layout="vertical"
                         margin={{ top: 8, right: 10, left: 5, bottom: 20 }}
                       >
@@ -329,7 +321,7 @@ export default function SidebarSubcuenca({
                           ]}
                         />
                         <Bar dataKey="obras" radius={[0, 4, 4, 0]} barSize={20} fill="#0ea5e9">
-                          {topInformantes.map((entry, index) => (
+                          {topUsuarios.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill="#0ea5e9" />
                           ))}
                         </Bar>
