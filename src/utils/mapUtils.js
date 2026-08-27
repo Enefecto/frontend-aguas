@@ -1,3 +1,4 @@
+import { COORDENADAS_FUERA_DE_CUENCA } from '../constants/coordenadasFueraDeCuenca.js';
 import { MAP_CONFIG } from '../constants/mapConfig.js';
 
 const _iconCache = new Map();
@@ -73,22 +74,28 @@ export const createClusterIcon = (cluster) => {
   });
 };
 
-// Longitud máxima al oeste (costa) según la latitud en Chile.
-// Chile es angosto y la costa varía significativamente de norte a sur.
-// Puntos más al oeste de estos límites están en el océano Pacífico.
-const CHILE_COAST_LIMITS = [
-  { latFrom: -17, latTo: -27, westLon: -71.8 },   // Norte Grande (Arica → Atacama)
-  { latFrom: -27, latTo: -33, westLon: -72.0 },    // Norte Chico (Atacama → Valparaíso)
-  { latFrom: -33, latTo: -36, westLon: -72.5 },    // Central (Valparaíso → Maule)
-  { latFrom: -36, latTo: -39, westLon: -73.8 },    // Sur (Biobío → Araucanía)
-  { latFrom: -39, latTo: -42, westLon: -74.0 },    // Los Lagos
-  { latFrom: -42, latTo: -44, westLon: -74.5 },    // Chiloé
-  { latFrom: -44, latTo: -56, westLon: -76.0 },    // Aysén / Magallanes
-];
-
 // Límite este: frontera con Argentina/Bolivia
 const CHILE_EAST_LON = -66.0;
 
+/**
+ * Decide si la coordenada de una obra es utilizable para dibujarla.
+ *
+ * Antes de esto había una tabla de siete bandas de latitud, cada una con una
+ * longitud oeste fija, que aproximaba la costa de Chile con escalones rectos.
+ * El escalón del Maule cortaba en -72,5 y Chanco es un pueblo costero a
+ * -72,53: las dos obras de Dunas de Chanco y las dos de Pelluhue quedaban al
+ * oeste de la línea, en tierra firme, y el mapa las descartaba en silencio.
+ *
+ * La máscara real son las cuencas hidrográficas BNA de la DGA, que cubren todo
+ * Chile continental. No se evalúan acá: la geometría completa pesa 6,8 MB y
+ * simplificarla lo suficiente para embarcarla vuelve a mover la costa. Se
+ * evalúa fuera de línea con `scripts/generar_mascara_cuencas.py` y lo que llega
+ * al navegador es solo la lista de las que quedaron fuera.
+ *
+ * Una obra que no esté en la lista se dibuja. Ese default importa: si el DW
+ * carga puntos nuevos y nadie regeneró la lista, el error es mostrar una
+ * coordenada dudosa, nunca esconder una obra real.
+ */
 export const isValidCoordinate = (punto) => {
   // Debe tener lat/lon convertidos y finitos
   if (!Number.isFinite(punto.lat) || !Number.isFinite(punto.lon)) {
@@ -100,14 +107,7 @@ export const isValidCoordinate = (punto) => {
     return false;
   }
 
-  // Validar contra la costa según la latitud (evitar puntos en el océano)
-  for (const band of CHILE_COAST_LIMITS) {
-    if (punto.lat >= band.latTo && punto.lat < band.latFrom) {
-      return punto.lon >= band.westLon;
-    }
-  }
-
-  return true;
+  return !COORDENADAS_FUERA_DE_CUENCA.has(`${punto.utm_norte}|${punto.utm_este}`);
 };
 
 export const getPuntoTypeLabel = (punto) => {

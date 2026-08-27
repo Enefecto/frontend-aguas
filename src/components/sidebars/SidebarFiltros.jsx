@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar.jsx';
 import { CustomSwitch } from '../UI/CustomSwitch.jsx';
 import { StatusButton } from '../UI/StatusButton.jsx';
@@ -17,6 +17,7 @@ import {
   CodigoObraFilter
 } from './FilterSection.jsx';
 import { UI_CONFIG } from '../../constants/uiConfig.js';
+import { isValidCoordinate } from '../../utils/mapUtils.js';
 
 export default function SidebarFiltros({
   filtros,
@@ -52,6 +53,15 @@ export default function SidebarFiltros({
     handleUpdateStateConsultandoPuntos,
     hayFiltrosPendientes
   } = useFilterStatus(puntos, filtros, filtroCaudal, ordenCaudal, isLoaded, handleCoordenadasUnicas, queryCompleted, limitMax);
+
+  // El mapa no dibuja todo lo que devuelve la API: descarta las coordenadas que
+  // caen fuera de Chile continental. El contador decía cuántas filas llegaron,
+  // así que en el SHAC Dunas de Chanco anunciaba 4 puntos y se veían 2. Cuenta
+  // marcadores, que es lo que dice la frase.
+  const puntosDibujados = useMemo(
+    () => puntos.filter(isValidCoordinate).length,
+    [puntos]
+  );
 
   const handleConsultarClick = () => {
     handleCoordenadasUnicas();
@@ -200,7 +210,7 @@ export default function SidebarFiltros({
           </div>
         ) : puntos.length > 0 ? (
           <div className="text-center text-[10px] sm:text-xs text-slate-600 bg-slate-50 px-2 py-1.5 sm:px-3 sm:py-2 rounded-md max-w-full">
-            <span className="font-medium text-green-700">{puntos.length}</span> puntos mostrados en el mapa
+            <span className="font-medium text-green-700">{puntosDibujados}</span> puntos mostrados en el mapa
           </div>
         ) : queryCompleted && puntos.length === 0 ? (
           <div className="bg-gray-100 text-gray-700 px-2 py-1.5 sm:px-3 sm:py-2 rounded-md text-[10px] sm:text-xs border border-gray-300 shadow-sm max-w-full">
