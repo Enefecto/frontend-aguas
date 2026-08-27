@@ -177,19 +177,3 @@ export const resumirEnvolvente = (data, threshold, valueKey) => {
 
   return salida;
 };
-
-/**
- * Optimiza los datos de series de tiempo mensuales y diarias
- * @param {Object} seriesData - Objeto con {mensual, diario}
- * @param {number} maxMonthlyPoints - Máximo de puntos mensuales
- * @param {number} maxDailyPoints - Máximo de puntos diarios
- * @returns {Object} - Datos optimizados
- */
-export const optimizeTimeSeriesData = (seriesData, maxMonthlyPoints = 500, maxDailyPoints = 300) => {
-  if (!seriesData) return { mensual: [], diario: [] };
-
-  return {
-    mensual: downsampleData(seriesData.mensual, maxMonthlyPoints),
-    diario: downsampleData(seriesData.diario, maxDailyPoints)
-  };
-};
