@@ -34,6 +34,11 @@ export const API_ENDPOINTS = {
   // Endpoints de juntas
   JUNTAS: '/api/juntas',
 
+  // Endpoints de descarga de datos
+  DESCARGA_COLUMNAS: '/api/mediciones/columnas',
+  DESCARGA_PREVIEW: '/api/mediciones/preview',
+  DESCARGA_ARCHIVO: '/api/mediciones/descarga',
+
   // Endpoints de subsubcuencas
   SUBSUBCUENCAS_SERIES_TIEMPO_CAUDAL: '/api/cuencas/subsubcuenca/series_de_tiempo/caudal',
   SUBSUBCUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA: '/api/cuencas/subsubcuenca/series_de_tiempo/altura_linimetrica',

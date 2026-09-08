@@ -259,6 +259,37 @@ class ApiService {
     const queryString = queryParams.toString();
     return this.request(`${API_ENDPOINTS.INFORMANTES}${queryString ? '?' + queryString : ''}`);
   }
+
+  // Métodos para descarga de datos
+
+  // Catálogo de columnas descargables. El backend es la única fuente de verdad
+  // de los alias: acá no se conocen los nombres reales de las columnas del DW.
+  async getColumnasDescarga() {
+    return this.request(API_ENDPOINTS.DESCARGA_COLUMNAS);
+  }
+
+  async getPreviewDescarga({ codigoObra, fechaInicio, fechaFin, columnas } = {}) {
+    return this.request(
+      `${API_ENDPOINTS.DESCARGA_PREVIEW}?${this.#paramsDescarga({ codigoObra, fechaInicio, fechaFin, columnas })}`
+    );
+  }
+
+  // Devuelve la URL en vez de hacer el fetch: la descarga la resuelve el
+  // navegador, que sabe manejar el Content-Disposition y no carga el archivo
+  // entero en memoria como haría request(), que además parsea JSON.
+  getUrlDescarga({ codigoObra, fechaInicio, fechaFin, columnas, formato } = {}) {
+    const params = this.#paramsDescarga({ codigoObra, fechaInicio, fechaFin, columnas });
+    return `${this.baseUrl}${API_ENDPOINTS.DESCARGA_ARCHIVO}?${params}&formato=${encodeURIComponent(formato)}`;
+  }
+
+  #paramsDescarga({ codigoObra, fechaInicio, fechaFin, columnas }) {
+    const queryParams = new URLSearchParams();
+    queryParams.append('codigo_obra', codigoObra);
+    if (fechaInicio) queryParams.append('fecha_inicio', fechaInicio);
+    if (fechaFin) queryParams.append('fecha_fin', fechaFin);
+    if (columnas?.length) queryParams.append('columnas', columnas.join(','));
+    return queryParams.toString();
+  }
 }
 
 export default ApiService;

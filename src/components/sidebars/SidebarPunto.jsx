@@ -3,6 +3,7 @@ import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
 import { PuntoGraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import { ModalDetalles } from '../UI/ModalDetalles';
+import ModalDescargaDatos from '../UI/ModalDescargaDatos';
 import { useState, useEffect } from 'react';
 import SingleTimeSeriesChart from '../charts/SingleTimeSeriesChart';
 import DerechosTab from './DerechosTab';
@@ -33,6 +34,7 @@ export default function SidebarPunto({
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('mediciones');
   const [modalAbierto, setModalAbierto] = useState(null); // 'altura' o 'nivel' o null
+  const [modalDescargaAbierto, setModalDescargaAbierto] = useState(false);
   const [datosNivelFreatico, setDatosNivelFreatico] = useState(null);
   const [datosAlturaLimnimetrica, setDatosAlturaLimnimetrica] = useState(null);
   const [loadingNivelFreatico, setLoadingNivelFreatico] = useState(false);
@@ -161,6 +163,17 @@ export default function SidebarPunto({
         <p className="text-base text-gray-700 mt-1">
           <strong>Código de obra:</strong> {punto.codigo}
         </p>
+      )}
+
+      {punto.codigo && (
+        <button
+          type="button"
+          onClick={() => setModalDescargaAbierto(true)}
+          className="mt-3 inline-flex items-center gap-2 rounded bg-cyan-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-800"
+        >
+          <span aria-hidden="true">⬇</span>
+          Descargar datos
+        </button>
       )}
 
       {(puntoInfo?.sector_sha || punto.sector_sha) && (
@@ -418,6 +431,13 @@ export default function SidebarPunto({
         onClose={() => setModalAbierto(null)}
         titulo="Detalles Nivel Freático"
         datos={nivelFreatico || {}}
+      />
+
+      <ModalDescargaDatos
+        isOpen={modalDescargaAbierto}
+        onClose={() => setModalDescargaAbierto(false)}
+        codigoObra={punto.codigo}
+        apiService={apiService}
       />
     </div>
   );
