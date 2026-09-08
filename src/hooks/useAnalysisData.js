@@ -102,14 +102,30 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
     }
     mensualMap[mesClave].valores.push(valor);
 
+    // La API agrega por fecha, así que cada día llega en una sola fila y su
+    // mínimo y máximo reales no se pueden reconstruir desde el promedio: sin
+    // estos campos los tres valores del gráfico diario salen idénticos
+    // (observación 4.4 del seguimiento con la DGA). Los endpoints de altura y
+    // nivel freático todavía no los mandan, y ahí se cae al promedio.
+    const aNumero = (x) => {
+      const n = x == null || x === '' ? NaN : Number(x);
+      return Number.isFinite(n) ? n : null;
+    };
+    const minCrudo = aNumero(item[`${valueKey}_minimo`]);
+    const maxCrudo = aNumero(item[`${valueKey}_maximo`]);
+
     // Agrupar por día
     if (!diarioMap[diaClave]) {
       diarioMap[diaClave] = {
         fecha: diaClave,
-        valores: []
+        valores: [],
+        minimos: [],
+        maximos: []
       };
     }
     diarioMap[diaClave].valores.push(valor);
+    if (minCrudo != null) diarioMap[diaClave].minimos.push(minCrudo);
+    if (maxCrudo != null) diarioMap[diaClave].maximos.push(maxCrudo);
   });
 
   // Calcular estadísticas para datos mensuales
@@ -143,8 +159,14 @@ const processSeriesTiempoData = (seriesData, valueKey = 'caudal') => {
     // Un caudal de cero es un dato; lo que se descarta es la ausencia de dato.
     const valores = item.valores.filter(v => v != null);
     const hayDatos = valores.length > 0;
-    const min_valor = hayDatos ? Math.min(...valores) : null;
-    const max_valor = hayDatos ? Math.max(...valores) : null;
+    // Mínimo y máximo informados por la API cuando existen; si no, los extremos
+    // de los promedios, que es lo único reconstruible.
+    const min_valor = item.minimos.length
+      ? Math.min(...item.minimos)
+      : (hayDatos ? Math.min(...valores) : null);
+    const max_valor = item.maximos.length
+      ? Math.max(...item.maximos)
+      : (hayDatos ? Math.max(...valores) : null);
     const avg_valor = hayDatos
       ? valores.reduce((sum, v) => sum + v, 0) / valores.length
       : null;

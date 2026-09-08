@@ -70,6 +70,16 @@ export default function DerechosTab({
   return (
     <div className="space-y-4 pt-2">
 
+      {/* Titular de la obra. Va antes de los stat boxes porque identifica a la
+          obra, no es una cifra del derecho. El dato sale de la tabla base: el
+          pipeline no lo arrastra a Puntos_Mapa. */}
+      {derechos.usuario_obra && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+          <p className="text-xs text-green-700 font-semibold mb-1">Usuario de la obra</p>
+          <p className="text-sm font-bold text-green-900 break-words">{derechos.usuario_obra}</p>
+        </div>
+      )}
+
       {/* Stat boxes */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
