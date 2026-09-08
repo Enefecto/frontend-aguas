@@ -121,7 +121,46 @@ export default function SidebarPunto({
     >
       <ButtonOpenCloseSidebar toggleSidebar={setRightSidebarAbiertoPunto} setIsOpen={setIsOpen} />
 
-      <h2 className="text-2xl font-bold border-b pb-2 mt-2">Análisis del punto</h2>
+      {/* pr-12 en móvil: ahí el botón de cerrar es absolute en top-3 right-3 y se
+          superpondría con la descarga. En md+ ese botón se va a la izquierda. */}
+      <div className="flex items-center justify-between gap-2 border-b pb-2 mt-2 pr-12 md:pr-0">
+        <h2 className="text-2xl font-bold">Análisis del punto</h2>
+
+        {punto.codigo && (
+          <button
+            type="button"
+            onClick={() => setModalDescargaAbierto(true)}
+            aria-label="Descargar datos"
+            title="Descargar datos de la obra"
+            className="
+              shrink-0
+              w-9 h-9
+              rounded
+              bg-cyan-700 hover:bg-cyan-800 active:bg-cyan-900
+              text-white
+              flex items-center justify-center
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500
+              transition
+              cursor-pointer
+            "
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 3v12" />
+              <path d="M7 12l5 5 5-5" />
+              <path d="M5 21h14" />
+            </svg>
+          </button>
+        )}
+      </div>
 
       {/* Tab navigation */}
       <div className="flex border-b border-gray-200 mb-4">
@@ -163,17 +202,6 @@ export default function SidebarPunto({
         <p className="text-base text-gray-700 mt-1">
           <strong>Código de obra:</strong> {punto.codigo}
         </p>
-      )}
-
-      {punto.codigo && (
-        <button
-          type="button"
-          onClick={() => setModalDescargaAbierto(true)}
-          className="mt-3 inline-flex items-center gap-2 rounded bg-cyan-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-800"
-        >
-          <span aria-hidden="true">⬇</span>
-          Descargar datos
-        </button>
       )}
 
       {(puntoInfo?.sector_sha || punto.sector_sha) && (
