@@ -9,6 +9,7 @@ export const MarkerLayer = React.memo(({
   agrupar,
   handleShowSidebarCuencas,
   handleShowSidebarSubcuencas,
+  handleShowSidebarShac,
   handleShowSidebarPunto,
   apiService
 }) => {
@@ -36,6 +37,7 @@ export const MarkerLayer = React.memo(({
                 punto={punto}
                 handleShowSidebarCuencas={handleShowSidebarCuencas}
                 handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
+                handleShowSidebarShac={handleShowSidebarShac}
                 handleShowSidebarPunto={handleShowSidebarPunto}
                 apiService={apiService}
               />

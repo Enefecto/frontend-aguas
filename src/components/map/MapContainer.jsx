@@ -69,6 +69,7 @@ export const MapContainer = React.memo(({
         agrupar={agrupar}
         handleShowSidebarCuencas={handleShowSidebarCuencas}
         handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
+        handleShowSidebarShac={handleShowSidebarShac}
         handleShowSidebarPunto={handleShowSidebarPunto}
         apiService={apiService}
       />

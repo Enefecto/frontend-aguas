@@ -59,19 +59,32 @@ export const ShacLayer = ({ onSelectShac }) => {
         const etiqueta = p.COD_SHAC || '';
         const cod = Number.parseInt(p.COD_BNA_SH, 10);
         const codValido = Number.isFinite(cod);
+
         layer.bindPopup(
           `<div style="font-size:12px;line-height:1.4">
              <strong>${name}</strong>
              ${region ? `<br/><span>${region}</span>` : ''}
              ${etiqueta ? `<br/><span style="color:#6b7280">${etiqueta}</span>` : ''}
-             ${codValido && onSelectShac ? '<br/><span style="color:#0e7490">Clic para analizar el sector</span>' : ''}
+             ${codValido && onSelectShac
+               ? `<br/><button type="button" data-analizar-shac
+                     style="margin-top:6px;padding:4px 10px;border-radius:4px;
+                            background:#0e7490;color:#fff;font-size:12px;
+                            font-weight:600;cursor:pointer;border:none">
+                     Analizar sector
+                   </button>`
+               : ''}
            </div>`
         );
 
-        // Sin código no hay con qué consultar el sector, así que el clic no
-        // hace nada más que mostrar el popup.
+        // El botón se inyecta como HTML, así que el listener se engancha recién
+        // cuando el popup existe en el DOM. Se asigna con onclick y no con
+        // addEventListener porque popupopen se dispara en cada apertura y los
+        // listeners se irían acumulando sobre el mismo nodo.
         if (codValido && onSelectShac) {
-          layer.on('click', () => onSelectShac(name, cod));
+          layer.on('popupopen', (e) => {
+            const boton = e.popup.getElement()?.querySelector('[data-analizar-shac]');
+            if (boton) boton.onclick = () => onSelectShac(name, cod);
+          });
         }
       }}
     />

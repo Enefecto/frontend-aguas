@@ -6,7 +6,7 @@ import { getTiposTransmision, TIPO_TRANSMISION_LABEL } from "../../constants/tip
 // Caché global para evitar peticiones duplicadas
 const puntoInfoCache = new Map();
 
-export const PopupPunto = ({ punto, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarPunto, apiService }) => {
+export const PopupPunto = ({ punto, handleShowSidebarCuencas, handleShowSidebarSubcuencas, handleShowSidebarShac, handleShowSidebarPunto, apiService }) => {
   const [puntoInfo, setPuntoInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const hasFetchedRef = useRef(false);
@@ -115,6 +115,19 @@ export const PopupPunto = ({ punto, handleShowSidebarCuencas, handleShowSidebarS
         >
           {subcuencaNombre}
         </span>
+
+        {puntoInfo.sector_sha && puntoInfo.cod_sector_sha != null && (
+          <>
+            <span className="text-xs font-semibold text-gray-500">SHAC</span>
+            <span
+              onClick={() => handleShowSidebarShac(puntoInfo.sector_sha, puntoInfo.cod_sector_sha)}
+              className="font-medium underline underline-offset-2 cursor-pointer hover:opacity-70 transition-opacity"
+              style={{ color: accentColor }}
+            >
+              {puntoInfo.sector_sha}
+            </span>
+          </>
+        )}
 
         <span className="text-xs font-semibold text-gray-500">{geoLabel}</span>
         <span className="text-gray-900">{geoValue}</span>
