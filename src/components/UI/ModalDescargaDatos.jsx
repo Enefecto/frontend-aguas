@@ -100,7 +100,10 @@ export default function ModalDescargaDatos({ isOpen, onClose, codigoObra, apiSer
   const formatearNumero = (n) => (n ?? 0).toLocaleString('es-CL');
 
   return createPortal(
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+    // z por encima de todo lo que hay en la app: el navbar es z-[10001] y el
+    // overlay de carga del mapa z-[20000]. Con menos que eso, el modal queda
+    // tapado pese a estar portaleado al body.
+    <div className="fixed inset-0 z-[20001] flex items-center justify-center bg-black/50 p-4"
          onClick={onClose}>
       <div className="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg bg-white shadow-xl"
            onClick={(e) => e.stopPropagation()}>
