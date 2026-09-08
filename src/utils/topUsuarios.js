@@ -53,8 +53,8 @@ const cargar = () => {
 };
 
 /**
- * @param {'cuenca'|'subcuenca'} nivel
- * @param {number|string} codigo - Código de cuenca o subcuenca
+ * @param {'cuenca'|'subcuenca'|'shac'} nivel
+ * @param {number|string} codigo - Código de cuenca, subcuenca o sector SHAC
  * @returns {Promise<Array<{nombre: string, obras: number, reportes: number}>>}
  */
 export const obtenerTopUsuarios = async (nivel, codigo) => {

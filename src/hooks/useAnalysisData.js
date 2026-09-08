@@ -214,6 +214,22 @@ export const useAnalysisData = (apiService) => {
   });
 
   // Estados para análisis de subcuencas
+  // Estados de SHAC (sector hidrogeológico). Espeja los de cuenca: el panel es
+  // el mismo análisis aplicado a un sector en vez de a una cuenca.
+  const [shacAnalysis, setShacAnalysis] = useState({
+    nombreShac: '',
+    codigoShac: null
+  });
+  const [shacLoading, setShacLoading] = useState(false);
+  const [graphicsShacsLoading, setGraphicsShacsLoading] = useState({
+    caudal: UI_CONFIG.LOADING_STATES.IDLE,
+    nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
+  });
+  const [graficosShacsData, setGraficosShacsData] = useState({
+    caudal: { mensual: [], diario: [] },
+    nivel_freatico: { mensual: [], diario: [] }
+  });
+
   const [subcuencaAnalysis, setSubcuencaAnalysis] = useState({
     nombreSubcuenca: '',
     codigoSubcuenca: '',
@@ -337,6 +353,81 @@ export const useAnalysisData = (apiService) => {
         }
         setGraficosData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
         setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
+      });
+  };
+
+  const loadShacAnalysis = useCallback(async (nombreShac, codigoShac) => {
+    setShacAnalysis({ nombreShac, codigoShac });
+    setShacLoading(true);
+    setGraphicsShacsLoading({
+      caudal: UI_CONFIG.LOADING_STATES.IDLE,
+      nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
+    });
+
+    try {
+      // A diferencia de la cuenca, acá no hay que agregar varias filas: el
+      // endpoint ya devuelve el sector colapsado por obra.
+      const response = await apiService.getShacStats(codigoShac);
+      const data = response?.estadisticas;
+      if (!data) throw new Error('No se encontraron estadísticas para el SHAC');
+
+      setShacAnalysis(prev => ({
+        ...prev,
+        total_registros_con_caudal: data.total_mediciones,
+        obras_con_datos: data.obras_con_datos,
+        caudal_promedio: data.caudal_promedio,
+        caudal_minimo: data.caudal_minimo,
+        caudal_maximo: data.caudal_maximo,
+        caudal_total: data.caudal_total,
+        desviacion_estandar_caudal: data.caudal_desviacion_estandar ?? null
+      }));
+    } catch (err) {
+      console.error("Error al obtener datos del SHAC:", err);
+    } finally {
+      setShacLoading(false);
+    }
+  }, [apiService]);
+
+  const loadShacsGraphics = async (pozo = null) => {
+    setGraphicsShacsLoading({
+      caudal: UI_CONFIG.LOADING_STATES.LOADING,
+      nivel_freatico: UI_CONFIG.LOADING_STATES.LOADING
+    });
+
+    apiService.getShacSeriesTiempoCaudal(shacAnalysis.codigoShac, pozo)
+      .then(data => {
+        if (!data || !data.caudal_por_tiempo || data.caudal_por_tiempo.length < 2) {
+          setGraficosShacsData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
+          setGraphicsShacsLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
+          return;
+        }
+        setGraficosShacsData(prev => ({ ...prev, caudal: processSeriesTiempoData(data.caudal_por_tiempo, 'caudal') }));
+        setGraphicsShacsLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.SUCCESS }));
+      })
+      .catch(err => {
+        const isNoDataError = err.message?.includes('No se encontraron datos') ||
+                              err.response?.data?.detail?.includes('No se encontraron datos');
+        if (!isNoDataError) console.error("Error al obtener gráficos de caudal del SHAC:", err);
+        setGraficosShacsData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
+        setGraphicsShacsLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
+      });
+
+    apiService.getShacSeriesTiempoNivelFreatico(shacAnalysis.codigoShac, pozo)
+      .then(data => {
+        if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length < 2) {
+          setGraficosShacsData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
+          setGraphicsShacsLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
+          return;
+        }
+        setGraficosShacsData(prev => ({ ...prev, nivel_freatico: processSeriesTiempoData(data.nivel_por_tiempo, 'nivel_freatico') }));
+        setGraphicsShacsLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.SUCCESS }));
+      })
+      .catch(err => {
+        const isNoDataError = err.message?.includes('No se encontraron datos') ||
+                              err.response?.data?.detail?.includes('No se encontraron datos');
+        if (!isNoDataError) console.error("Error al obtener gráficos de nivel freático del SHAC:", err);
+        setGraficosShacsData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
+        setGraphicsShacsLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
       });
   };
 
@@ -493,6 +584,12 @@ export const useAnalysisData = (apiService) => {
     graphicsCuencasLoading,
     graficosData,
 
+    // Estados de SHAC
+    shacAnalysis,
+    shacLoading,
+    graphicsShacsLoading,
+    graficosShacsData,
+
     // Estados de subcuenca
     subcuencaAnalysis,
     subcuencaLoading,
@@ -510,6 +607,8 @@ export const useAnalysisData = (apiService) => {
     loadCuencasGraphics,
     loadSubcuencaAnalysis,
     loadSubcuencasGraphics,
+    loadShacAnalysis,
+    loadShacsGraphics,
     loadPuntoAnalysis,
     loadPuntosGraphics
   };

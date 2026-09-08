@@ -228,6 +228,12 @@ class ApiService {
     return this.request(qs ? `${API_ENDPOINTS.JUNTAS}?${qs}` : API_ENDPOINTS.JUNTAS);
   }
 
+  // Estadísticas agregadas del sector. No sale de Cuenca_Stats, que no conoce
+  // el SHAC, sino de una agregación sobre los puntos del sector.
+  async getShacStats(shac) {
+    return this.request(`${API_ENDPOINTS.SHACS_STATS}?shac=${encodeURIComponent(shac)}`);
+  }
+
   async getShacSeriesTiempoCaudal(shacIdentificador, pozo = null) {
     const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
     return this.request(`${API_ENDPOINTS.SHAC_SERIES_TIEMPO_CAUDAL}?shac_identificador=${shacIdentificador}${pozoParam}`);

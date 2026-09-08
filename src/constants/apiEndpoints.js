@@ -27,6 +27,7 @@ export const API_ENDPOINTS = {
 
   // Endpoints de SHAC
   SHACS: '/api/shacs',
+  SHACS_STATS: '/api/shacs/stats',
   SHAC_SERIES_TIEMPO_CAUDAL: '/api/cuencas/shac/series_de_tiempo/caudal',
   SHAC_SERIES_TIEMPO_ALTURA_LINIMETRICA: '/api/cuencas/shac/series_de_tiempo/altura_linimetrica',
   SHAC_SERIES_TIEMPO_NIVEL_FREATICO: '/api/cuencas/shac/series_de_tiempo/nivel_freatico',

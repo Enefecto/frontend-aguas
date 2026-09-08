@@ -3,6 +3,7 @@ import SidebarFiltros from '../sidebars/SidebarFiltros.jsx';
 import SidebarCuenca from '../sidebars/SidebarCuenca.jsx';
 import SidebarSubcuenca from '../sidebars/SidebarSubcuenca.jsx';
 import SidebarPunto from '../sidebars/SidebarPunto.jsx';
+import SidebarShac from '../sidebars/SidebarShac.jsx';
 import BotonAbrirSidebarFiltros from '../Buttons/BotonAbrirSidebarFiltros.jsx';
 
 export const SidebarManager = ({
@@ -15,6 +16,8 @@ export const SidebarManager = ({
   setRightSidebarAbiertoSubcuencas,
   rightSidebarAbiertoPunto,
   setRightSidebarAbiertoPunto,
+  rightSidebarAbiertoShac,
+  setRightSidebarAbiertoShac,
 
   // Props para SidebarFiltros
   filtros,
@@ -46,6 +49,13 @@ export const SidebarManager = ({
   graphicsCuencasLoading,
   graficosData,
   loadCuencasGraphics,
+
+  // Props para SidebarShac
+  shacAnalysis,
+  shacLoading,
+  graphicsShacsLoading,
+  graficosShacsData,
+  loadShacsGraphics,
 
   // Props para SidebarSubcuenca
   subcuencaAnalysis,
@@ -106,6 +116,18 @@ export const SidebarManager = ({
           graficosData={graficosData}
           setRightSidebarAbiertoCuencas={setRightSidebarAbiertoCuencas}
           loadCuencasGraphics={loadCuencasGraphics}
+          apiService={apiService}
+        />
+      )}
+
+      {rightSidebarAbiertoShac && (
+        <SidebarShac
+          shacAnalysis={shacAnalysis}
+          shacLoading={shacLoading}
+          graphicsShacsLoading={graphicsShacsLoading}
+          graficosShacsData={graficosShacsData}
+          setRightSidebarAbiertoShac={setRightSidebarAbiertoShac}
+          loadShacsGraphics={loadShacsGraphics}
           apiService={apiService}
         />
       )}

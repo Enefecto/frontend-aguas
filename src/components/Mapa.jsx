@@ -59,9 +59,12 @@ const MapaContent = () => {
     setRightSidebarAbiertoSubcuencas,
     rightSidebarAbiertoPunto,
     setRightSidebarAbiertoPunto,
+    rightSidebarAbiertoShac,
+    setRightSidebarAbiertoShac,
     openCuencaSidebar,
     openSubcuencaSidebar,
     openPuntoSidebar,
+    openShacSidebar,
 
     // Datos de análisis
     cuencaAnalysis,
@@ -70,6 +73,12 @@ const MapaContent = () => {
     graficosData,
     loadCuencaAnalysis,
     loadCuencasGraphics,
+    shacAnalysis,
+    shacLoading,
+    graphicsShacsLoading,
+    graficosShacsData,
+    loadShacAnalysis,
+    loadShacsGraphics,
     subcuencaAnalysis,
     subcuencaLoading,
     graphicsSubcuencasLoading,
@@ -114,6 +123,11 @@ const MapaContent = () => {
     loadCuencaAnalysis(nomCuenca, codCuenca);
   }, [openCuencaSidebar, loadCuencaAnalysis]);
 
+  const handleShowSidebarShac = React.useCallback((nombreShac, codigoShac) => {
+    openShacSidebar();
+    loadShacAnalysis(nombreShac, codigoShac);
+  }, [openShacSidebar, loadShacAnalysis]);
+
   const handleShowSidebarSubcuencas = React.useCallback((nomSubcuenca, codSubcuenca, codCuenca = null, nomCuenca = null) => {
     openSubcuencaSidebar();
     loadSubcuencaAnalysis(nomSubcuenca, codSubcuenca, codCuenca, nomCuenca);
@@ -155,6 +169,7 @@ const MapaContent = () => {
         handleShowSidebarCuencas={handleShowSidebarCuencas}
         handleShowSidebarSubcuencas={handleShowSidebarSubcuencas}
         handleShowSidebarPunto={handleShowSidebarPunto}
+        handleShowSidebarShac={handleShowSidebarShac}
         showShacLayer={showShacLayer}
       />
 
@@ -168,6 +183,8 @@ const MapaContent = () => {
         setRightSidebarAbiertoSubcuencas={setRightSidebarAbiertoSubcuencas}
         rightSidebarAbiertoPunto={rightSidebarAbiertoPunto}
         setRightSidebarAbiertoPunto={setRightSidebarAbiertoPunto}
+        rightSidebarAbiertoShac={rightSidebarAbiertoShac}
+        setRightSidebarAbiertoShac={setRightSidebarAbiertoShac}
 
         // Props para SidebarFiltros
         filtros={filtros}
@@ -192,6 +209,13 @@ const MapaContent = () => {
         juntasDisponibles={juntasDisponibles}
         showShacLayer={showShacLayer}
         setShowShacLayer={setShowShacLayer}
+
+        // Props para SidebarShac
+        shacAnalysis={shacAnalysis}
+        shacLoading={shacLoading}
+        graphicsShacsLoading={graphicsShacsLoading}
+        graficosShacsData={graficosShacsData}
+        loadShacsGraphics={loadShacsGraphics}
 
         // Props para SidebarCuenca
         cuencaAnalysis={cuencaAnalysis}

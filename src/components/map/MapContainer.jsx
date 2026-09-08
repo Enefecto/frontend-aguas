@@ -15,6 +15,7 @@ export const MapContainer = React.memo(({
   handleShowSidebarCuencas,
   handleShowSidebarSubcuencas,
   handleShowSidebarPunto,
+  handleShowSidebarShac,
   showShacLayer
 }) => {
   const [currentLayer, setCurrentLayer] = useState(MAP_CONFIG.DEFAULT_TILE_LAYER);
@@ -61,7 +62,7 @@ export const MapContainer = React.memo(({
         puntos={puntos}
       />
 
-      {showShacLayer && <ShacLayer />}
+      {showShacLayer && <ShacLayer onSelectShac={handleShowSidebarShac} />}
 
       <MarkerLayer
         puntos={puntos}

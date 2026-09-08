@@ -14,7 +14,7 @@ const STYLE = {
 let cached = null;
 let inflight = null;
 
-export const ShacLayer = () => {
+export const ShacLayer = ({ onSelectShac }) => {
   const [data, setData] = useState(cached);
 
   useEffect(() => {
@@ -51,14 +51,28 @@ export const ShacLayer = () => {
         const p = feature.properties || {};
         const name = p.SHAC || p.NOM_ACUIF || 'SHAC';
         const region = p.REGION || '';
-        const cod = p.COD_SHAC || '';
+        // Ojo: la llave contra la base NO es COD_SHAC. El geojson trae
+        // COD_SHAC como "SHAC-01-03-6" (etiqueta compuesta) mientras que
+        // dw.Puntos_Mapa usa COD_SECTOR_SHA numérico. El que corresponde es
+        // COD_BNA_SH ("0003" -> 3): verificado contra /api/shacs, casa por
+        // nombre en 247 de los 248 sectores.
+        const etiqueta = p.COD_SHAC || '';
+        const cod = Number.parseInt(p.COD_BNA_SH, 10);
+        const codValido = Number.isFinite(cod);
         layer.bindPopup(
           `<div style="font-size:12px;line-height:1.4">
              <strong>${name}</strong>
              ${region ? `<br/><span>${region}</span>` : ''}
-             ${cod ? `<br/><span style="color:#6b7280">${cod}</span>` : ''}
+             ${etiqueta ? `<br/><span style="color:#6b7280">${etiqueta}</span>` : ''}
+             ${codValido && onSelectShac ? '<br/><span style="color:#0e7490">Clic para analizar el sector</span>' : ''}
            </div>`
         );
+
+        // Sin código no hay con qué consultar el sector, así que el clic no
+        // hace nada más que mostrar el popup.
+        if (codValido && onSelectShac) {
+          layer.on('click', () => onSelectShac(name, cod));
+        }
       }}
     />
   );
