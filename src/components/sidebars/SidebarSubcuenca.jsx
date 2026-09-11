@@ -1,7 +1,7 @@
 import { TrophySpin } from 'react-loading-indicators';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
-import { EstadisticasPorTipo } from '../ui/EstadisticasPorTipo.jsx';
+import { SelectorTipoExtraccion, etiquetaTipoExtraccion } from '../UI/SelectorTipoExtraccion.jsx';
 import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import TimeSeriesChartPair from '../charts/TimeSeriesChartPair';
 import { useEffect, useState, useRef } from "react";
@@ -24,8 +24,9 @@ export default function SidebarSubcuenca({
   const [statsPorTipo, setStatsPorTipo] = useState(null);
   const [loadingStatsPorTipo, setLoadingStatsPorTipo] = useState(false);
   const [loadingUsuarios, setLoadingUsuarios] = useState(false);
-  // Sin opción "Todos": mezclar extracción superficial y subterránea en una
-  // misma serie no tiene sentido físico. Se arranca en superficial.
+  // Filtra el panel completo, no solo los gráficos: superficial y subterránea
+  // difieren en órdenes de magnitud y un resumen que las promedie no describe
+  // nada. Se arranca en superficial. Ver SelectorTipoExtraccion.
   const [filtroTipoExtraccion, setFiltroTipoExtraccion] = useState(false);
   const isInitialMount = useRef(true);
 
@@ -46,6 +47,14 @@ export default function SidebarSubcuenca({
       setIsOpen(true);
     }, 100);
   }, []);
+
+  // El bloque del tipo elegido. La API devuelve las dos claves siempre, con
+  // ceros cuando el grupo no tiene obras.
+  const statsTipo = statsPorTipo
+    ? statsPorTipo[filtroTipoExtraccion ? 'subterranea' : 'superficial']
+    : null;
+  const etiquetaTipo = etiquetaTipoExtraccion(filtroTipoExtraccion);
+  const sinObrasDelTipo = statsTipo != null && !statsTipo.obras_con_datos;
 
   // Cargar usuarios cuando se soliciten los gráficos
   useEffect(() => {
@@ -120,10 +129,18 @@ export default function SidebarSubcuenca({
         </h3>
       )}
 
+      {/* Primero de todo: gobierna el panel entero. */}
+      <SelectorTipoExtraccion
+        valor={filtroTipoExtraccion}
+        onChange={setFiltroTipoExtraccion}
+        disabled={subcuencaLoading}
+      />
+
       {/* Periodo de análisis */}
       {!subcuencaLoading && subcuencaAnalysis.primera_fecha_medicion && subcuencaAnalysis.ultima_fecha_medicion && (
         <p className="text-sm text-gray-600">
-          <strong>Periodo de análisis:</strong>{' '}
+          {/* No filtrado: stats_por_tipo no devuelve fechas. */}
+          <strong>Periodo de análisis</strong> <span className="text-gray-500">(toda la subcuenca)</span>:{' '}
           {new Date(subcuencaAnalysis.primera_fecha_medicion).toLocaleDateString('es-CL', {
             day: '2-digit',
             month: 'short',
@@ -140,42 +157,40 @@ export default function SidebarSubcuenca({
       {/* Estadísticos */}
       {!subcuencaLoading ? (
         <div className="space-y-4 pt-2">
-          <h3 className="text-base font-semibold text-gray-700">Análisis Estadístico</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
-            <EstadisticBox boxcolor="blue" label="Total de registros con caudal" value={subcuencaAnalysis.total_registros_con_caudal} />
-            <EstadisticBox boxcolor="green" label="Caudal promedio (L/s)" value={subcuencaAnalysis.caudal_promedio} />
-            <EstadisticBox boxcolor="yellow" label="Caudal mínimo (L/s)" value={subcuencaAnalysis.caudal_minimo} />
-            <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={subcuencaAnalysis.caudal_maximo} />
-            <EstadisticBox boxcolor="purple" label="Desviación estándar del caudal (L/s)" value={subcuencaAnalysis.desviacion_estandar_caudal} />
-          </div>
+          <h3 className="text-base font-semibold text-gray-700">
+            Análisis Estadístico —{' '}
+            <span className="text-cyan-800">{etiquetaTipo}</span>
+          </h3>
 
-          <h4 className="text-sm font-semibold text-gray-700 pt-2">Por tipo de extracción</h4>
-          <EstadisticasPorTipo stats={statsPorTipo} loading={loadingStatsPorTipo} />
+          {loadingStatsPorTipo ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-20 bg-gray-100 rounded-lg animate-pulse border" />
+              ))}
+            </div>
+          ) : sinObrasDelTipo ? (
+            <p className="text-sm text-gray-500">
+              Esta subcuenca no tiene obras con {etiquetaTipo} registrada.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
+              <EstadisticBox boxcolor="blue" label="Total de registros con caudal" value={statsTipo?.total_mediciones} />
+              <EstadisticBox boxcolor="cyan" label="N° de obras con datos" value={statsTipo?.obras_con_datos} />
+              <EstadisticBox boxcolor="cyan" label="Caudal total (L/s)" value={statsTipo?.caudal_total} />
+              <EstadisticBox boxcolor="green" label="Caudal promedio (L/s)" value={statsTipo?.caudal_promedio} />
+              <EstadisticBox boxcolor="yellow" label="Caudal mínimo (L/s)" value={statsTipo?.caudal_minimo} />
+              <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={statsTipo?.caudal_maximo} />
+              {/* "entre obras": dispersión del caudal promedio de una obra a otra
+                  dentro del tipo elegido, no de las mediciones individuales. */}
+              <EstadisticBox boxcolor="purple" label="Desviación estándar entre obras (L/s)" value={statsTipo?.caudal_desviacion_estandar} />
+            </div>
+          )}
         </div>
       ) : (
         <div className="space-y-2 mt-16 mx-auto flex justify-center">
           <TrophySpin color="#155e75" size="large" text="Cargando..." textColor="#000000" />
         </div>
       )}
-
-      {/* Filtro de Tipo de Extracción */}
-      <div className="mt-8 mb-2">
-        <h3 className="text-sm font-semibold text-gray-700 mb-2">Tipo de Extracción a graficar:</h3>
-        <div className="flex bg-gray-100 p-1 rounded-lg w-fit">
-          <button
-            onClick={() => setFiltroTipoExtraccion(false)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${filtroTipoExtraccion === false ? 'bg-white shadow-sm text-cyan-800' : 'text-gray-600 hover:text-gray-900'}`}
-          >
-            Superficial
-          </button>
-          <button
-            onClick={() => setFiltroTipoExtraccion(true)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${filtroTipoExtraccion === true ? 'bg-white shadow-sm text-cyan-800' : 'text-gray-600 hover:text-gray-900'}`}
-          >
-            Subterráneo
-          </button>
-        </div>
-      </div>
 
       {/* Botón cargar gráficos */}
       {graphicsSubcuencasLoading.caudal === 0 &&
@@ -196,7 +211,10 @@ export default function SidebarSubcuenca({
       {(graphicsSubcuencasLoading.caudal !== 0 ||
         graphicsSubcuencasLoading.nivel_freatico !== 0) && (
           <div className="space-y-10 mt-6 border-t pt-6">
-            <h3 className="text-lg font-semibold">Gráficos de Series de Tiempo</h3>
+            <h3 className="text-lg font-semibold">
+              Gráficos de Series de Tiempo —{' '}
+              <span className="text-cyan-800">{etiquetaTipo}</span>
+            </h3>
 
             {/* Gráficos de Caudal */}
             {graphicsSubcuencasLoading.caudal === 1 && (
@@ -281,7 +299,11 @@ export default function SidebarSubcuenca({
             {/* Top Usuarios */}
             {(topUsuarios.length > 0 || loadingUsuarios) && (
               <div className="mt-6 border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 text-gray-700">Top 10 Usuarios en la Subcuenca</h3>
+                {/* Sin filtrar por tipo: el archivo precalculado no agrupa por
+                    tipo de extracción. Se aclara para no confundirlo con el
+                    filtro de arriba. */}
+                <h3 className="text-lg font-semibold mb-1 text-gray-700">Top 10 Usuarios en la Subcuenca</h3>
+                <p className="text-xs text-gray-500 mb-4">Incluye los dos tipos de extracción.</p>
 
                 {loadingUsuarios ? (
                   <div className="flex items-center justify-center w-full h-[260px] md:h-80 lg:h-96 bg-gray-100 rounded-lg border">
