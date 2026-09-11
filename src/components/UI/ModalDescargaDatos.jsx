@@ -38,28 +38,56 @@ export default function ModalDescargaDatos({ isOpen, onClose, codigoObra, apiSer
       .catch(() => setError('No se pudo cargar el catálogo de columnas.'));
   }, [isOpen, catalogo, apiService]);
 
-  // El preview se rearma cuando cambian las fechas o las columnas. El debounce
-  // evita disparar una consulta por cada checkbox que el usuario toca: cada
-  // preview es hoy un scan de la tabla base.
+  // Una sola consulta por obra. Antes el preview se rearmaba con cada checkbox
+  // y cada cambio de fecha, y cada preview es un scan de la tabla base: el
+  // diálogo se sentía lento por algo que no hacía falta preguntar de nuevo.
+  //
+  // Se piden TODAS las columnas y sin filtro de fecha. Mostrar u ocultar
+  // columnas pasa a ser recorte en el navegador, y el rango de fechas solo
+  // afecta al archivo. Por eso la tabla avisa que no está filtrada por fecha.
   useEffect(() => {
-    if (!isOpen || !codigoObra || !seleccionadas.length || !apiService) return;
-
+    if (!isOpen || !codigoObra || !catalogo || !apiService) return;
+    let vigente = true;
     setCargandoPreview(true);
     setError(null);
-    const id = setTimeout(() => {
-      apiService.getPreviewDescarga({
-        codigoObra,
-        fechaInicio: fechaInicio || null,
-        fechaFin: fechaFin || null,
-        columnas: seleccionadas,
-      })
-        .then(setPreview)
-        .catch(() => setError('No se pudo obtener la vista previa de los datos.'))
-        .finally(() => setCargandoPreview(false));
-    }, 400);
+    apiService.getPreviewDescarga({
+      codigoObra,
+      fechaInicio: null,
+      fechaFin: null,
+      columnas: catalogo.columnas.map((col) => col.clave),
+    })
+      .then((data) => { if (vigente) setPreview(data); })
+      .catch(() => { if (vigente) setError('No se pudo obtener la vista previa de los datos.'); })
+      .finally(() => { if (vigente) setCargandoPreview(false); });
+    return () => { vigente = false; };
+  }, [isOpen, codigoObra, catalogo, apiService]);
 
-    return () => clearTimeout(id);
-  }, [isOpen, codigoObra, seleccionadas, fechaInicio, fechaFin, apiService]);
+  // El selector de fechas arranca cubriendo todas las mediciones de la obra, que
+  // es lo que el usuario espera al abrir el diálogo. La API devuelve datetime y
+  // el input necesita YYYY-MM-DD.
+  const soloDia = (valor) => (valor ? String(valor).slice(0, 10) : '');
+  const primeraFecha = soloDia(preview?.rango_fechas?.primera);
+  const ultimaFecha = soloDia(preview?.rango_fechas?.ultima);
+
+  useEffect(() => {
+    if (!primeraFecha || !ultimaFecha) return;
+    setFechaInicio(primeraFecha);
+    setFechaFin(ultimaFecha);
+  }, [primeraFecha, ultimaFecha]);
+
+  // Si el rango sigue cubriendo todo, total_filas —que se midió sin filtro de
+  // fecha— es exacto. Si el usuario lo acotó, pasa a ser un techo, y el pie del
+  // diálogo lo dice en vez de prometer un número que no se va a cumplir.
+  const rangoCompleto =
+    !primeraFecha || (fechaInicio === primeraFecha && fechaFin === ultimaFecha);
+
+  // Al cerrar se limpia, así la próxima obra no hereda ni el preview ni el rango.
+  useEffect(() => {
+    if (isOpen) return;
+    setPreview(null);
+    setFechaInicio('');
+    setFechaFin('');
+  }, [isOpen]);
 
   const grupos = useMemo(() => {
     if (!catalogo) return [];
@@ -76,6 +104,13 @@ export default function ModalDescargaDatos({ isOpen, onClose, codigoObra, apiSer
   const filasQueSeDescargan = formato === 'excel' && excedeExcel
     ? limiteExcel
     : preview?.total_filas ?? 0;
+
+  // El preview trae todas las columnas; acá se recortan a las elegidas. El
+  // orden lo fija el preview, que es el mismo del catálogo y el del archivo.
+  const columnasVisibles = useMemo(
+    () => (preview?.columnas ?? []).filter((col) => seleccionadas.includes(col.clave)),
+    [preview, seleccionadas]
+  );
 
   const alternarColumna = (clave) => {
     setSeleccionadas((previas) => previas.includes(clave)
@@ -162,31 +197,44 @@ export default function ModalDescargaDatos({ isOpen, onClose, codigoObra, apiSer
             </div>
           )}
 
+          {/* Rango disponible, informado aparte del selector: es el dato que
+              contesta "¿qué hay para esta obra?" antes de tocar nada. */}
+          {primeraFecha && (
+            <p className="mb-5 rounded border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm text-cyan-900">
+              Esta obra tiene <strong>{formatearNumero(preview?.total_filas)}</strong> mediciones,
+              entre el <strong>{primeraFecha}</strong> y el <strong>{ultimaFecha}</strong>.
+            </p>
+          )}
+
           {/* Filtro de fechas */}
           <section className="mb-5">
             <h3 className="mb-2 font-semibold text-gray-800">Rango de fechas</h3>
             <div className="flex flex-wrap items-end gap-3">
               <label className="text-sm text-gray-700">
                 <span className="mb-1 block">Desde</span>
-                <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)}
+                <input type="date" value={fechaInicio} min={primeraFecha} max={ultimaFecha}
+                       onChange={(e) => setFechaInicio(e.target.value)}
                        className="rounded border border-gray-300 px-2 py-1 text-sm" />
               </label>
               <label className="text-sm text-gray-700">
                 <span className="mb-1 block">Hasta</span>
-                <input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)}
+                <input type="date" value={fechaFin} min={primeraFecha} max={ultimaFecha}
+                       onChange={(e) => setFechaFin(e.target.value)}
                        className="rounded border border-gray-300 px-2 py-1 text-sm" />
               </label>
-              {(fechaInicio || fechaFin) && (
-                <button type="button" onClick={() => { setFechaInicio(''); setFechaFin(''); }}
+              {!rangoCompleto && primeraFecha && (
+                <button type="button"
+                        onClick={() => { setFechaInicio(primeraFecha); setFechaFin(ultimaFecha); }}
                         className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50">
-                  Limpiar
+                  Todo el periodo
                 </button>
               )}
             </div>
-            {preview?.rango_fechas?.primera && (
+            {primeraFecha && (
               <p className="mt-2 text-xs text-gray-500">
-                Datos disponibles entre {preview.rango_fechas.primera} y {preview.rango_fechas.ultima}.
-                Si no eligés un rango, se descarga todo.
+                {rangoCompleto
+                  ? 'Arranca cubriendo todas las mediciones de la obra. Acotá el rango si querés menos.'
+                  : 'Rango acotado: el archivo traerá solo las mediciones de estas fechas.'}
               </p>
             )}
           </section>
@@ -230,24 +278,32 @@ export default function ModalDescargaDatos({ isOpen, onClose, codigoObra, apiSer
 
           {/* Vista previa */}
           <section className="mb-5">
-            <h3 className="mb-2 font-semibold text-gray-800">
+            <h3 className="mb-1 font-semibold text-gray-800">
               Vista previa
               <span className="ml-2 text-sm font-normal text-gray-500">
                 (primeras {preview?.filas?.length ?? 10} filas)
               </span>
             </h3>
+            <p className="mb-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              La vista previa <strong>no aplica el rango de fechas</strong>: muestra las primeras
+              filas de la obra para que se vean las columnas elegidas.{' '}
+              <strong>El archivo descargado sí respeta el rango.</strong>
+            </p>
             {cargandoPreview && <p className="text-sm text-gray-500">Cargando vista previa…</p>}
             {!cargandoPreview && preview?.filas?.length === 0 && (
               <p className="text-sm text-gray-600">
-                No hay mediciones para esta obra en el rango seleccionado.
+                Esta obra no tiene mediciones registradas.
               </p>
             )}
-            {!cargandoPreview && preview?.filas?.length > 0 && (
+            {!cargandoPreview && preview?.filas?.length > 0 && columnasVisibles.length === 0 && (
+              <p className="text-sm text-gray-600">Elegí al menos una columna para previsualizar.</p>
+            )}
+            {!cargandoPreview && preview?.filas?.length > 0 && columnasVisibles.length > 0 && (
               <div className="overflow-x-auto rounded border border-gray-200">
                 <table className="min-w-full text-left text-sm">
                   <thead className="bg-gray-50">
                     <tr>
-                      {preview.columnas.map((col) => (
+                      {columnasVisibles.map((col) => (
                         <th key={col.clave} className="whitespace-nowrap px-3 py-2 font-semibold text-gray-700">
                           {col.etiqueta}
                         </th>
@@ -257,7 +313,7 @@ export default function ModalDescargaDatos({ isOpen, onClose, codigoObra, apiSer
                   <tbody>
                     {preview.filas.map((fila, i) => (
                       <tr key={i} className="border-t border-gray-100">
-                        {preview.columnas.map((col) => (
+                        {columnasVisibles.map((col) => (
                           <td key={col.clave} className="whitespace-nowrap px-3 py-1.5 text-gray-600">
                             {fila[col.etiqueta] ?? '—'}
                           </td>
@@ -314,8 +370,12 @@ export default function ModalDescargaDatos({ isOpen, onClose, codigoObra, apiSer
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 p-5">
           <p className="text-sm text-gray-600">
             {preview
-              ? <>Se descargarán <strong>{formatearNumero(filasQueSeDescargan)}</strong> filas
-                  {' '}× {seleccionadas.length} columnas</>
+              ? <>Se descargarán {rangoCompleto ? '' : 'hasta '}
+                  <strong>{formatearNumero(filasQueSeDescargan)}</strong> filas
+                  {' '}× {seleccionadas.length} columnas
+                  {!rangoCompleto && (
+                    <span className="text-gray-500"> (el total es de toda la obra; el rango recorta)</span>
+                  )}</>
               : 'Calculando el tamaño de la descarga…'}
           </p>
           <div className="flex gap-2">
