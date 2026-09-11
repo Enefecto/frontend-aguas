@@ -35,9 +35,9 @@ export default function SidebarShac({
       setLoadingUsuarios(true);
 
       // Usuarios, no informantes: el informante carga la medición, el usuario
-      // es el titular del derecho. Vienen de un archivo precalculado y ya
-      // ordenado por número de obras (cat. 3.8); no se reordena acá.
-      obtenerTopUsuarios('shac', shacAnalysis.codigoShac)
+      // es el titular del derecho. La API los devuelve ya ordenados por número
+      // de obras (cat. 3.8); no se reordena acá.
+      obtenerTopUsuarios('shac', shacAnalysis.codigoShac, apiService)
         .then(data => {
           setTopUsuarios(data || []);
         })

@@ -253,6 +253,14 @@ class ApiService {
     return this.request(`${API_ENDPOINTS.SHAC_SERIES_TIEMPO_NIVEL_FREATICO}?shac_identificador=${shacIdentificador}${pozoParam}`);
   }
 
+  // Métodos para usuarios (titulares de derechos)
+  async getTopUsuarios(nivel, codigo) {
+    // El parámetro depende del nivel: la API acepta exactamente uno.
+    const parametro = { cuenca: 'cod_cuenca', subcuenca: 'cod_subcuenca', shac: 'shac' }[nivel];
+    if (!parametro) throw new Error(`Nivel de usuarios no reconocido: ${nivel}`);
+    return this.request(`${API_ENDPOINTS.USUARIOS_TOP}?${parametro}=${encodeURIComponent(codigo)}`);
+  }
+
   // Métodos para informantes
   async getInformantes(params = {}) {
     const queryParams = new URLSearchParams();

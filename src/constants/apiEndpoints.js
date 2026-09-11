@@ -26,6 +26,9 @@ export const API_ENDPOINTS = {
   PUNTOS_SERIES_TIEMPO_ALTURA_LIMNIMETRICA: '/api/puntos/series_de_tiempo/altura_linimetrica',
   PUNTOS_EXTRACCION_ANUAL: '/api/puntos/extraccion_anual',
 
+  // Endpoint de usuarios (titulares de derechos)
+  USUARIOS_TOP: '/api/usuarios/top',
+
   // Endpoints de SHAC
   SHACS: '/api/shacs',
   SHACS_STATS: '/api/shacs/stats',

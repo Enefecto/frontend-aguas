@@ -1,70 +1,39 @@
 /**
- * Top 10 de usuarios por cuenca y subcuenca.
+ * Top 10 de usuarios por cuenca, subcuenca y SHAC.
  *
- * El gráfico decía "Top 10 Usuarios" pero mostraba informantes, que no es lo
- * mismo: el informante carga la medición, el usuario es el titular del derecho.
- * En la cuenca 101 el primer informante aparecía con 282.900 reportes, que son
- * exactamente las mediciones de Celulosa Arauco y Constitución S.A. El gráfico
- * nombraba a quien aprieta el botón, no a quien tiene el agua.
+ * Usuarios, no informantes: el informante carga la medición, el usuario es el
+ * titular del derecho. En la cuenca 101 el primer informante aparecía con
+ * 282.900 reportes, que son exactamente las mediciones de Celulosa Arauco y
+ * Constitución S.A. El gráfico nombraba a quien aprieta el botón, no a quien
+ * tiene el agua.
  *
- * El dato de usuario vive en `dw.Mediciones_full` y no hay dónde consultarlo
- * rápido: ni `dw.Puntos_Mapa` ni `dw.Informante` traen columnas de usuario, y
- * sin índice por cuenca cada agregación escanea 71,8 millones de filas — unos
- * cuatro minutos por cuenca. Así que se precalcula con
- * `Backend_aguas_cloud/scripts/generar_top_usuarios.py` y acá solo se lee.
+ * Antes esto leía `/datos/top_usuarios.json`, un archivo precalculado por
+ * `Backend_aguas_cloud/scripts/generar_top_usuarios.py`, porque el nombre del
+ * titular solo vivía en `dw.Mediciones_full` y agregarlo por cuenca escaneaba
+ * 71,8 M de filas. Ese archivo caducaba en silencio: si nadie re-corría el
+ * script después de una carga del DW, el panel mostraba datos viejos sin avisar.
  *
- * El archivo se descarga una vez por sesión, y recién cuando alguien pide los
- * gráficos de una cuenca. No entra en el bundle.
- *
- * Es un parche consciente: el arreglo de fondo es que el pipeline publique una
- * `dw.Usuario` o agregue las columnas a `dw.Puntos_Mapa`.
+ * Ahora lo sirve la API desde `dw.Usuario_Obra` —6.578 filas, con índice por
+ * nivel— así que lo que se muestra es siempre lo que dice la base. Ojo que esa
+ * tabla la reconstruye `Backend_aguas_cloud/sql/dw_usuario.sql` y el pipeline no
+ * la toca: si no se re-corre después de una carga del DW, queda vieja.
  */
-
-const URL_DATOS = '/datos/top_usuarios.json';
-
-let cache = null;
-let enVuelo = null;
-
-/**
- * Descarga el archivo una sola vez y lo deja en memoria.
- * @returns {Promise<object|null>} null si no se pudo cargar
- */
-const cargar = () => {
-  if (cache) return Promise.resolve(cache);
-  if (!enVuelo) {
-    enVuelo = fetch(URL_DATOS)
-      .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then(json => {
-        cache = json;
-        return json;
-      })
-      .catch(err => {
-        // Que falte el archivo no debe romper el panel: el resto de los
-        // gráficos no depende de esto.
-        console.error('No se pudo cargar el top de usuarios:', err);
-        enVuelo = null;
-        return null;
-      });
-  }
-  return enVuelo;
-};
 
 /**
  * @param {'cuenca'|'subcuenca'|'shac'} nivel
  * @param {number|string} codigo - Código de cuenca, subcuenca o sector SHAC
+ * @param {object} apiService
  * @returns {Promise<Array<{nombre: string, obras: number, reportes: number}>>}
  */
-export const obtenerTopUsuarios = async (nivel, codigo) => {
-  if (codigo == null) return [];
-  const datos = await cargar();
-  return datos?.[nivel]?.[String(codigo)] ?? [];
+export const obtenerTopUsuarios = async (nivel, codigo, apiService) => {
+  if (codigo == null || !apiService) return [];
+  try {
+    const data = await apiService.getTopUsuarios(nivel, codigo);
+    return data?.usuarios ?? [];
+  } catch (err) {
+    // Que falle esto no debe romper el panel: el resto de los gráficos no
+    // depende del top de usuarios.
+    console.error('No se pudo cargar el top de usuarios:', err);
+    return [];
+  }
 };
-
-/**
- * Fecha en que se generó el archivo, para poder mostrarla o auditarla.
- * @returns {Promise<string|null>}
- */
-export const fechaTopUsuarios = async () => (await cargar())?.generado ?? null;

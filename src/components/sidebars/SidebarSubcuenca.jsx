@@ -63,9 +63,9 @@ export default function SidebarSubcuenca({
       setLoadingUsuarios(true);
 
       // Usuarios, no informantes: el informante carga la medición, el usuario
-      // es el titular del derecho. Vienen de un archivo precalculado y ya
-      // ordenado por número de obras (cat. 3.8); no se reordena acá.
-      obtenerTopUsuarios('subcuenca', subcuencaAnalysis.codigoSubcuenca)
+      // es el titular del derecho. La API los devuelve ya ordenados por número
+      // de obras (cat. 3.8); no se reordena acá.
+      obtenerTopUsuarios('subcuenca', subcuencaAnalysis.codigoSubcuenca, apiService)
         .then(data => {
           setTopUsuarios(data || []);
         })
@@ -299,8 +299,8 @@ export default function SidebarSubcuenca({
             {/* Top Usuarios */}
             {(topUsuarios.length > 0 || loadingUsuarios) && (
               <div className="mt-6 border-t pt-6">
-                {/* Sin filtrar por tipo: el archivo precalculado no agrupa por
-                    tipo de extracción. Se aclara para no confundirlo con el
+                {/* Sin filtrar por tipo: dw.Usuario_Obra no arrastra
+                    es_pozo_subterraneo. Se aclara para no confundirlo con el
                     filtro de arriba. */}
                 <h3 className="text-lg font-semibold mb-1 text-gray-700">Top 10 Usuarios en la Subcuenca</h3>
                 <p className="text-xs text-gray-500 mb-4">Incluye los dos tipos de extracción.</p>
