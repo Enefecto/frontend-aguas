@@ -205,6 +205,10 @@ class ApiService {
     return this.request(`${API_ENDPOINTS.PUNTOS_SERIES_TIEMPO_ALTURA_LIMNIMETRICA}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
   }
 
+  async getPuntoExtraccionAnual(utmNorte, utmEste) {
+    return this.request(`${API_ENDPOINTS.PUNTOS_EXTRACCION_ANUAL}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
+  }
+
   async getPuntoDerechos(utmNorte, utmEste) {
     return this.request(`${API_ENDPOINTS.PUNTOS_DERECHOS}?utm_norte=${utmNorte}&utm_este=${utmEste}`);
   }

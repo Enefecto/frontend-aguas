@@ -4,18 +4,23 @@ import {
   CartesianGrid, Tooltip, Legend, ReferenceLine
 } from 'recharts';
 import { formatNumberCL } from '../../utils/formatNumberCL';
-import {
-  MESES,
-  SEGUNDOS_POR_MES,
-  SEGUNDOS_POR_AÑO,
-  SEGUNDOS_POR_AÑO_BISIESTO,
-  esBisiesto,
-} from '../../utils/timeConstants';
+import { MESES, SEGUNDOS_POR_MES } from '../../utils/timeConstants';
 
 const NUM_ES = new Intl.NumberFormat('es-CL', { maximumFractionDigits: 0 });
 
+// Por qué un año puede quedar sin extracción. El backend manda la clave; acá
+// se traduce para el tooltip, porque un "-" sin explicación se lee como
+// "no extrajo agua", que es justo lo contrario de lo que significa.
+const MOTIVOS = {
+  reinicio_o_cambio_flujometro:
+    'El totalizador terminó el año más abajo de lo que empezó: hubo cambio de flujómetro o un reinicio a cero.',
+  sin_avance: 'El totalizador no avanzó en el año.',
+  lectura_unica: 'Solo hay una lectura de totalizador en el año.',
+  sin_lectura: 'No hay lecturas de totalizador en el año.',
+};
+
 const ExtraccionesVsPermitidoChart = memo(function ExtraccionesVsPermitidoChart({
-  caudalData = [],
+  extraccionAnual = [],
   caudalMensual = null,
   volumenAnual = null,
 }) {
@@ -33,55 +38,54 @@ const ExtraccionesVsPermitidoChart = memo(function ExtraccionesVsPermitidoChart(
     return any ? total : null;
   }, [caudalMensual, volumenAnual]);
 
-  const dataAnual = useMemo(() => {
-    if (!caudalData || caudalData.length === 0) return [];
-    const yearMap = {};
-    for (const item of caudalData) {
-      const valor = Number(item.caudal);
-      if (!Number.isFinite(valor) || valor <= 0) continue;
-      const fecha = new Date(item.fecha_medicion);
-      if (Number.isNaN(fecha.getTime())) continue;
-      const año = fecha.getUTCFullYear();
-      const monthIdx = fecha.getUTCMonth();
-      if (!yearMap[año]) yearMap[año] = {};
-      if (!yearMap[año][monthIdx]) yearMap[año][monthIdx] = [];
-      yearMap[año][monthIdx].push(valor);
-    }
+  // La extracción anual la calcula la API desde el totalizador (último del año
+  // menos el primero, solo si avanzó). Acá no se recalcula nada: los años sin
+  // valor llegan en null y Recharts no dibuja barra, que es el "-" que pidió
+  // la observación 6.4.
+  const dataAnual = useMemo(
+    () =>
+      (extraccionAnual || [])
+        .map(r => ({
+          año: r.anio,
+          extraccion: r.extraccion_litros,
+          motivo: r.motivo_sin_dato,
+          totalizadorInicial: r.totalizador_inicial,
+          totalizadorFinal: r.totalizador_final,
+        }))
+        .sort((a, b) => a.año - b.año),
+    [extraccionAnual]
+  );
 
-    return Object.keys(yearMap)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .map(año => {
-        const byMonth = yearMap[año];
-        const monthIdxs = Object.keys(byMonth).map(Number);
-        const monthAvgs = monthIdxs.map(mi => {
-          const arr = byMonth[mi];
-          return arr.reduce((s, v) => s + v, 0) / arr.length;
-        });
-
-        const promMensual = monthAvgs.reduce((s, v) => s + v, 0) / monthAvgs.length;
-        const segAño = esBisiesto(año) ? SEGUNDOS_POR_AÑO_BISIESTO : SEGUNDOS_POR_AÑO;
-        const promedioAnual = promMensual * segAño;
-
-        return {
-          año,
-          promedio: Math.round(promedioAnual),
-        };
-      });
-  }, [caudalData]);
+  const añosSinDato = useMemo(
+    () => dataAnual.filter(d => d.extraccion == null).length,
+    [dataAnual]
+  );
 
   const CustomTooltip = useCallback(({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
+    const fila = payload[0]?.payload;
+    if (!fila) return null;
     return (
-      <div className="bg-white p-2 border rounded shadow text-xs">
+      <div className="bg-white p-2 border rounded shadow text-xs max-w-[16rem]">
         <p className="font-semibold mb-1">Año {label}</p>
-        {payload.map(p => (
-          <p key={p.dataKey} style={{ color: p.color }}>
-            {p.name}: {formatNumberCL(p.value)} L
+        {fila.extraccion != null ? (
+          <p style={{ color: '#a78bfa' }}>
+            Extracción: {formatNumberCL(Math.round(fila.extraccion))} L
           </p>
-        ))}
+        ) : (
+          <>
+            <p className="text-gray-600">Extracción: -</p>
+            <p className="text-gray-500 mt-1">{MOTIVOS[fila.motivo] ?? 'Sin dato.'}</p>
+          </>
+        )}
+        {fila.totalizadorInicial != null && fila.totalizadorFinal != null && (
+          <p className="text-gray-400 mt-1">
+            Totalizador: {formatNumberCL(Math.round(fila.totalizadorInicial))} →{' '}
+            {formatNumberCL(Math.round(fila.totalizadorFinal))} m³
+          </p>
+        )}
         {permitidoLitros != null && (
-          <p style={{ color: '#16a34a' }}>
+          <p style={{ color: '#16a34a' }} className="mt-1">
             Permitido: {formatNumberCL(Math.round(permitidoLitros))} L
           </p>
         )}
@@ -89,8 +93,12 @@ const ExtraccionesVsPermitidoChart = memo(function ExtraccionesVsPermitidoChart(
     );
   }, [permitidoLitros]);
 
-  if (!caudalData || caudalData.length === 0) {
-    return <p className="text-sm text-gray-500">Sin datos de extracciones medidas.</p>;
+  if (dataAnual.length === 0) {
+    return (
+      <p className="text-sm text-gray-500">
+        Sin lecturas de totalizador: no se puede calcular la extracción anual.
+      </p>
+    );
   }
 
   return (
@@ -119,7 +127,7 @@ const ExtraccionesVsPermitidoChart = memo(function ExtraccionesVsPermitidoChart(
             />
             <Tooltip content={CustomTooltip} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Bar dataKey="promedio" name="Promedio anual" fill="#a78bfa" />
+            <Bar dataKey="extraccion" name="Extracción anual" fill="#a78bfa" />
             {permitidoLitros != null && (
               <ReferenceLine
                 y={permitidoLitros}
@@ -137,6 +145,20 @@ const ExtraccionesVsPermitidoChart = memo(function ExtraccionesVsPermitidoChart(
           </ComposedChart>
         </ResponsiveContainer>
       </div>
+
+      <p className="text-[11px] text-gray-500 mt-2">
+        Calculada desde el totalizador: última lectura del año menos la primera, solo si el
+        contador avanzó.
+        {añosSinDato > 0 && (
+          <>
+            {' '}
+            {añosSinDato === 1
+              ? 'Hay 1 año sin barra'
+              : `Hay ${añosSinDato} años sin barra`}{' '}
+            por cambio de flujómetro, reinicio a cero o falta de lecturas.
+          </>
+        )}
+      </p>
     </div>
   );
 });

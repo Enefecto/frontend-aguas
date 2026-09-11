@@ -16,6 +16,7 @@ export default function DerechosTab({
   loadPuntosGraphics,
 }) {
   const [derechos, setDerechos] = useState(null);
+  const [extraccionAnual, setExtraccionAnual] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tooltipMes, setTooltipMes] = useState(null);
@@ -36,6 +37,17 @@ export default function DerechosTab({
       })
       .finally(() => setLoading(false));
   }, [punto?.utm_norte, punto?.utm_este, apiService]);
+
+  // La extracción anual se pide junto con los gráficos y no al abrir la
+  // pestaña: solo la usa el gráfico, que está detrás del botón de carga.
+  useEffect(() => {
+    if (!graficosListos || !punto?.utm_norte || !punto?.utm_este || !apiService) return;
+    let vigente = true;
+    apiService.getPuntoExtraccionAnual(punto.utm_norte, punto.utm_este)
+      .then(data => { if (vigente) setExtraccionAnual(data?.extraccion_anual ?? []); })
+      .catch(() => { if (vigente) setExtraccionAnual([]); });
+    return () => { vigente = false; };
+  }, [graficosListos, punto?.utm_norte, punto?.utm_este, apiService]);
 
   if (loading) {
     return (
@@ -165,7 +177,7 @@ export default function DerechosTab({
             unidad="L/s"
           />
           <ExtraccionesVsPermitidoChart
-            caudalData={caudalData}
+            extraccionAnual={extraccionAnual}
             caudalMensual={derechos.caudal_mensual}
             volumenAnual={derechos.volumen_anual}
           />
