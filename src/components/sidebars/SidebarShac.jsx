@@ -1,10 +1,9 @@
 import { TrophySpin } from 'react-loading-indicators';
 import { ButtonOpenCloseSidebar } from '../Buttons/ButtonOpenCloseSidebar';
 import { EstadisticBox } from '../UI/EstadisticBox';
-import { EstadisticasPorTipo } from '../ui/EstadisticasPorTipo.jsx';
 import { GraphicsLoadingSkeleton } from '../UI/ChartSkeleton';
 import TimeSeriesChartPair from '../charts/TimeSeriesChartPair';
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import ApiService from '../../services/apiService';
 import { obtenerTopUsuarios } from '../../utils/topUsuarios.js';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -21,50 +20,13 @@ export default function SidebarShac({
 
   const [isOpen, setIsOpen] = useState(false);
   const [topUsuarios, setTopUsuarios] = useState([]);
-  const [statsPorTipo, setStatsPorTipo] = useState(null);
-  const [loadingStatsPorTipo, setLoadingStatsPorTipo] = useState(false);
   const [loadingUsuarios, setLoadingUsuarios] = useState(false);
-  // Sin opción "Todos": mezclar extracción superficial y subterránea en una
-  // misma serie no tiene sentido físico. A diferencia de cuenca, acá se arranca
-  // en subterráneo: un SHAC es un sector de acuífero y la observación 4.8 lo
-  // pidió justamente "para aguas subterráneas".
-  const [filtroTipoExtraccion, setFiltroTipoExtraccion] = useState(true);
-  const isInitialMount = useRef(true);
-
-  // Recargar gráficos si cambia el filtro y ya estaban cargados/cargándose
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    if (graphicsShacsLoading.caudal !== 0 || graphicsShacsLoading.nivel_freatico !== 0) {
-      loadShacsGraphics(filtroTipoExtraccion);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtroTipoExtraccion]);
 
   useEffect(() => {
     setTimeout(() => {
       setIsOpen(true);
     }, 100);
   }, []);
-
-  // Estadísticas separadas por tipo de extracción, igual que en cuenca
-  useEffect(() => {
-    const codigo = shacAnalysis?.codigoShac;
-    if (!codigo || !apiService) {
-      setStatsPorTipo(null);
-      return;
-    }
-    let vigente = true;
-    setLoadingStatsPorTipo(true);
-    apiService.getCuencasStatsPorTipo({ shac: codigo })
-      .then(data => { if (vigente) setStatsPorTipo(data); })
-      .catch(() => { if (vigente) setStatsPorTipo(null); })
-      .finally(() => { if (vigente) setLoadingStatsPorTipo(false); });
-    // Una respuesta vieja no debe pisar la del sector que se está mirando
-    return () => { vigente = false; };
-  }, [shacAnalysis?.codigoShac, apiService]);
 
   // Cargar usuarios cuando se soliciten los gráficos
   useEffect(() => {
@@ -123,6 +85,10 @@ export default function SidebarShac({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
             <EstadisticBox boxcolor="blue" label="Total de registros con caudal" value={shacAnalysis.total_registros_con_caudal} />
             <EstadisticBox boxcolor="cyan" label="N° de obras con datos" value={shacAnalysis.obras_con_datos} />
+            {/* Suma de los caudales promedio de cada obra del sector, que es lo
+                que pide la observación 3.3. Venía en /shacs/stats desde el
+                principio pero no se mostraba en ninguna parte. */}
+            <EstadisticBox boxcolor="cyan" label="Caudal total (L/s)" value={shacAnalysis.caudal_total} />
             <EstadisticBox boxcolor="green" label="Caudal promedio (L/s)" value={shacAnalysis.caudal_promedio} />
             <EstadisticBox boxcolor="yellow" label="Caudal mínimo (L/s)" value={shacAnalysis.caudal_minimo} />
             <EstadisticBox boxcolor="red" label="Caudal máximo (L/s)" value={shacAnalysis.caudal_maximo} />
@@ -132,9 +98,6 @@ export default function SidebarShac({
                 reconstruir desde una tabla ya agregada por punto. */}
             <EstadisticBox boxcolor="purple" label="Desviación estándar entre obras (L/s)" value={shacAnalysis.desviacion_estandar_caudal} />
           </div>
-
-          <h4 className="text-sm font-semibold text-gray-700 pt-2">Por tipo de extracción</h4>
-          <EstadisticasPorTipo stats={statsPorTipo} loading={loadingStatsPorTipo} />
         </div>
       ) : (
         <div className="space-y-2 mt-16 mx-auto flex justify-center">
@@ -142,30 +105,13 @@ export default function SidebarShac({
         </div>
       )}
 
-      {/* Filtro de Tipo de Extracción */}
-      <div className="mt-8 mb-2">
-        <h3 className="text-sm font-semibold text-gray-700 mb-2">Tipo de Extracción a graficar:</h3>
-        <div className="flex bg-gray-100 p-1 rounded-lg w-fit">
-          <button
-            onClick={() => setFiltroTipoExtraccion(false)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${filtroTipoExtraccion === false ? 'bg-white shadow-sm text-cyan-800' : 'text-gray-600 hover:text-gray-900'}`}
-          >
-            Superficial
-          </button>
-          <button
-            onClick={() => setFiltroTipoExtraccion(true)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${filtroTipoExtraccion === true ? 'bg-white shadow-sm text-cyan-800' : 'text-gray-600 hover:text-gray-900'}`}
-          >
-            Subterráneo
-          </button>
-        </div>
-      </div>
-
       {/* Botón cargar gráficos */}
       {graphicsShacsLoading.caudal === 0 &&
         graphicsShacsLoading.nivel_freatico === 0 && (
           <button
-            onClick={() => loadShacsGraphics(filtroTipoExtraccion)}
+            // Siempre subterránea: un SHAC es un sector de acuífero y no
+            // contiene extracción superficial, así que no hay nada que elegir.
+            onClick={() => loadShacsGraphics(true)}
             disabled={!shacAnalysis.codigoShac || shacLoading}
             className={`block mt-4 font-semibold px-4 py-2 rounded transition ${!shacAnalysis.codigoShac || shacLoading
               ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
@@ -222,9 +168,9 @@ export default function SidebarShac({
               </div>
             )}
 
-            {/* Gráficos de Nivel Freático — solo para extracción subterránea:
-                el nivel freático es una medida de acuífero, no de cauce. */}
-            {filtroTipoExtraccion === true && graphicsShacsLoading.nivel_freatico === 1 && (
+            {/* Gráficos de Nivel Freático. Acá van siempre: el nivel freático
+                es una medida de acuífero, y un SHAC es un sector de acuífero. */}
+            {graphicsShacsLoading.nivel_freatico === 1 && (
               <div className="space-y-10">
                 <div className="w-full h-[260px] md:h-80 lg:h-96 animate-pulse">
                   <div className="h-4 bg-gray-300 rounded w-40 mb-1"></div>
@@ -237,7 +183,7 @@ export default function SidebarShac({
                 </div>
               </div>
             )}
-            {filtroTipoExtraccion === true && graphicsShacsLoading.nivel_freatico === 2 && (
+            {graphicsShacsLoading.nivel_freatico === 2 && (
               graficosShacsData.nivel_freatico?.mensual?.length > 0 ? (
                 <TimeSeriesChartPair
                   dataMensual={graficosShacsData.nivel_freatico.mensual}
@@ -254,7 +200,7 @@ export default function SidebarShac({
                 </div>
               )
             )}
-            {filtroTipoExtraccion === true && graphicsShacsLoading.nivel_freatico === 3 && (
+            {graphicsShacsLoading.nivel_freatico === 3 && (
               <div className="w-full p-6 bg-red-50 rounded-lg border border-red-200">
                 <p className="text-sm text-red-600 text-center">
                   No se encontraron datos de nivel freático para este sector.
