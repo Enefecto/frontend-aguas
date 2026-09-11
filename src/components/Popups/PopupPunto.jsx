@@ -78,6 +78,13 @@ export const PopupPunto = ({ punto, handleShowSidebarCuencas, handleShowSidebarS
 
   const accentColor = getMarkerColor(puntoInfo);
 
+  // El SHAC ya tiene su propia fila enlazada más abajo. La fila genérica de
+  // geografía solo debe aparecer cuando no la duplica: para un punto
+  // superficial muestra la subsubcuenca, y para uno subterráneo solo si falta
+  // el código de sector y por eso el enlace no se pudo dibujar.
+  const showShacEnlace = Boolean(puntoInfo.sector_sha) && puntoInfo.cod_sector_sha != null;
+  const showGeo = esSuperficial || !showShacEnlace;
+
   const showJunta = puntoInfo.parte_junta === true && puntoInfo.id_junta != null;
   const showCanal = (puntoInfo.canales_transmision?.length > 0)
     || (puntoInfo.canal_transmision != null && String(puntoInfo.canal_transmision).trim() !== '');
@@ -116,7 +123,7 @@ export const PopupPunto = ({ punto, handleShowSidebarCuencas, handleShowSidebarS
           {subcuencaNombre}
         </span>
 
-        {puntoInfo.sector_sha && puntoInfo.cod_sector_sha != null && (
+        {showShacEnlace && (
           <>
             <span className="text-xs font-semibold text-gray-500">SHAC</span>
             <span
@@ -129,8 +136,12 @@ export const PopupPunto = ({ punto, handleShowSidebarCuencas, handleShowSidebarS
           </>
         )}
 
-        <span className="text-xs font-semibold text-gray-500">{geoLabel}</span>
-        <span className="text-gray-900">{geoValue}</span>
+        {showGeo && (
+          <>
+            <span className="text-xs font-semibold text-gray-500">{geoLabel}</span>
+            <span className="text-gray-900">{geoValue}</span>
+          </>
+        )}
 
         {showJunta && (
           <>
