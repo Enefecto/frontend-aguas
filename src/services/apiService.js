@@ -128,11 +128,6 @@ class ApiService {
     return this.request(`${API_ENDPOINTS.CUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA}?cuenca_identificador=${cuencaIdentificador}${pozoParam}`);
   }
 
-  async getCuencaSeriesTiempoNivelFreatico(cuencaIdentificador, pozo = null) {
-    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
-    return this.request(`${API_ENDPOINTS.CUENCAS_SERIES_TIEMPO_NIVEL_FREATICO}?cuenca_identificador=${cuencaIdentificador}${pozoParam}`);
-  }
-
   // Métodos para subcuencas
   async getSubcuencaAnalisisCaudal(subcuencaIdentificador, cuencaIdentificador = null) {
     let url = `${API_ENDPOINTS.SUBCUENCAS_ANALISIS_CAUDAL}?subcuenca_identificador=${encodeURIComponent(subcuencaIdentificador)}`;
@@ -162,13 +157,6 @@ class ApiService {
     const subcuencaParam = subcuencaIdentificador === 'sin_registro' ? 'null' : subcuencaIdentificador;
     const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
     return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_ALTURA_LINIMETRICA}?cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}&subcuenca_identificador=${encodeURIComponent(subcuencaParam)}${pozoParam}`);
-  }
-
-  async getSubcuencaSeriesTiempoNivelFreatico(cuencaIdentificador, subcuencaIdentificador, pozo = null) {
-    // Si subcuencaIdentificador es 'sin_registro', pasar 'null' como string
-    const subcuencaParam = subcuencaIdentificador === 'sin_registro' ? 'null' : subcuencaIdentificador;
-    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
-    return this.request(`${API_ENDPOINTS.SUBCUENCAS_SERIES_TIEMPO_NIVEL_FREATICO}?cuenca_identificador=${encodeURIComponent(cuencaIdentificador)}&subcuenca_identificador=${encodeURIComponent(subcuencaParam)}${pozoParam}`);
   }
 
   // Métodos para puntos
@@ -246,11 +234,6 @@ class ApiService {
   async getShacSeriesTiempoAlturaLinimetrica(shacIdentificador, pozo = null) {
     const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
     return this.request(`${API_ENDPOINTS.SHAC_SERIES_TIEMPO_ALTURA_LINIMETRICA}?shac_identificador=${shacIdentificador}${pozoParam}`);
-  }
-
-  async getShacSeriesTiempoNivelFreatico(shacIdentificador, pozo = null) {
-    const pozoParam = pozo !== null ? `&pozo=${pozo}` : '';
-    return this.request(`${API_ENDPOINTS.SHAC_SERIES_TIEMPO_NIVEL_FREATICO}?shac_identificador=${shacIdentificador}${pozoParam}`);
   }
 
   // Métodos para usuarios (titulares de derechos)

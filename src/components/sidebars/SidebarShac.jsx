@@ -106,8 +106,7 @@ export default function SidebarShac({
       )}
 
       {/* Botón cargar gráficos */}
-      {graphicsShacsLoading.caudal === 0 &&
-        graphicsShacsLoading.nivel_freatico === 0 && (
+      {graphicsShacsLoading.caudal === 0 && (
           <button
             // Siempre subterránea: un SHAC es un sector de acuífero y no
             // contiene extracción superficial, así que no hay nada que elegir.
@@ -123,8 +122,7 @@ export default function SidebarShac({
         )}
 
       {/* Mostrar loader o gráficos según el estado de cada uno */}
-      {(graphicsShacsLoading.caudal !== 0 ||
-        graphicsShacsLoading.nivel_freatico !== 0) && (
+      {graphicsShacsLoading.caudal !== 0 && (
           <div className="space-y-10 mt-6 border-t pt-6">
             <h3 className="text-lg font-semibold">Gráficos de Series de Tiempo</h3>
 
@@ -164,46 +162,6 @@ export default function SidebarShac({
               <div className="w-full p-6 bg-red-50 rounded-lg border border-red-200">
                 <p className="text-sm text-red-600 text-center">
                   No se encontraron datos de caudal para este sector.
-                </p>
-              </div>
-            )}
-
-            {/* Gráficos de Nivel Freático. Acá van siempre: el nivel freático
-                es una medida de acuífero, y un SHAC es un sector de acuífero. */}
-            {graphicsShacsLoading.nivel_freatico === 1 && (
-              <div className="space-y-10">
-                <div className="w-full h-[260px] md:h-80 lg:h-96 animate-pulse">
-                  <div className="h-4 bg-gray-300 rounded w-40 mb-1"></div>
-                  <div className="w-full h-full bg-gray-100 rounded-lg border flex items-center justify-center">
-                    <div className="flex items-center space-x-2 text-gray-500">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
-                      <span className="text-sm font-medium">Cargando Nivel Freático...</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            {graphicsShacsLoading.nivel_freatico === 2 && (
-              graficosShacsData.nivel_freatico?.mensual?.length > 0 ? (
-                <TimeSeriesChartPair
-                  dataMensual={graficosShacsData.nivel_freatico.mensual}
-                  dataDiario={graficosShacsData.nivel_freatico.diario}
-                  titulo="Nivel Freático"
-                  unidad="m"
-                  valueKey="nivel_freatico"
-                />
-              ) : (
-                <div className="w-full p-6 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm text-gray-600 text-center">
-                    No hay datos de nivel freático disponibles para este sector en el período especificado.
-                  </p>
-                </div>
-              )
-            )}
-            {graphicsShacsLoading.nivel_freatico === 3 && (
-              <div className="w-full p-6 bg-red-50 rounded-lg border border-red-200">
-                <p className="text-sm text-red-600 text-center">
-                  No se encontraron datos de nivel freático para este sector.
                 </p>
               </div>
             )}

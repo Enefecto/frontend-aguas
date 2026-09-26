@@ -204,14 +204,8 @@ export const useAnalysisData = (apiService) => {
   });
 
   const [cuencaLoading, setCuencaLoading] = useState(false);
-  const [graphicsCuencasLoading, setGraphicsCuencasLoading] = useState({
-    caudal: UI_CONFIG.LOADING_STATES.IDLE,
-    nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
-  });
-  const [graficosData, setGraficosData] = useState({
-    caudal: { mensual: [], diario: [] },
-    nivel_freatico: { mensual: [], diario: [] }
-  });
+  const [graphicsCuencasLoading, setGraphicsCuencasLoading] = useState({ caudal: UI_CONFIG.LOADING_STATES.IDLE });
+  const [graficosData, setGraficosData] = useState({ caudal: { mensual: [], diario: [] } });
 
   // Estados para análisis de subcuencas
   // Estados de SHAC (sector hidrogeológico). Espeja los de cuenca: el panel es
@@ -221,14 +215,8 @@ export const useAnalysisData = (apiService) => {
     codigoShac: null
   });
   const [shacLoading, setShacLoading] = useState(false);
-  const [graphicsShacsLoading, setGraphicsShacsLoading] = useState({
-    caudal: UI_CONFIG.LOADING_STATES.IDLE,
-    nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
-  });
-  const [graficosShacsData, setGraficosShacsData] = useState({
-    caudal: { mensual: [], diario: [] },
-    nivel_freatico: { mensual: [], diario: [] }
-  });
+  const [graphicsShacsLoading, setGraphicsShacsLoading] = useState({ caudal: UI_CONFIG.LOADING_STATES.IDLE });
+  const [graficosShacsData, setGraficosShacsData] = useState({ caudal: { mensual: [], diario: [] } });
 
   const [subcuencaAnalysis, setSubcuencaAnalysis] = useState({
     nombreSubcuenca: '',
@@ -246,14 +234,8 @@ export const useAnalysisData = (apiService) => {
   });
 
   const [subcuencaLoading, setSubcuencaLoading] = useState(false);
-  const [graphicsSubcuencasLoading, setGraphicsSubcuencasLoading] = useState({
-    caudal: UI_CONFIG.LOADING_STATES.IDLE,
-    nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
-  });
-  const [graficosSubcuencasData, setGraficosSubcuencasData] = useState({
-    caudal: { mensual: [], diario: [] },
-    nivel_freatico: { mensual: [], diario: [] }
-  });
+  const [graphicsSubcuencasLoading, setGraphicsSubcuencasLoading] = useState({ caudal: UI_CONFIG.LOADING_STATES.IDLE });
+  const [graficosSubcuencasData, setGraficosSubcuencasData] = useState({ caudal: { mensual: [], diario: [] } });
 
   // Estados para análisis de puntos
   const [analisisPuntoSeleccionado, setAnalisisPuntoSeleccionado] = useState({});
@@ -265,10 +247,7 @@ export const useAnalysisData = (apiService) => {
   const loadCuencaAnalysis = useCallback(async (nomCuenca, codCuenca) => {
     setCuencaAnalysis({ nombreCuenca: nomCuenca, codigoCuenca: codCuenca });
     setCuencaLoading(true);
-    setGraphicsCuencasLoading({
-      caudal: UI_CONFIG.LOADING_STATES.IDLE,
-      nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
-    });
+    setGraphicsCuencasLoading({ caudal: UI_CONFIG.LOADING_STATES.IDLE });
 
     try {
       const response = await apiService.getCuencasStats({ cod_cuenca: codCuenca });
@@ -301,13 +280,8 @@ export const useAnalysisData = (apiService) => {
 
   // Función para cargar gráficos de cuenca
   const loadCuencasGraphics = async (pozo = null) => {
-    // Establecer todos como cargando
-    setGraphicsCuencasLoading({
-      caudal: UI_CONFIG.LOADING_STATES.LOADING,
-      nivel_freatico: UI_CONFIG.LOADING_STATES.LOADING
-    });
+    setGraphicsCuencasLoading({ caudal: UI_CONFIG.LOADING_STATES.LOADING });
 
-    // Cargar caudal
     apiService.getCuencaSeriesTiempoCaudal(cuencaAnalysis.codigoCuenca, pozo)
       .then(data => {
         // Manejar respuesta vacía, sin datos o con solo 1 registro
@@ -330,39 +304,12 @@ export const useAnalysisData = (apiService) => {
         setGraficosData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
         setGraphicsCuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
       });
-
-    // Cargar nivel freático
-    apiService.getCuencaSeriesTiempoNivelFreatico(cuencaAnalysis.codigoCuenca, pozo)
-      .then(data => {
-        // Manejar respuesta vacía, sin datos o con solo 1 registro
-        if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length < 2) {
-          setGraficosData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
-          setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
-          return;
-        }
-        const nivelProcessed = processSeriesTiempoData(data.nivel_por_tiempo, 'nivel_freatico');
-        setGraficosData(prev => ({ ...prev, nivel_freatico: nivelProcessed }));
-        setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.SUCCESS }));
-      })
-      .catch(err => {
-        // Solo mostrar error si NO es un "no se encontraron datos"
-        const isNoDataError = err.message?.includes('No se encontraron datos') ||
-                              err.response?.data?.detail?.includes('No se encontraron datos');
-        if (!isNoDataError) {
-          console.error("Error al obtener gráficos de nivel freático:", err);
-        }
-        setGraficosData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
-        setGraphicsCuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
-      });
   };
 
   const loadShacAnalysis = useCallback(async (nombreShac, codigoShac) => {
     setShacAnalysis({ nombreShac, codigoShac });
     setShacLoading(true);
-    setGraphicsShacsLoading({
-      caudal: UI_CONFIG.LOADING_STATES.IDLE,
-      nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
-    });
+    setGraphicsShacsLoading({ caudal: UI_CONFIG.LOADING_STATES.IDLE });
 
     try {
       // A diferencia de la cuenca, acá no hay que agregar varias filas: el
@@ -389,10 +336,7 @@ export const useAnalysisData = (apiService) => {
   }, [apiService]);
 
   const loadShacsGraphics = async (pozo = null) => {
-    setGraphicsShacsLoading({
-      caudal: UI_CONFIG.LOADING_STATES.LOADING,
-      nivel_freatico: UI_CONFIG.LOADING_STATES.LOADING
-    });
+    setGraphicsShacsLoading({ caudal: UI_CONFIG.LOADING_STATES.LOADING });
 
     apiService.getShacSeriesTiempoCaudal(shacAnalysis.codigoShac, pozo)
       .then(data => {
@@ -410,24 +354,6 @@ export const useAnalysisData = (apiService) => {
         if (!isNoDataError) console.error("Error al obtener gráficos de caudal del SHAC:", err);
         setGraficosShacsData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
         setGraphicsShacsLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
-      });
-
-    apiService.getShacSeriesTiempoNivelFreatico(shacAnalysis.codigoShac, pozo)
-      .then(data => {
-        if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length < 2) {
-          setGraficosShacsData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
-          setGraphicsShacsLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
-          return;
-        }
-        setGraficosShacsData(prev => ({ ...prev, nivel_freatico: processSeriesTiempoData(data.nivel_por_tiempo, 'nivel_freatico') }));
-        setGraphicsShacsLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.SUCCESS }));
-      })
-      .catch(err => {
-        const isNoDataError = err.message?.includes('No se encontraron datos') ||
-                              err.response?.data?.detail?.includes('No se encontraron datos');
-        if (!isNoDataError) console.error("Error al obtener gráficos de nivel freático del SHAC:", err);
-        setGraficosShacsData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
-        setGraphicsShacsLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
       });
   };
 
@@ -487,10 +413,7 @@ export const useAnalysisData = (apiService) => {
       nombreCuenca: nomCuenca
     });
     setSubcuencaLoading(true);
-    setGraphicsSubcuencasLoading({
-      caudal: UI_CONFIG.LOADING_STATES.IDLE,
-      nivel_freatico: UI_CONFIG.LOADING_STATES.IDLE
-    });
+    setGraphicsSubcuencasLoading({ caudal: UI_CONFIG.LOADING_STATES.IDLE });
 
     try {
       const response = await apiService.getCuencasStats(parametros);
@@ -522,13 +445,8 @@ export const useAnalysisData = (apiService) => {
 
   // Función para cargar gráficos de subcuenca
   const loadSubcuencasGraphics = async (pozo = null) => {
-    // Establecer todos como cargando
-    setGraphicsSubcuencasLoading({
-      caudal: UI_CONFIG.LOADING_STATES.LOADING,
-      nivel_freatico: UI_CONFIG.LOADING_STATES.LOADING
-    });
+    setGraphicsSubcuencasLoading({ caudal: UI_CONFIG.LOADING_STATES.LOADING });
 
-    // Cargar caudal
     apiService.getSubcuencaSeriesTiempoCaudal(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca, pozo)
       .then(data => {
         // Manejar respuesta vacía, sin datos o con solo 1 registro
@@ -550,30 +468,6 @@ export const useAnalysisData = (apiService) => {
         }
         setGraficosSubcuencasData(prev => ({ ...prev, caudal: { mensual: [], diario: [] } }));
         setGraphicsSubcuencasLoading(prev => ({ ...prev, caudal: UI_CONFIG.LOADING_STATES.ERROR }));
-      });
-
-    // Cargar nivel freático
-    apiService.getSubcuencaSeriesTiempoNivelFreatico(subcuencaAnalysis.codigoCuenca, subcuencaAnalysis.codigoSubcuenca, pozo)
-      .then(data => {
-        // Manejar respuesta vacía, sin datos o con solo 1 registro
-        if (!data || !data.nivel_por_tiempo || data.nivel_por_tiempo.length < 2) {
-          setGraficosSubcuencasData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
-          setGraphicsSubcuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
-          return;
-        }
-        const nivelProcessed = processSeriesTiempoData(data.nivel_por_tiempo, 'nivel_freatico');
-        setGraficosSubcuencasData(prev => ({ ...prev, nivel_freatico: nivelProcessed }));
-        setGraphicsSubcuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.SUCCESS }));
-      })
-      .catch(err => {
-        // Solo mostrar error si NO es un "no se encontraron datos"
-        const isNoDataError = err.message?.includes('No se encontraron datos') ||
-                              err.response?.data?.detail?.includes('No se encontraron datos');
-        if (!isNoDataError) {
-          console.error("Error al obtener gráficos de nivel freático:", err);
-        }
-        setGraficosSubcuencasData(prev => ({ ...prev, nivel_freatico: { mensual: [], diario: [] } }));
-        setGraphicsSubcuencasLoading(prev => ({ ...prev, nivel_freatico: UI_CONFIG.LOADING_STATES.ERROR }));
       });
   };
 
